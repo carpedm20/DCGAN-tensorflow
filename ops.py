@@ -2,47 +2,79 @@ import math
 import numpy as np 
 import tensorflow as tf
 
-from tensorflow.python.ops import array_ops
-from tensorflow.python.ops import init_ops
 from tensorflow.python.framework import ops
-from tensorflow.python.ops import math_ops
-from tensorflow.python.ops import variable_scope as vs
 
 from utils import *
 
 class batch_norm(object):
-    def __init__(self, size, beta, gamma, epsilon=1e-5, momentum = 0.1):
-        with variable_scope("batch_norm"):
-            self.ewma = tf.train.ExponentialMovingAverage(decay=0.99)
+    def __init__(self, epsilon=1e-5, momentum = 0.1, name="batch_norm"):
+        with ops.op_scope(x, name, "lrelu") as scope:
+            self.epsilon = self.epsilon
+            self.momentum = self.momentum
 
             self.mean, self.variance = tf.nn.moments(x, [0, 1, 2])
+            self.ema = tf.train.ExponentialMovingAverage(decay=1-self.momentun)
 
-            self.gamma = tf.get_variable([size],
-                                         initializer=tf.random_normal_initializer())
-            self.beta = tf.get_variable([size],
-                                        initializer=tf.constant_initializer())
+            self.gamma = None
+            self.beta = None
+
+            self.scope = scope
 
     def __call__(self, x, train=True):
         if train:
+            self.gamma = tf.get_variable(x.get_shape(),
+                                         initializer=tf.random_normal_initializer(1., 0.02))
+            self.beta = tf.get_variable(x.get_shape(),
+                                        initializer=tf.constant_initializer(0.))
             return tf.nn.batch_norm_with_global_normalization(x, self.mean, self.variance,
                                                               self.beta, self.gamma,
-                                                              self.epsilon, True)
+                                                              self.epsilon, True,
+                                                              self.scope)
         else:
-            mean = self.ewma_trainer.average(self.mean)
-            variance = self.ewma_trainer.average(self.variance)
+            mean = self.ema_trainer.average(self.mean)
+            variance = self.ema_trainer.average(self.variance)
 
             return tf.nn.batch_norm_with_global_normalization(x, self.mean, self.variance,
                                                               self.beta, self.gamma,
-                                                              self.epsilon, True)
+                                                              self.epsilon, True,
+                                                              self.scope)
 
-def linear(args, output_size, bias, stddev=0.2, bias_start=0.0, scope=None):
+def conv_cond_concat(x, y):
+    """Concatenate conditioning vector on feature map axis.
+    """
+    x_shapes = x.get_shape()
+    y_shapes = y.get_shape()
+    return tf.concat(3, [x, y*tf.ones([x_shapes[0], x_shapes[1], x_shapes[2], y_shapes[3]])])
+
+def conv2d(input_, output_dim, 
+           k_h=5, k_w=5, d_h=2, d_w=2, stddev=0.02,
+           name="conv2d"):
+    with tf.variable_scope(name):
+        w = tf.get_variable('w', [k_h, k_w, output_dim, input_.get_shape()[-1]],
+                            initializer=tf.random_normal_initializer(stddev=stddev))
+        return tf.nn.conv2d(input_, w, strides=[1, d_h, d_w, 1])
+
+def deconv2d(input_, output_dim,
+             k_h=5, k_w=5, d_h=2, d_w=2, stddev=0.02,
+             name="deconv2d"):
+    with tf.variable_scope(name):
+        w = tf.get_variable('w', [k_h, k_h, output_dim, input_.get_shape()[-1]],
+                            initializer=tf.random_normal_initializer(stddev=stddev))
+        return tf.nn.deconv2d(input_, w, output_shape=[None, k_h, k_w, output_dim],
+                              strides=[1, d_h, d_w, 1])
+
+def lrelu(x, leak=0.2, name="lrelu"):
+    with tf.variable_scope(name):
+        f1 = 0.5 * (1 + leak)
+        f2 = 0.5 * (1 - leak)
+        return f1 * x + f2 * abs(x)
+
+def linear(input_, output_size, stddev=0.02, scope=None):
     """Linear map: sum_i(args[i] * W[i]), where W[i] is a variable.
 
     Args:
         args: a 2D Tensor or a list of 2D, batch x n, Tensors.
         output_size: int, second dimension of W[i].
-        bias: boolean, whether to add a bias term or not.
-        bias_start: starting value to initialize the bias; 0 by default.
         scope: VariableScope for the created subgraph; defaults to "Linear".
 
     Returns:
@@ -52,9 +84,6 @@ def linear(args, output_size, bias, stddev=0.2, bias_start=0.0, scope=None):
     Raises:
         ValueError: if some of the arguments has unspecified or wrong shape.
     """
-    if not isinstance(args, (list, tuple)):
-        args = [args]
-
     # Calculate the total size of arguments on dimension 1.
     total_arg_size = 0
     shapes = []
@@ -64,30 +93,15 @@ def linear(args, output_size, bias, stddev=0.2, bias_start=0.0, scope=None):
         except Exception as e:
             shapes.append(a.shape)
 
-    is_vector = False
     for idx, shape in enumerate(shapes):
-        if len(shape) != 2:
-            is_vector = True
-            args[idx] = tf.reshape(args[idx], [1, -1])
-            total_arg_size += shape[0]
-        else:
-            total_arg_size += shape[1]
+        total_arg_size += shape[1]
 
     # Now the computation.
-    with vs.variable_scope(scope or "Linear"):
-        matrix = vs.get_variable("Matrix", [total_arg_size, output_size],
+    with tf.variable_scope(scope or "Linear"):
+        matrix = tf.get_variable("Matrix", [total_arg_size, output_size],
                                  tf.random_normal_initializer(stddev=stddev))
         if len(args) == 1:
             res = math_ops.matmul(args[0], matrix)
         else:
             res = math_ops.matmul(array_ops.concat(1, args), matrix)
-        if not bias:
-            return res
-        bias_term = vs.get_variable(
-            "Bias", [output_size],
-            initializer=init_ops.constant_initializer(bias_start))
-
-    if is_vector:
-        return tf.reshape(res + bias_term, [-1])
-    else:
-        return res + bias_term
+        return res
