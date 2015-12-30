@@ -5,7 +5,7 @@ from utils import *
 
 class DCGAN(object):
     def __init__(self, batch_size=64, load_size=96, fine_size= 64,
-                 y_dim=None, z_dim=100, gf_dim=64, df_dim=64,
+                 x_dim=[64, 64, 3], y_dim=None, z_dim=100, gf_dim=64, df_dim=64,
                  gfc_dim=1024, dfc_dim=1024, c_dim=3):
         """
 
@@ -21,6 +21,7 @@ class DCGAN(object):
         self.load_size = load_size
         self.fine_size = fine_size
 
+        self.x_dim = x_dim
         self.y_dim = y_dim
         self.z_dim = z_dim
         self.gf_dim = gf_dim
@@ -40,9 +41,9 @@ class DCGAN(object):
         self.g_bn2 = batch_norm(name='g_bn2')
         self.g_bn3 = batch_norm(name='g_bn3')
 
-        self.x = tf.placeholder(tf.float32)
-        self.y = tf.placeholder(tf.float32)
-        self.z = tf.placeholder(tf.float32)
+        self.x = tf.placeholder(tf.float32, [None, self.x_dim])
+        self.y = tf.placeholder(tf.float32, [None, self.y_dim])
+        self.z = tf.placeholder(tf.float32, [None, self.z_dim])
 
         self.discrim = self.discriminator(self.x, self.y)
         self.gen = self.generater(self.z)
