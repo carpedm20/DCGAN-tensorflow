@@ -3,15 +3,19 @@ Modification of https://github.com/stanfordnlp/treelstm/blob/master/scripts/down
 
 Downloads the following:
 - Celeb-A dataset
+- LSUN dataset
+- MNIST dataset
 """
 
 from __future__ import print_function
-import urllib2
-import sys
 import os
-import shutil
-import zipfile
+import sys
 import gzip
+import json
+import shutil
+import urllib2
+import zipfile
+import subprocess
 
 def download(url, dirpath):
     filename = url.split('/')[-1]
@@ -83,28 +87,33 @@ def _list_categories(tag):
 def _download_lsun(out_dir, category, set_name, tag):
     url = 'http://lsun.cs.princeton.edu/htbin/download.cgi?tag={tag}' \
           '&category={category}&set={set_name}'.format(**locals())
+    print(url)
     if set_name == 'test':
         out_name = 'test_lmdb.zip'
     else:
         out_name = '{category}_{set_name}_lmdb.zip'.format(**locals())
-    out_path = join(out_dir, out_name)
+    out_path = os.path.join(out_dir, out_name)
     cmd = ['curl', url, '-o', out_path]
     print('Downloading', category, set_name, 'set')
     subprocess.call(cmd)
 
 def download_lsun(dirpath):
-    data_dir = 'celebA'
-    if os.path.exists(os.path.join(dirpath, data_dir)):
+    data_dir = os.path.join(dirpath, 'lusn')
+    if os.path.exists(data_dir):
         print('Found LSUN - skip')
         return
+    else:
+        os.mkdir(data_dir)
 
     tag = 'latest'
-    categories = list_categories(tag)
+    #categories = _list_categories(tag)
+    categories = ['bedroom']
+
     for category in categories:
-        download(dirpath, category, 'train', tag)
-        download(dirpath, category, 'val', tag)
-    download(dirpath, '', 'test', tag)
+        _download_lsun(data_dir, category, 'train', tag)
+        _download_lsun(data_dir, category, 'val', tag)
+    _download_lsun(data_dir, '', 'test', tag)
 
 if __name__ == '__main__':
     download_celeb_a('./data')
-    download_lusn('./data')
+    download_lsun('./data')
