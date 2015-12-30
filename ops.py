@@ -8,12 +8,11 @@ from utils import *
 
 class batch_norm(object):
     def __init__(self, epsilon=1e-5, momentum = 0.1, name="batch_norm"):
-        with ops.op_scope(x, name, "lrelu") as scope:
-            self.epsilon = self.epsilon
-            self.momentum = self.momentum
+        with tf.variable_scope(name) as scope:
+            self.epsilon = epsilon
+            self.momentum = momentum
 
-            self.mean, self.variance = tf.nn.moments(x, [0, 1, 2])
-            self.ema = tf.train.ExponentialMovingAverage(decay=1-self.momentun)
+            self.ema = tf.train.ExponentialMovingAverage(decay=1-self.momentum)
 
             self.gamma = None
             self.beta = None
@@ -21,6 +20,8 @@ class batch_norm(object):
             self.scope = scope
 
     def __call__(self, x, train=True):
+        self.mean, self.variance = tf.nn.moments(x, [0, 1, 2])
+
         if train:
             self.gamma = tf.get_variable(x.get_shape(),
                                          initializer=tf.random_normal_initializer(1., 0.02))
