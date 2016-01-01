@@ -16,14 +16,10 @@ def main(_):
     pp.pprint(flags.FLAGS.__flags)
 
     with tf.Session() as sess:
-        FLAGS.sess = sess
-
         if FLAGS.dataset == 'mnist':
             dcgan = DCGAN(sess, batch_size=FLAGS.batch_size, y_dim=10)
         else:
             dcgan = DCGAN(sess, batch_size=FLAGS.batch_size)
-
-    print(" [*] Finished")
 
 if __name__ == '__main__':
     tf.app.run()
