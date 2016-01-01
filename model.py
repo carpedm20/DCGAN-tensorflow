@@ -6,7 +6,7 @@ from utils import *
 class DCGAN(object):
     def __init__(self, batch_size=64, load_size=96, fine_size= 64,
                  x_dim=[64, 64, 3], y_dim=None, z_dim=100, gf_dim=64, df_dim=64,
-                 gfc_dim=1024, dfc_dim=1024, c_dim=3):
+                 gfc_dim=1024, dfc_dim=1024, c_dim=3, dataset_name='default'):
         """
 
         Args:
@@ -32,6 +32,8 @@ class DCGAN(object):
 
         self.c_dim = 3
 
+        # batch normalization : helps gradient flow and deal with poor initialization
+        arise due to poor initialization
         self.d_bn1 = batch_norm(name='d_bn1')
         self.d_bn2 = batch_norm(name='d_bn2')
         self.d_bn3 = batch_norm(name='d_bn3')
@@ -47,6 +49,8 @@ class DCGAN(object):
 
         self.discrim = self.discriminator(self.x, self.y)
         self.gen = self.generater(self.z)
+
+        self.dataset_name = dataset_name
 
     def discriminator(self, x, y):
         if y:
@@ -86,19 +90,20 @@ class DCGAN(object):
             h2 = conv_cond_concat(h2, yb)
             return tf.nn.sigmoid(deconv2d(h2, self.c_dim, name='h3'))
         else:
+            # project `z` and reshape
             h0 = tf.nn.relu(bn0(linear(z, self.gf_dim*8*4*4)))
-            h0 = tf.reshape(h1, [None, 4, 4, self.gf_dim * 8])
+            h0 = tf.reshape(h1, [None, 4, 4, self.gf_dim * 8]) # 4 x 4 x 1024
 
-            h1 = deconv2d(h0, self.gf_dim*4, name='h1')
+            h1 = deconv2d(h0, [None, 8, 8, self.gf_dim*4], name='h1') # 8 x 8 x 512
             h1 = tf.relu(bn1(h1))
 
-            h2 = deconv2d(h1, self.gf_dim*2, name='h2')
+            h2 = deconv2d(h1, [None, 16, 16, self.gf_dim*2], name='h2') # 16 x 16 x 256
             h2 = tf.relu(bn2(h2))
 
-            h3 = deconv2d(h2, self.gf_dim*1, name='h3')
+            h3 = deconv2d(h2, [None, 32, 32, self.gf_dim*1], name='h3') # 32 x 32 x 128
             h3 = tf.relu(bn3(h3))
 
-            h4 = deconv2d(h3, 3, name='h4')
+            h4 = deconv2d(h3, [None, 64, 64, 3], name='h4') # 64 x 64 x 3
             return tf.nn.tanh(h4)
 
     def sampler(self, z, y=None):
@@ -118,26 +123,43 @@ class DCGAN(object):
 
             return tf.nn.sigmoid(deconv2d(h2, self.c_dim, name='h3'))
         else:
-            h0 = tf.nn.relu(bn0(linear(z, self.gf_dim*8*4*4)))
+            h0 = tf.nn.relu(bn0(linear(z, self.gf_dim*8*4*4), train=False))
             h0 = tf.reshape(h1, [None, 4, 4, self.gf_dim * 8])
 
-            h1 = deconv2d(h0, self.gf_dim*4, name='h1')
-            h1 = tf.relu(bn1(h1))
+            h1 = deconv2d(h0, [None, 8, 8, self.gf_dim*4], name='h1')
+            h1 = tf.relu(bn1(h1, train=False))
 
-            h2 = deconv2d(h1, self.gf_dim*2, name='h2')
-            h2 = tf.relu(bn2(h2))
+            h2 = deconv2d(h1, [None, 16, 16, self.gf_dim*2], name='h2')
+            h2 = tf.relu(bn2(h2, train=False))
 
-            h3 = deconv2d(h2, self.gf_dim*1, name='h3')
-            h3 = tf.relu(bn3(h3))
+            h3 = deconv2d(h2, [None, 16, 16, self.gf_dim*1], name='h3')
+            h3 = tf.relu(bn3(h3, train=False))
 
-            h4 = deconv2d(h3, 3, name='h4')
+            h4 = deconv2d(h3, [None, 64, 64, 3], name='h4')
             return tf.nn.tanh(h4)
+
+    def save(self, checkpoint_dir, step):
+        model_name = "DCGAN.model"
+        model_dir = "%s_%s" % (self.dataset_name, self._max_length)
+        checkpoint_dir = os.path.join(checkpoint_dir, model_dir)
+
+        if not os.path.exists(checkpoint_dir):
+            os.makedirs(checkpoint_dir)
+
+        self.saver.save(self.sess,
+                        os.path.join(checkpoint_dir, file_name),
+                        global_step = step.astype(int),
+                        latest_filename = '%s_checkpoint' % self.dataset_name)
 
     def load(self, checkpoint_dir):
         print(" [*] Reading checkpoints...")
+
+        model_dir = "%s_%s" % (self.dataset_name, self._max_length)
+        checkpoint_dir = os.path.join(checkpoint_dir, model_dir)
+
         ckpt = tf.train.get_checkpoint_state(checkpoint_dir)
         if ckpt and ckpt.model_checkpoint_path:
             ckpt_name = os.path.basename(ckpt.model_checkpoint_path)
             self.saver.restore(self.sess, os.path.join(checkpoint_dir, ckpt_name))
         else:
-            raise Exception(" [!] Trest mode but no checkpoint found")
+            raise Exception(" [!] Testing, but %s not found" % checkpoint_dir)

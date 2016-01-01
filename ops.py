@@ -47,37 +47,23 @@ def conv_cond_concat(x, y):
     y_shapes = y.get_shape()
     return tf.concat(3, [x, y*tf.ones([x_shapes[0], x_shapes[1], x_shapes[2], y_shapes[3]])])
 
-def _conv(inpOp, nIn, nOut, kH, kW, dH, dW, padType):
-    """Code from https://github.com/soumith/convnet-benchmarks/blob/master/tensorflow/benchmark_vgg.py
-    """
-    name = 'conv' + str(conv_counter)
-    conv_counter += 1
-    with tf.name_scope(name) as scope:
-        kernel = tf.Variable(tf.truncated_normal([kH, kW, nIn, nOut],
-                                                 dtype=tf.float32,
-                                                 stddev=1e-1), name='weights')
-        conv = tf.nn.conv2d(inpOp, kernel, [1, dH, dW, 1], padding=padType)
-        biases = tf.Variable(tf.constant(0.0, shape=[nOut], dtype=tf.float32),
-                             trainable=True, name='biases')
-        bias = tf.reshape(tf.nn.bias_add(conv, biases), conv.get_shape())
-        conv1 = tf.nn.relu(bias, name=scope)
-        return conv1
-
 def conv2d(input_, output_dim, 
            k_h=5, k_w=5, d_h=2, d_w=2, stddev=0.02,
            name="conv2d"):
     with tf.variable_scope(name):
         w = tf.get_variable('w', [k_h, k_w, output_dim, input_.get_shape()[-1]],
-                            initializer=tf.random_normal_initializer(stddev=stddev))
-        return tf.nn.conv2d(input_, w, strides=[1, d_h, d_w, 1])
+                            initializer=tf.truncated_normal_initializer(stddev=stddev))
+        conv = tf.nn.conv2d(input_, w, strides=[1, d_h, d_w, 1], padding='SAME')
+        return conv
 
-def deconv2d(input_, output_dim,
+def deconv2d(input_, output_shape,
              k_h=5, k_w=5, d_h=2, d_w=2, stddev=0.02,
              name="deconv2d"):
     with tf.variable_scope(name):
-        w = tf.get_variable('w', [k_h, k_h, output_dim, input_.get_shape()[-1]],
+        # filter : [height, width, output_channels, in_channels]
+        w = tf.get_variable('w', [k_h, k_h, output_shape[-1], input_.get_shape()[-1]],
                             initializer=tf.random_normal_initializer(stddev=stddev))
-        return tf.nn.deconv2d(input_, w, output_shape=[None, k_h, k_w, output_dim],
+        return tf.nn.deconv2d(input_, w, output_shape=output_shape,
                               strides=[1, d_h, d_w, 1])
 
 def lrelu(x, leak=0.2, name="lrelu"):
