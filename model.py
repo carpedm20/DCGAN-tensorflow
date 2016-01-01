@@ -65,6 +65,9 @@ class DCGAN(object):
         self.g_loss = binary_cross_entropy_with_logits(self.D_,
                                                        tf.ones_like(self.D_))
 
+        tf.initialize_all_variables().run()
+        self.saver = tf.train.Saver()
+
     def discriminator(self, x, y):
         if y:
             yb = tf.reshape(y, [None, 1, 1, self.y_dim])
@@ -81,12 +84,14 @@ class DCGAN(object):
             h2 = tf.concat(1, [h2, y])
 
             h3 = sigmoid(linear(h2, 1, 'd_h3_lin'))
+
             return h3
         else:
             h0 = lrelu(conv2d(x, self.df_dim))
             h1 = lrelu(self.d_bn1(conv2d(x, self.df_dim*2)))
             h2 = lrelu(self.d_bn2(conv2d(x, self.df_dim*4)))
             h3 = lrelu(self.d_bn3(conv2d(x, self.df_dim*8)))
+
             return linear(tf.reshape(h3, [None, -1]), 1, 'd_h3_lin')
 
     def generater(self, z, y=None):
@@ -103,6 +108,7 @@ class DCGAN(object):
 
             h2 = tf.nn.relu(bn2(deconv2d(h1, self.gf_dim, name='h2')))
             h2 = conv_cond_concat(h2, yb)
+
             return tf.nn.sigmoid(deconv2d(h2, self.c_dim, name='h3'))
         else:
             # project `z` and reshape
@@ -119,6 +125,7 @@ class DCGAN(object):
             h3 = tf.relu(bn3(h3))
 
             h4 = deconv2d(h3, [None, 64, 64, 3], name='h4') # 64 x 64 x 3
+
             return tf.nn.tanh(h4)
 
     def sampler(self, z, y=None):
@@ -153,11 +160,19 @@ class DCGAN(object):
             h3 = tf.relu(bn3(h3, train=False))
 
             h4 = deconv2d(h3, [None, 64, 64, 3], name='h4')
+
             return tf.nn.tanh(h4)
 
     def train(self, config):
         # Train DCGAN
+        data = glob(os.path.join("./data", config.dataset), "*.jpg")
+        #np.random.shuffle(data)
+
         for epoch in xrange(config.epoch):
+            for idx in xrange(0, min(len(data), config.train_size), config.batch_size):
+                batch_files = data[idx*config.batch_size:(idx+1)*config.batch_size]
+                batch = [transform(cv2.imread(batch_file)) for batch_file in batch_files]
+
 
     def save(self, checkpoint_dir, step):
         model_name = "DCGAN.model"

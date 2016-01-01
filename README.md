@@ -1,7 +1,7 @@
 DCGAN in Tensorflow
 ====================
 
-Tensorflow implementation of [Deep Convolutional Generative Adversarial Networks](http://arxiv.org/abs/1511.06434).
+Tensorflow implementation of [Deep Convolutional Generative Adversarial Networks](http://arxiv.org/abs/1511.06434). The referenced torch code can be found [here](https://github.com/soumith/dcgan.torch).
 
 ![alt tag](model.png)
 
@@ -9,13 +9,27 @@ Tensorflow implementation of [Deep Convolutional Generative Adversarial Networks
 Prerequisites
 -------------
 
-This code requires [Tensorflow](https://www.tensorflow.org/).
+- Python 2.7 or Python 3.3+
+- [Tensorflow](https://www.tensorflow.org/)
+- [SciPy](http://www.scipy.org/install.html)
 
 
 Usage
 -----
 
-in progress
+First, download dataset with:
+
+    $ python download.py
+
+To train a model with celebA dataset:
+
+    $ python main.py --dataset celebA
+
+
+Results
+-------
+
+In progress
 
 
 Author
