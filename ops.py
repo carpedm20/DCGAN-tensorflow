@@ -40,6 +40,24 @@ class batch_norm(object):
                                                               self.epsilon, True,
                                                               self.scope)
 
+def binary_cross_entropy_with_logits(logits, targets, name=None):
+    """Computes binary cross entropy given `logits`.
+
+    For brevity, let `x = logits`, `z = targets`.  The logistic loss is
+
+        loss(x, z) = - sum_i (x[i] * log(z[i]) + (1 - x[i]) * log(1 - z[i]))
+
+    Args:
+        logits: A `Tensor` of type `float32` or `float64`.
+        targets: A `Tensor` of the same type and shape as `logits`.
+    """
+    eps = 1e-12
+    with ops.op_scope([logits, targets], name, "bce_loss") as name:
+        logits = ops.convert_to_tensor(logits, name="logits")
+        targets = ops.convert_to_tensor(targets, name="targets")
+        return -tf.reduce_mean(logits * tf.log(targets + eps) +
+                               (1. - logits) * tf.log(1. - targets + eps))
+
 def conv_cond_concat(x, y):
     """Concatenate conditioning vector on feature map axis.
     """
@@ -87,24 +105,14 @@ def linear(input_, output_size, stddev=0.02, scope=None):
     Raises:
         ValueError: if some of the arguments has unspecified or wrong shape.
     """
-    # Calculate the total size of arguments on dimension 1.
-    total_arg_size = 0
-    shapes = []
-    for a in args:
-        try:
-            shapes.append(a.get_shape().as_list())
-        except Exception as e:
-            shapes.append(a.shape)
-
-    for idx, shape in enumerate(shapes):
-        total_arg_size += shape[1]
+    shape = input_.get_shape().as_list()
 
     # Now the computation.
     with tf.variable_scope(scope or "Linear"):
-        matrix = tf.get_variable("Matrix", [total_arg_size, output_size],
+        matrix = tf.get_variable("Matrix", [shape[1], output_size],
                                  tf.random_normal_initializer(stddev=stddev))
         if len(args) == 1:
-            res = math_ops.matmul(args[0], matrix)
+            res = tf.matmul(args[0], matrix)
         else:
-            res = math_ops.matmul(array_ops.concat(1, args), matrix)
+            res = tf.matmul(array_ops.concat(1, args), matrix)
         return res
