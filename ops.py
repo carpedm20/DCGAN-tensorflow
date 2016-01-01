@@ -47,6 +47,22 @@ def conv_cond_concat(x, y):
     y_shapes = y.get_shape()
     return tf.concat(3, [x, y*tf.ones([x_shapes[0], x_shapes[1], x_shapes[2], y_shapes[3]])])
 
+def _conv(inpOp, nIn, nOut, kH, kW, dH, dW, padType):
+    """Code from https://github.com/soumith/convnet-benchmarks/blob/master/tensorflow/benchmark_vgg.py
+    """
+    name = 'conv' + str(conv_counter)
+    conv_counter += 1
+    with tf.name_scope(name) as scope:
+        kernel = tf.Variable(tf.truncated_normal([kH, kW, nIn, nOut],
+                                                 dtype=tf.float32,
+                                                 stddev=1e-1), name='weights')
+        conv = tf.nn.conv2d(inpOp, kernel, [1, dH, dW, 1], padding=padType)
+        biases = tf.Variable(tf.constant(0.0, shape=[nOut], dtype=tf.float32),
+                             trainable=True, name='biases')
+        bias = tf.reshape(tf.nn.bias_add(conv, biases), conv.get_shape())
+        conv1 = tf.nn.relu(bias, name=scope)
+        return conv1
+
 def conv2d(input_, output_dim, 
            k_h=5, k_w=5, d_h=2, d_w=2, stddev=0.02,
            name="conv2d"):
