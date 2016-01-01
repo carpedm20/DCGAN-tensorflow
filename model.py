@@ -61,14 +61,14 @@ class DCGAN(object):
         image_ = self.generator(self.z)
 
         self.D = self.discriminator(self.image)
-        self.D_ = self.discriminator(image_)
+        self.D_ = self.discriminator(image_, reuse=True)
 
         self.d_loss_real = binary_cross_entropy_with_logits(self.D,
                                                             tf.ones_like(self.D))
         self.d_loss_fake = binary_cross_entropy_with_logits(self.D_,
-                                                            tf.zeros_like(self.G))
+                                                            tf.zeros_like(self.D_))
 
-        self.d_lost = d_loss_real + d_loss_fake
+        self.d_lost = self.d_loss_real + self.d_loss_fake
         self.g_loss = binary_cross_entropy_with_logits(self.D_,
                                                        tf.ones_like(self.D_))
 
@@ -101,7 +101,10 @@ class DCGAN(object):
 
                 _, loss = sess.run([self.g_loss])
 
-    def discriminator(self, image, y=None):
+    def discriminator(self, image, reuse=False, y=None):
+        if reuse:
+            tf.get_variable_scope().reuse_variables()
+
         if self.y_dim:
             yb = tf.reshape(y, [None, 1, 1, self.y_dim])
             x = conv_cond_concat(image, yb)
