@@ -7,38 +7,60 @@ from tensorflow.python.framework import ops
 from utils import *
 
 class batch_norm(object):
-    def __init__(self, epsilon=1e-5, momentum = 0.1, name="batch_norm"):
+    """Code modification of http://stackoverflow.com/a/33950177"""
+    def __init__(self, batch_size, epsilon=1e-5, momentum = 0.1, name="batch_norm"):
         with tf.variable_scope(name) as scope:
             self.epsilon = epsilon
             self.momentum = momentum
+            self.batch_size = batch_size
 
-            self.ema = tf.train.ExponentialMovingAverage(decay=1-self.momentum)
+            self.ema = tf.train.ExponentialMovingAverage(decay=self.momentum)
 
-            self.gamma = None
-            self.beta = None
-
-            self.scope = scope
+    def get_assigner(self):
+        return self.ema.apply([self.mean, self.variance])
 
     def __call__(self, x, train=True):
         self.mean, self.variance = tf.nn.moments(x, [0, 1, 2])
 
         if train:
-            self.gamma = tf.get_variable(x.get_shape(),
-                                         initializer=tf.random_normal_initializer(1., 0.02))
-            self.beta = tf.get_variable(x.get_shape(),
-                                        initializer=tf.constant_initializer(0.))
-            return tf.nn.batch_norm_with_global_normalization(x, self.mean, self.variance,
-                                                              self.beta, self.gamma,
-                                                              self.epsilon, True,
-                                                              self.scope)
-        else:
-            mean = self.ema_trainer.average(self.mean)
-            variance = self.ema_trainer.average(self.variance)
+            shape = x.get_shape().as_list()
+            
+            if not shape[0] and not self.batch_size:
+                raise Exception(" [!] batch_size should be specified")
+            elif not shape[0]:
+                shape[0] = self.batch_size
 
-            return tf.nn.batch_norm_with_global_normalization(x, self.mean, self.variance,
+            self.mean = tf.Variable(tf.constant(0.0, shape=shape), trainable=False)
+            self.variance = tf.Variable(tf.constant(1.0, shape=shape), trainable=False)
+
+            self.gamma = tf.get_variable("gamma", shape,
+                                initializer=tf.random_normal_initializer(1., 0.02))
+            self.beta = tf.get_variable("beta", shape,
+                                initializer=tf.constant_initializer(0.))
+
+            if x.get_shape().ndims == 4:
+                mean, variance = tf.nn.moments(x, [0, 1, 2])
+            elif x.get_shape().ndims == 2:
+                mean, variance = tf.nn.moments(x, [0])
+            else:
+                raise NotImplementedError
+
+            assign_mean = self.mean.assign(mean)
+            assign_variance = self.variance.assign(variance)
+            with tf.control_dependencies([assign_mean, assign_variance]):
+                return tf.nn.batch_norm_with_global_normalization(x, self.mean,
+                                                                  self.variance,
+                                                                  self.beta,
+                                                                  self.gamma,
+                                                                  self.epsilon, True)
+        else:
+            mean = self.ema.average(self.mean)
+            variance = self.ema.average(self.variance)
+
+            return tf.nn.batch_norm_with_global_normalization(x, mean,
+                                                              variance,
                                                               self.beta, self.gamma,
-                                                              self.epsilon, True,
-                                                              self.scope)
+                                                              self.epsilon, True)
 
 def binary_cross_entropy_with_logits(logits, targets, name=None):
     """Computes binary cross entropy given `logits`.
@@ -91,28 +113,9 @@ def lrelu(x, leak=0.2, name="lrelu"):
         return f1 * x + f2 * abs(x)
 
 def linear(input_, output_size, stddev=0.02, scope=None):
-    """Linear map: sum_i(args[i] * W[i]), where W[i] is a variable.
-
-    Args:
-        args: a 2D Tensor or a list of 2D, batch x n, Tensors.
-        output_size: int, second dimension of W[i].
-        scope: VariableScope for the created subgraph; defaults to "Linear".
-
-    Returns:
-        A 2D Tensor with shape [batch x output_size] equal to
-        sum_i(args[i] * W[i]), where W[i]s are newly created matrices.
-
-    Raises:
-        ValueError: if some of the arguments has unspecified or wrong shape.
-    """
     shape = input_.get_shape().as_list()
 
-    # Now the computation.
     with tf.variable_scope(scope or "Linear"):
-        matrix = tf.get_variable("Matrix", [shape[1], output_size],
+        matrix = tf.get_variable("Matrix", [shape[1], output_size], tf.float32,
                                  tf.random_normal_initializer(stddev=stddev))
-        if len(args) == 1:
-            res = tf.matmul(args[0], matrix)
-        else:
-            res = tf.matmul(array_ops.concat(1, args), matrix)
-        return res
+        return tf.matmul(input_, matrix)

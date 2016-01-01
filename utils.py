@@ -9,6 +9,12 @@ pp = pprint.PrettyPrinter()
 
 get_stddev = lambda x, k_h, k_w: 1/math.sqrt(k_w*k_h*x.get_shape()[-1])
 
+def get_image(image_path):
+    return transform(imread(image_path))
+
+def imread(path):
+    return scipy.misc.imread(path).astype(np.float)
+
 def center_crop(x, ph, pw=None):
     if pw is None:
         pw = ph
@@ -24,6 +30,3 @@ def transform(X):
 def inverse_transform(X):
     X = (X.reshape(-1, nc, npx, npx).transpose(0, 2, 3, 1)+1.)/2.
     return X
-
-def imread(path):
-    return scipy.misc.imread(path).astype(np.float)
