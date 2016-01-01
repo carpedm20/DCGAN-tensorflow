@@ -15,44 +15,37 @@ class batch_norm(object):
             self.batch_size = batch_size
 
             self.ema = tf.train.ExponentialMovingAverage(decay=self.momentum)
+            self.name=name
 
     def get_assigner(self):
         return self.ema.apply([self.mean, self.variance])
 
     def __call__(self, x, train=True):
-        self.mean, self.variance = tf.nn.moments(x, [0, 1, 2])
-
         if train:
             shape = x.get_shape().as_list()
-            
-            if not shape[0] and not self.batch_size:
-                raise Exception(" [!] batch_size should be specified")
-            elif not shape[0]:
-                shape[0] = self.batch_size
 
-            self.mean = tf.Variable(tf.constant(0.0, shape=shape), trainable=False)
-            self.variance = tf.Variable(tf.constant(1.0, shape=shape), trainable=False)
+            with tf.variable_scope(self.name) as scope:
+                self.mean = tf.Variable(tf.constant(0.0, shape=[shape[-1]]),
+                                        trainable=False)
+                self.variance = tf.Variable(tf.constant(1.0, shape=[shape[-1]]),
+                                        trainable=False)
 
-            self.gamma = tf.get_variable("gamma", shape,
-                                initializer=tf.random_normal_initializer(1., 0.02))
-            self.beta = tf.get_variable("beta", shape,
-                                initializer=tf.constant_initializer(0.))
+                self.gamma = tf.get_variable("gamma", [shape[-1]],
+                                    initializer=tf.random_normal_initializer(1., 0.02))
+                self.beta = tf.get_variable("beta", [shape[-1]],
+                                    initializer=tf.constant_initializer(0.))
 
-            if x.get_shape().ndims == 4:
                 mean, variance = tf.nn.moments(x, [0, 1, 2])
-            elif x.get_shape().ndims == 2:
-                mean, variance = tf.nn.moments(x, [0])
-            else:
-                raise NotImplementedError
 
-            assign_mean = self.mean.assign(mean)
-            assign_variance = self.variance.assign(variance)
-            with tf.control_dependencies([assign_mean, assign_variance]):
-                return tf.nn.batch_norm_with_global_normalization(x, self.mean,
-                                                                  self.variance,
-                                                                  self.beta,
-                                                                  self.gamma,
-                                                                  self.epsilon, True)
+                assign_mean = self.mean.assign(mean)
+                assign_variance = self.variance.assign(variance)
+
+                with tf.control_dependencies([assign_mean, assign_variance]):
+                    return tf.nn.batch_norm_with_global_normalization(x, self.mean,
+                                                                    self.variance,
+                                                                    self.beta,
+                                                                    self.gamma,
+                                                                    self.epsilon, True)
         else:
             mean = self.ema.average(self.mean)
             variance = self.ema.average(self.variance)
@@ -91,7 +84,7 @@ def conv2d(input_, output_dim,
            k_h=5, k_w=5, d_h=2, d_w=2, stddev=0.02,
            name="conv2d"):
     with tf.variable_scope(name):
-        w = tf.get_variable('w', [k_h, k_w, output_dim, input_.get_shape()[-1]],
+        w = tf.get_variable('w', [k_h, k_w, input_.get_shape()[-1], output_dim],
                             initializer=tf.truncated_normal_initializer(stddev=stddev))
         conv = tf.nn.conv2d(input_, w, strides=[1, d_h, d_w, 1], padding='SAME')
         return conv
@@ -112,7 +105,7 @@ def lrelu(x, leak=0.2, name="lrelu"):
         f2 = 0.5 * (1 - leak)
         return f1 * x + f2 * abs(x)
 
-def linear(input_, output_size, stddev=0.02, scope=None):
+def linear(input_, output_size, scope=None, stddev=0.02):
     shape = input_.get_shape().as_list()
 
     with tf.variable_scope(scope or "Linear"):
