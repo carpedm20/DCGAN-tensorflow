@@ -1,7 +1,7 @@
 import tensorflow as tf
 
-from model import DCGAN
 from utils import pp
+from model import DCGAN
 
 flags = tf.app.flags
 flags.DEFINE_integer("epoch", 10000, "Epoch to train [10000]")
@@ -20,6 +20,9 @@ def main(_):
             dcgan = DCGAN(sess, batch_size=FLAGS.batch_size, y_dim=10)
         else:
             dcgan = DCGAN(sess, batch_size=FLAGS.batch_size)
+
+        if config.is_train:
+            dcgan.train(FLAGS)
 
 if __name__ == '__main__':
     tf.app.run()

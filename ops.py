@@ -41,16 +41,18 @@ class batch_norm(object):
                 assign_variance = self.variance.assign(variance)
 
                 with tf.control_dependencies([assign_mean, assign_variance]):
-                    return tf.nn.batch_norm_with_global_normalization(x, self.mean,
-                                                                    self.variance,
-                                                                    self.beta,
-                                                                    self.gamma,
-                                                                    self.epsilon, True)
+                    return tf.nn.batch_norm_with_global_normalization(x,
+                                                                      self.mean,
+                                                                      self.variance,
+                                                                      self.beta,
+                                                                      self.gamma,
+                                                                      self.epsilon, True)
         else:
             mean = self.ema.average(self.mean)
             variance = self.ema.average(self.variance)
 
-            return tf.nn.batch_norm_with_global_normalization(x, mean,
+            return tf.nn.batch_norm_with_global_normalization(x,
+                                                              mean,
                                                               variance,
                                                               self.beta, self.gamma,
                                                               self.epsilon, True)
@@ -74,8 +76,7 @@ def binary_cross_entropy_with_logits(logits, targets, name=None):
                                (1. - logits) * tf.log(1. - targets + eps))
 
 def conv_cond_concat(x, y):
-    """Concatenate conditioning vector on feature map axis.
-    """
+    """Concatenate conditioning vector on feature map axis."""
     x_shapes = x.get_shape()
     y_shapes = y.get_shape()
     return tf.concat(3, [x, y*tf.ones([x_shapes[0], x_shapes[1], x_shapes[2], y_shapes[3]])])
