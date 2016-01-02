@@ -100,10 +100,11 @@ class DCGAN(object):
             g_optim = self.g_bn_assigners
 
         z_sample = np.random.uniform(-1, 1, size=(self.batch_size, self.z_dim))
+        batch_iter_size = min(len(data), config.train_size)/config.batch_size
 
+        counter = 0
         for epoch in xrange(config.epoch):
-            counter = 0
-            for idx in xrange(0, min(len(data), config.train_size), config.batch_size):
+            for idx in xrange(0, batch_iter_size, config.batch_size):
                 batch_files = data[idx*config.batch_size:(idx+1)*config.batch_size]
                 batch = [get_image(batch_file) for batch_file in batch_files]
                 batch_images = np.array(batch).astype(np.float32)
