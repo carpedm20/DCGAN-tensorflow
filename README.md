@@ -24,6 +24,10 @@ First, download dataset with:
 
 To train a model with celebA dataset:
 
+    $ python main.py --dataset celebA --is_train True
+
+To test with a existing model:
+
     $ python main.py --dataset celebA
 
 

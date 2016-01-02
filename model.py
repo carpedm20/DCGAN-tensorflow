@@ -102,7 +102,7 @@ class DCGAN(object):
         z_sample = np.random.uniform(-1, 1, size=(self.batch_size, self.z_dim))
         batch_iter_size = min(len(data), config.train_size)/config.batch_size
 
-        counter = 0
+        counter = 1
         for epoch in xrange(config.epoch):
             for idx in xrange(0, batch_iter_size, config.batch_size):
                 batch_files = data[idx*config.batch_size:(idx+1)*config.batch_size]
@@ -129,6 +129,8 @@ class DCGAN(object):
                                                          self.image: batch_images})
                     print("[%4d] d_loss: %.4f, g_loss: %.4f" % (counter, d_loss, g_loss))
 
+                if np.mod(counter, 100) == 2:
+                    self.save(config.checkpoint_dir, counter)
                 #if np.mod(counter, 10) == 1:
                 #    samples = self.sess.run([self.sampler], feed_dict={self.z: z_sample})
                 #    samples = inverse_transform(samples)
@@ -253,15 +255,15 @@ class DCGAN(object):
 
     def save(self, checkpoint_dir, step):
         model_name = "DCGAN.model"
-        model_dir = "%s_%s" % (self.dataset_name, self._max_length)
+        model_dir = "%s_%s" % (self.dataset_name, self.batch_size)
         checkpoint_dir = os.path.join(checkpoint_dir, model_dir)
 
         if not os.path.exists(checkpoint_dir):
             os.makedirs(checkpoint_dir)
 
         self.saver.save(self.sess,
-                        os.path.join(checkpoint_dir, file_name),
-                        global_step = step.astype(int),
+                        os.path.join(checkpoint_dir, model_name),
+                        global_step = step,
                         latest_filename = '%s_checkpoint' % self.dataset_name)
 
     def load(self, checkpoint_dir):
