@@ -14,7 +14,7 @@ def get_image(image_path):
     return transform(imread(image_path))
 
 def save_images(images, size, image_path):
-    return imsave(inverse_transform(images[0]), size, image_path)
+    return imsave(inverse_transform(images), size, image_path)
 
 def imread(path):
     return scipy.misc.imread(path).astype(np.float)

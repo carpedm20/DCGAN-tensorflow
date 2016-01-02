@@ -32,7 +32,7 @@ def main(_):
 
         z_sample = np.random.uniform(-1, 1, size=(FLAGS.batch_size, dcgan.z_dim))
 
-        samples = sess.run([dcgan.sampler], feed_dict={dcgan.z: z_sample})
+        samples = sess.run(dcgan.sampler, feed_dict={dcgan.z: z_sample})
         save_images(samples, [14, 14], './samples/test.png')
 
 if __name__ == '__main__':

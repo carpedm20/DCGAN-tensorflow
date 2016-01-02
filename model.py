@@ -132,14 +132,16 @@ class DCGAN(object):
                                                          self.image: batch_images})
 
                     print("[%2d|%4d] d_loss: %.6f, g_loss: %.4f" \
-                        % (epoch, counter, d_loss, g_loss))
+                        % (epoch, idx, d_loss, g_loss))
 
                 if np.mod(counter, 100) == 1:
-                    samples, g_loss = self.sess.run([self.sampler, seld.g_loss],
-                                                    feed_dict={self.z: z_sample})
-                    save_images(samples, [14, 14], './samples/train_%s_%s.png' 
-                                                        % (epoch, idx))
-                    print("[Sample] g_loss: %.4f" % g_loss)
+                    samples, d_loss, g_loss = self.sess.run([self.sampler,
+                                                             self.d_loss,
+                                                             self.g_loss],
+                                                            feed_dict={self.z: z_sample,
+                                                                       self.image: batch_images})
+                    save_images(samples, [14, 14], './samples/train_%s_%s.png' % (epoch, idx))
+                    print("[Sample] d_loss: %.8f, g_loss: %.8f" % (d_loss, g_loss))
 
                 if np.mod(counter, 500) == 2:
                     self.save(config.checkpoint_dir, counter)
