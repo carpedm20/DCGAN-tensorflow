@@ -2,8 +2,9 @@
 Some codes from https://github.com/Newmu/dcgan_code
 """
 import math
-import scipy
 import pprint
+import scipy.misc
+import numpy as np
 
 pp = pprint.PrettyPrinter()
 
@@ -13,6 +14,7 @@ def get_image(image_path):
     return transform(imread(image_path))
 
 def imread(path):
+    import ipdb; ipdb.set_trace() 
     return scipy.misc.imread(path).astype(np.float)
 
 def imsave(images, size, path):

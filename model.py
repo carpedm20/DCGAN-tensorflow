@@ -1,3 +1,5 @@
+import os
+from glob import glob
 import tensorflow as tf
 
 from ops import *
@@ -59,9 +61,9 @@ class DCGAN(object):
         self.z = tf.placeholder(tf.float32, [None, self.z_dim])
 
         self.image_ = self.generator(self.z)
-        self.sampler = self.sampler(self.z)
-
         self.D = self.discriminator(self.image)
+
+        self.sampler = self.sampler(self.z)
         self.D_ = self.discriminator(self.image_, reuse=True)
 
         self.d_loss_real = binary_cross_entropy_with_logits(self.D,
@@ -70,7 +72,7 @@ class DCGAN(object):
                                                             tf.zeros_like(self.D_))
 
         # log(D(x)) + log(1 - D(G(z)))
-        self.d_lost = self.d_loss_real + self.d_loss_fake
+        self.d_loss = self.d_loss_real + self.d_loss_fake
         # log(D(G(z)))
         self.g_loss = binary_cross_entropy_with_logits(self.D_,
                                                        tf.ones_like(self.D_))
@@ -83,20 +85,20 @@ class DCGAN(object):
 
     def train(self, config):
         """Train DCGAN"""
-        data = glob(os.path.join("./data", config.dataset), "*.jpg")
+        data = glob(os.path.join("./data", config.dataset, "*.jpg"))
         #np.random.shuffle(data)
 
-        d_optim = tf.train.AdamOptimizer(learning_rate, beta1=0.5) \
-                          .minimize(d_cost_tf, var_list=discrim_vars)
-        g_optim = tf.train.AdamOptimizer(learning_rate, beta1=0.5) \
-                          .minimize(g_cost_tf, var_list=gen_vars)
+        d_optim = tf.train.AdamOptimizer(config.learning_rate, beta1=config.beta1) \
+                          .minimize(self.d_loss, var_list=self.d_vars)
+        g_optim = tf.train.AdamOptimizer(config.learning_rate, beta1=config.beta1) \
+                          .minimize(self.g_loss, var_list=self.g_vars)
 
         with tf.control_dependencies([d_optim]):
             d_optim = self.d_bn_assigners
         with tf.control_dependencies([g_optim]):
             g_optim = self.g_bn_assigners
 
-        z_sample = np.random.uniform(-1, 1, size=(196, z_dim))
+        z_sample = np.random.uniform(-1, 1, size=(self.batch_size, self.z_dim))
 
         for epoch in xrange(config.epoch):
             counter = 0
@@ -237,7 +239,7 @@ class DCGAN(object):
             h3 = deconv2d(h2, [self.batch_size, 16, 16, self.gf_dim*1], name='g_h3')
             h3 = tf.nn.relu(self.g_bn3(h3, train=False))
 
-            h4 = deconv2d(h3, [None, 64, 64, 3], name='g_h4')
+            h4 = deconv2d(h3, [self.batch_size, 64, 64, 3], name='g_h4')
 
             return tf.nn.tanh(h4)
 

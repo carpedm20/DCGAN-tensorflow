@@ -12,6 +12,7 @@ Prerequisites
 - Python 2.7 or Python 3.3+
 - [Tensorflow](https://www.tensorflow.org/)
 - [SciPy](http://www.scipy.org/install.html)
+- [jpeglib](http://mariz.org/blog/2007/01/26/mac-os-x-decoder-jpeg-not-available/) - Only for Mac users
 
 
 Usage
