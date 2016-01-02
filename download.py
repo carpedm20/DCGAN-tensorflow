@@ -15,7 +15,12 @@ import json
 import shutil
 import urllib2
 import zipfile
+import argparse
 import subprocess
+
+parser = argparse.ArgumentParser(description='Download dataset for DCGAN.')
+parser.add_argument('--datasets', metavar='N', type=str, nargs='+',
+                   help='name of dataset to download [celebA, lusn]')
 
 def download(url, dirpath):
     filename = url.split('/')[-1]
@@ -115,5 +120,12 @@ def download_lsun(dirpath):
     _download_lsun(data_dir, '', 'test', tag)
 
 if __name__ == '__main__':
-    download_celeb_a('./data')
-    download_lsun('./data')
+    args = parser.parse_args()
+
+    if not args.datasets:
+        raise Exception(" [!] You need to specify the name of datasets to download")
+
+    if 'celebA' in args.datasets:
+        download_celeb_a('./data')
+    if 'lsun' in args.datasets:
+        download_lsun('./data')

@@ -20,7 +20,7 @@ Usage
 
 First, download dataset with:
 
-    $ python download.py
+    $ python download.py --datasets celebA
 
 To train a model with celebA dataset:
 

@@ -14,7 +14,6 @@ def get_image(image_path):
     return transform(imread(image_path))
 
 def imread(path):
-    import ipdb; ipdb.set_trace() 
     return scipy.misc.imread(path).astype(np.float)
 
 def imsave(images, size, path):
@@ -35,9 +34,10 @@ def center_crop(x, ph, pw=None):
     i = int(round((w - pw)/2.))
     return x[j:j+ph, i:i+pw]
 
-def transform(X):
+def transform(X, npx=28):
+    # npx : # of pixels width/height of images
     X = [center_crop(x, npx) for x in X]
-    return floatX(X).transpose(0, 3, 1, 2)/127.5 - 1.
+    return np.array(X)/127.5 - 1.
 
 def inverse_transform(X):
     X = (X.reshape(-1, nc, npx, npx).transpose(0, 2, 3, 1)+1.)/2.

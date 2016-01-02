@@ -22,6 +22,7 @@ class DCGAN(object):
             dfc_dim: (optional) Dimension of discrim units for fully connected layer. [1024]
             c_dim: (optional) Dimension of image color. [3]
         """
+        self.sess = sess
         self.batch_size = batch_size
         self.image_shape = image_shape
 
@@ -106,18 +107,18 @@ class DCGAN(object):
                 batch_files = data[idx*config.batch_size:(idx+1)*config.batch_size]
                 batch = [get_image(batch_file) for batch_file in batch_files]
 
-                z = np.random.uniform(-1, 1, size[config.batch_size, self.z_dim]) \
+                z = np.random.uniform(-1, 1, [config.batch_size, self.z_dim]) \
                              .astype(np.float32)
                 image = np.array(batch).astype(np.float32)
 
                 # Update G network: maximize log(D(G(z)))
-                _, loss = sess.run([g_optim, self.g_loss], feed_dict={self.z:z})
-                d_loss, D, D_ = sess.run([self.g_loss, self.D, self.D_],
+                _, loss = self.sess.run([g_optim, self.g_loss], feed_dict={self.z:z})
+                d_loss, D, D_ = self.sess.run([self.g_loss, self.D, self.D_],
                                          feed_dict={self.z: z, self.image: image})
 
                 # Update D network: maximize log(D(x)) + log(1 - D(G(z)))
-                _, loss = sess.run([d_optim, self.d_loss], feed_dict={self.z:z})
-                d_loss, D, D_ = sess.run([self.d_loss, self.D, self.D_],
+                _, loss = self.sess.run([d_optim, self.d_loss], feed_dict={self.z:z})
+                d_loss, D, D_ = self.sess.run([self.d_loss, self.D, self.D_],
                                          feed_dict={self.z: z, self.image: image})
 
                 counter += 1
