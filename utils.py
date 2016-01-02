@@ -26,19 +26,20 @@ def imsave(images, size, path):
         img[j*h:j*h+h, i*w:i*w+w, :] = image
     return scipy.misc.imsave(path, img)
 
-def center_crop(x, ph, pw=None):
-    if pw is None:
-        pw = ph
-    h, w = x.shape[:2]
-    j = int(round((h - ph)/2.))
-    i = int(round((w - pw)/2.))
-    return x[j:j+ph, i:i+pw]
-
-def transform(X, npx=28):
+def center_crop(x, crop_h, crop_w=None):
     # npx : # of pixels width/height of images
-    X = [center_crop(x, npx) for x in X]
-    return np.array(X)/127.5 - 1.
+    if crop_w is None:
+        crop_w = crop_h
+    h, w = x.shape[:2]
+    j = int(round((h - crop_h)/2.))
+    i = int(round((w - crop_w)/2.))
+    return x[j:j+crop_h, i:i+crop_w]
 
-def inverse_transform(X):
-    X = (X.reshape(-1, nc, npx, npx).transpose(0, 2, 3, 1)+1.)/2.
-    return X
+def transform(image, npx=64):
+    # npx : # of pixels width/height of image
+    cropped_image = center_crop(image, npx)
+    return np.array(cropped_image)/127.5 - 1.
+
+def inverse_transform(images):
+    images = (images.reshape(-1, nc, npx, npx).transpose(0, 2, 3, 1)+1.)/2.
+    return images

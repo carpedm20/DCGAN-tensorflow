@@ -6,7 +6,7 @@ from ops import *
 from utils import *
 
 class DCGAN(object):
-    def __init__(self, sess, batch_size=64, image_shape=[64, 64,3],
+    def __init__(self, sess, batch_size=64, image_shape=[64, 64, 3],
                  y_dim=None, z_dim=100, gf_dim=64, df_dim=64,
                  gfc_dim=1024, dfc_dim=1024, c_dim=3, dataset_name='default'):
         """
@@ -61,11 +61,11 @@ class DCGAN(object):
         self.image = tf.placeholder(tf.float32, [self.batch_size] + self.image_shape)
         self.z = tf.placeholder(tf.float32, [None, self.z_dim])
 
-        self.image_ = self.generator(self.z)
+        self.G = self.generator(self.z)
         self.D = self.discriminator(self.image)
 
         self.sampler = self.sampler(self.z)
-        self.D_ = self.discriminator(self.image_, reuse=True)
+        self.D_ = self.discriminator(self.G, reuse=True)
 
         self.d_loss_real = binary_cross_entropy_with_logits(self.D,
                                                             tf.ones_like(self.D))
@@ -106,25 +106,31 @@ class DCGAN(object):
             for idx in xrange(0, min(len(data), config.train_size), config.batch_size):
                 batch_files = data[idx*config.batch_size:(idx+1)*config.batch_size]
                 batch = [get_image(batch_file) for batch_file in batch_files]
+                batch_images = np.array(batch).astype(np.float32)
 
                 z = np.random.uniform(-1, 1, [config.batch_size, self.z_dim]) \
                              .astype(np.float32)
-                image = np.array(batch).astype(np.float32)
 
-                # Update G network: maximize log(D(G(z)))
+                # Update D network
+                _, loss = self.sess.run([d_optim, self.d_loss],
+                                        feed_dict={self.image: batch_images,
+                                                   self.z: z})
+                # Update G network
                 _, loss = self.sess.run([g_optim, self.g_loss], feed_dict={self.z:z})
-                d_loss, D, D_ = self.sess.run([self.g_loss, self.D, self.D_],
-                                         feed_dict={self.z: z, self.image: image})
-
-                # Update D network: maximize log(D(x)) + log(1 - D(G(z)))
-                _, loss = self.sess.run([d_optim, self.d_loss], feed_dict={self.z:z})
-                d_loss, D, D_ = self.sess.run([self.d_loss, self.D, self.D_],
-                                         feed_dict={self.z: z, self.image: image})
 
                 counter += 1
-                if np.mod(counter, 10) == 0:
-                    samples = sess.run([self.sampler], feed_dict={z: z_sample})
-                    samples = inverse_transform(samples)
+                if np.mod(counter, 2) == 1:
+                    d_loss, D, D_ = self.sess.run([self.d_loss, self.D, self.D_],
+                                                  feed_dict={self.z: z,
+                                                             self.image: batch_images})
+                    g_loss, G = self.sess.run([self.g_loss, self.G],
+                                              feed_dict={self.z: z,
+                                                         self.image: batch_images})
+                    print("[%4d] d_loss: %.4f, g_loss: %.4f" % (counter, d_loss, g_loss))
+
+                #if np.mod(counter, 10) == 1:
+                #    samples = self.sess.run([self.sampler], feed_dict={self.z: z_sample})
+                #    samples = inverse_transform(samples)
 
     def discriminator(self, image, reuse=False, y=None):
         if reuse:
@@ -181,7 +187,7 @@ class DCGAN(object):
         else:
             # project `z` and reshape
             h0 = tf.reshape(linear(z, self.gf_dim*8*4*4, 'g_h0_lin'),
-                            [-1, 4, 4, self.gf_dim * 8]) # 4 x 4 x 1024
+                            [-1, 4, 4, self.gf_dim * 8])
             h0 = tf.nn.relu(self.g_bn0(h0))
 
             h1 = deconv2d(h0, [self.batch_size, 8, 8, self.gf_dim*4], name='g_h1')
