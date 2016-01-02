@@ -100,12 +100,11 @@ class DCGAN(object):
             g_optim = self.g_bn_assigners
 
         z_sample = np.random.uniform(-1, 1, size=(self.batch_size, self.z_dim))
-        batch_iter_size = min(len(data), config.train_size)/config.batch_size
 
         counter = 1
         for epoch in xrange(config.epoch):
-            for idx in xrange(0, batch_iter_size, config.batch_size):
-                batch_files = data[idx*config.batch_size:(idx+1)*config.batch_size]
+            for idx in xrange(0, min(len(data), config.train_size)/config.batch_size):
+                batch_files = data[idx:idx+config.batch_size]
                 batch = [get_image(batch_file) for batch_file in batch_files]
                 batch_images = np.array(batch).astype(np.float32)
 
@@ -135,10 +134,12 @@ class DCGAN(object):
                     print("[%2d|%4d] d_loss: %.6f, g_loss: %.4f" \
                         % (epoch, counter, d_loss, g_loss))
 
-                if np.mod(counter, 10) == 1:
-                    samples = self.sess.run([self.sampler], feed_dict={self.z: z_sample})
+                if np.mod(counter, 100) == 1:
+                    samples, g_loss = self.sess.run([self.sampler, seld.g_loss],
+                                                    feed_dict={self.z: z_sample})
                     save_images(samples, [14, 14], './samples/train_%s_%s.png' 
                                                         % (epoch, idx))
+                    print("[Sample] g_loss: %.4f" % g_loss)
 
                 if np.mod(counter, 500) == 2:
                     self.save(config.checkpoint_dir, counter)
