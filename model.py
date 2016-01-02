@@ -113,27 +113,35 @@ class DCGAN(object):
                              .astype(np.float32)
 
                 # Update D network
-                _, loss = self.sess.run([d_optim, self.d_loss],
-                                        feed_dict={self.image: batch_images,
-                                                   self.z: z})
+                _, d, d_, loss = self.sess.run([d_optim,
+                                                self.D, self.D_,
+                                                self.d_loss],
+                                                feed_dict={
+                                                    self.image: batch_images,
+                                                    self.z: z
+                                                })
                 # Update G network
-                _, loss = self.sess.run([g_optim, self.g_loss], feed_dict={self.z:z})
+                _, g, loss = self.sess.run([g_optim, self.G, self.g_loss], feed_dict={self.z:z})
 
                 counter += 1
-                if np.mod(counter, 2) == 1:
+                if np.mod(counter, 5) == 1:
                     d_loss, D, D_ = self.sess.run([self.d_loss, self.D, self.D_],
                                                   feed_dict={self.z: z,
                                                              self.image: batch_images})
                     g_loss, G = self.sess.run([self.g_loss, self.G],
                                               feed_dict={self.z: z,
                                                          self.image: batch_images})
-                    print("[%4d] d_loss: %.4f, g_loss: %.4f" % (counter, d_loss, g_loss))
 
-                if np.mod(counter, 100) == 2:
+                    print("[%2d|%4d] d_loss: %.6f, g_loss: %.4f" \
+                        % (epoch, counter, d_loss, g_loss))
+
+                if np.mod(counter, 10) == 1:
+                    samples = self.sess.run([self.sampler], feed_dict={self.z: z_sample})
+                    save_images(samples, [14, 14], './samples/train_%s_%s.png' 
+                                                        % (epoch, idx))
+
+                if np.mod(counter, 500) == 2:
                     self.save(config.checkpoint_dir, counter)
-                #if np.mod(counter, 10) == 1:
-                #    samples = self.sess.run([self.sampler], feed_dict={self.z: z_sample})
-                #    samples = inverse_transform(samples)
 
     def discriminator(self, image, reuse=False, y=None):
         if reuse:
@@ -246,7 +254,7 @@ class DCGAN(object):
             h2 = deconv2d(h1, [self.batch_size, 16, 16, self.gf_dim*2], name='g_h2')
             h2 = tf.nn.relu(self.g_bn2(h2, train=False))
 
-            h3 = deconv2d(h2, [self.batch_size, 16, 16, self.gf_dim*1], name='g_h3')
+            h3 = deconv2d(h2, [self.batch_size, 32, 32, self.gf_dim*1], name='g_h3')
             h3 = tf.nn.relu(self.g_bn3(h3, train=False))
 
             h4 = deconv2d(h3, [self.batch_size, 64, 64, 3], name='g_h4')
@@ -263,13 +271,12 @@ class DCGAN(object):
 
         self.saver.save(self.sess,
                         os.path.join(checkpoint_dir, model_name),
-                        global_step = step,
-                        latest_filename = '%s_checkpoint' % self.dataset_name)
+                        global_step=step)
 
     def load(self, checkpoint_dir):
         print(" [*] Reading checkpoints...")
 
-        model_dir = "%s_%s" % (self.dataset_name, self._max_length)
+        model_dir = "%s_%s" % (self.dataset_name, self.batch_size)
         checkpoint_dir = os.path.join(checkpoint_dir, model_dir)
 
         ckpt = tf.train.get_checkpoint_state(checkpoint_dir)

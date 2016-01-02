@@ -1,8 +1,9 @@
 import tensorflow as tf
 
 import numpy as np
-from utils import pp
+
 from model import DCGAN
+from utils import pp, save_images
 
 flags = tf.app.flags
 flags.DEFINE_integer("epoch", 10000, "Epoch to train [10000]")
@@ -26,6 +27,13 @@ def main(_):
 
         if FLAGS.is_train:
             dcgan.train(FLAGS)
+        else:
+            dcgan.load(FLAGS.checkpoint_dir)
+
+        z_sample = np.random.uniform(-1, 1, size=(FLAGS.batch_size, dcgan.z_dim))
+
+        samples = sess.run([dcgan.sampler], feed_dict={dcgan.z: z_sample})
+        save_images(samples, [14, 14], './samples/test.png')
 
 if __name__ == '__main__':
     tf.app.run()
