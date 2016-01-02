@@ -54,7 +54,8 @@ class batch_norm(object):
             return tf.nn.batch_norm_with_global_normalization(x,
                                                               mean,
                                                               variance,
-                                                              self.beta, self.gamma,
+                                                              self.beta,
+                                                              self.gamma,
                                                               self.epsilon, True)
 
 def binary_cross_entropy_with_logits(logits, targets, name=None):

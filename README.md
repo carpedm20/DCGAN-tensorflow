@@ -3,7 +3,7 @@ DCGAN in Tensorflow
 
 Tensorflow implementation of [Deep Convolutional Generative Adversarial Networks](http://arxiv.org/abs/1511.06434). The referenced torch code can be found [here](https://github.com/soumith/dcgan.torch).
 
-![alt tag](model.png)
+![alt tag](DCGAN.png)
 
 
 Prerequisites
