@@ -1,7 +1,7 @@
 DCGAN in Tensorflow
 ====================
 
-Tensorflow implementation of [Deep Convolutional Generative Adversarial Networks](http://arxiv.org/abs/1511.06434). The referenced torch code can be found [here](https://github.com/soumith/dcgan.torch).
+Tensorflow implementation of [Deep Convolutional Generative Adversarial Networks](http://arxiv.org/abs/1511.06434) which is a stabilize Generative Adversarial Networks. The referenced torch code can be found [here](https://github.com/soumith/dcgan.torch).
 
 ![alt tag](DCGAN.png)
 
@@ -35,8 +35,17 @@ To test with a existing model:
 Results
 -------
 
-In progress
+At the beginning of 1st epoch:
 
+![result0](assets/result_16_01_03.png)
+
+![result1](assets/result_16_01_03_.png)
+
+After 1st epoch:
+
+![result2](assets/result_16_01_04.png)
+
+(in progress)
 
 Author
 ------
