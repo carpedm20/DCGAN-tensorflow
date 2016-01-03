@@ -123,8 +123,8 @@ class DCGAN(object):
                 # Update G network
                 self.sess.run(g_optim, feed_dict={ self.z: batch_z })
 
-                # Update G network
-                self.sess.run(g_optim, feed_dict={ self.z: batch_z })
+                # Run g_optim twice to make sure that d_loss does not go to zero (different from paper)
+                self.sess.run(g_optim, feed_dict={ self.z: batch_z }) 
 
                 errD_fake = self.d_loss_fake.eval({self.z: batch_z})
                 errD_real = self.d_loss_real.eval({self.images: batch_images})
