@@ -10,7 +10,8 @@ class DCGAN(object):
     def __init__(self, sess, batch_size=64, sample_size = 64,
                  image_shape=[64, 64, 3],
                  y_dim=None, z_dim=100, gf_dim=64, df_dim=64,
-                 gfc_dim=1024, dfc_dim=1024, c_dim=3, dataset_name='default'):
+                 gfc_dim=1024, dfc_dim=1024, c_dim=3,
+                 gpu_num=3, dataset_name='default'):
         """
 
         Args:
@@ -40,50 +41,53 @@ class DCGAN(object):
 
         self.c_dim = 3
 
-        # batch normalization : deals with poor initialization helps gradient flow
-        self.d_bn1 = batch_norm(batch_size, name='d_bn1')
-        self.d_bn2 = batch_norm(batch_size, name='d_bn2')
-        if not self.y_dim:
-            self.d_bn3 = batch_norm(batch_size, name='d_bn3')
+        self.gpu_num = gpu_num
 
-        self.g_bn0 = batch_norm(batch_size, name='g_bn0')
-        self.g_bn1 = batch_norm(batch_size, name='g_bn1')
-        self.g_bn2 = batch_norm(batch_size, name='g_bn2')
-        if not self.y_dim:
-            self.g_bn3 = batch_norm(batch_size, name='g_bn3')
+        with tf.device('/gpu:%d' % self.gpu_num):
+            # batch normalization : deals with poor initialization helps gradient flow
+            self.d_bn1 = batch_norm(batch_size, name='d_bn1')
+            self.d_bn2 = batch_norm(batch_size, name='d_bn2')
+            if not self.y_dim:
+                self.d_bn3 = batch_norm(batch_size, name='d_bn3')
+
+            self.g_bn0 = batch_norm(batch_size, name='g_bn0')
+            self.g_bn1 = batch_norm(batch_size, name='g_bn1')
+            self.g_bn2 = batch_norm(batch_size, name='g_bn2')
+            if not self.y_dim:
+                self.g_bn3 = batch_norm(batch_size, name='g_bn3')
 
         self.dataset_name = dataset_name
         self.build_model()
 
     def build_model(self):
-        if self.y_dim:
-            self.y= tf.placeholder(tf.float32, [None, self.y_dim], name='y')
+        with tf.device('/gpu:%d' % self.gpu_num):
+            if self.y_dim:
+                self.y= tf.placeholder(tf.float32, [None, self.y_dim], name='y')
 
-        self.images = tf.placeholder(tf.float32, [self.batch_size] + self.image_shape,
-                                     name='real_images')
-        self.sample_images= tf.placeholder(tf.float32, [self.sample_size] + self.image_shape,
-                                           name='sample_images')
-        self.z = tf.placeholder(tf.float32, [None, self.z_dim],
-                                name='z')
+            self.images = tf.placeholder(tf.float32, [self.batch_size] + self.image_shape,
+                                        name='real_images')
+            self.sample_images= tf.placeholder(tf.float32, [self.sample_size] + self.image_shape,
+                                            name='sample_images')
+            self.z = tf.placeholder(tf.float32, [None, self.z_dim],
+                                    name='z')
 
-        self.G = self.generator(self.z)
-        self.D = self.discriminator(self.images)
+            self.G = self.generator(self.z)
+            self.D = self.discriminator(self.images)
 
-        self.sampler = self.sampler(self.z)
-        self.D_ = self.discriminator(self.G, reuse=True)
+            self.sampler = self.sampler(self.z)
+            self.D_ = self.discriminator(self.G, reuse=True)
 
-        self.d_loss_real = binary_cross_entropy_with_logits(tf.ones_like(self.D), self.D)
-        self.d_loss_fake = binary_cross_entropy_with_logits(tf.zeros_like(self.D_), self.D_)
-        self.d_loss = self.d_loss_real + self.d_loss_fake
+            self.d_loss_real = binary_cross_entropy_with_logits(tf.ones_like(self.D), self.D)
+            self.d_loss_fake = binary_cross_entropy_with_logits(tf.zeros_like(self.D_), self.D_)
+            self.g_loss = binary_cross_entropy_with_logits(tf.ones_like(self.D_), self.D_)
+                                                        
+            self.d_loss = self.d_loss_real + self.d_loss_fake
 
-        self.g_loss = binary_cross_entropy_with_logits(tf.ones_like(self.D_), self.D_)
-                                                       
+            self.saver = tf.train.Saver()
 
-        self.saver = tf.train.Saver()
-
-        t_vars = tf.trainable_variables()
-        self.d_vars = [var for var in t_vars if 'd_' in var.name]
-        self.g_vars = [var for var in t_vars if 'g_' in var.name]
+            t_vars = tf.trainable_variables()
+            self.d_vars = [var for var in t_vars if 'd_' in var.name]
+            self.g_vars = [var for var in t_vars if 'g_' in var.name]
 
     def train(self, config):
         """Train DCGAN"""
