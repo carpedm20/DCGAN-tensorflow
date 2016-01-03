@@ -35,8 +35,9 @@ To test with a existing model:
 Results
 -------
 
-In progress
+At the beginning of 1st epoch:
 
+![result1](assets/result_16_01_03.png)
 
 Author
 ------
