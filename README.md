@@ -43,7 +43,7 @@ Results
 
 At the beginning of 1st epoch:
 
-![result1](assets/result_16_01_03_.png)
+![result1](assets/result_16_01_03.png)
 
 After 1st epoch:
 
