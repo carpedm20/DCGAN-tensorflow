@@ -72,17 +72,11 @@ class DCGAN(object):
         self.sampler = self.sampler(self.z)
         self.D_ = self.discriminator(self.G, reuse=True)
 
-        self.d_loss_real = binary_cross_entropy_with_logits(tf.ones_like(self.D),
-                                                            self.D)
-                                                            
-        self.d_loss_fake = binary_cross_entropy_with_logits(tf.zeros_like(self.D_),
-                                                            self.D_)
-
-        # log(D(x)) + log(1 - D(G(z)))
+        self.d_loss_real = binary_cross_entropy_with_logits(tf.ones_like(self.D), self.D)
+        self.d_loss_fake = binary_cross_entropy_with_logits(tf.zeros_like(self.D_), self.D_)
         self.d_loss = self.d_loss_real + self.d_loss_fake
-        # log(D(G(z)))
-        self.g_loss = binary_cross_entropy_with_logits(tf.ones_like(self.D_),
-                                                       self.D_)
+
+        self.g_loss = binary_cross_entropy_with_logits(tf.ones_like(self.D_), self.D_)
                                                        
 
         self.saver = tf.train.Saver()
@@ -121,17 +115,22 @@ class DCGAN(object):
                             .astype(np.float32)
 
                 # Update D network
-                _, d_loss, g_loss = self.sess.run([d_optim, self.d_loss, self.g_loss],
-                                                  feed_dict={
-                                                      self.images: batch_images,
-                                                      self.z: batch_z
-                                                  })
+                self.sess.run(d_optim, feed_dict={ self.images: batch_images, self.z: batch_z })
+
+                # Update G network
+                self.sess.run(g_optim, feed_dict={ self.z: batch_z })
+
+                errD_fake = self.d_loss_fake.eval({self.z: batch_z})
+                errD_real = self.d_loss_real.eval({self.images: batch_images})
+                errG = self.g_loss.eval({self.z: batch_z})
+                print("errD:", errD_fake+errD_real, "errD_fake:", errD_fake, "errD_real", errD_real, "errG", errG)
+
+                import ipdb; ipdb.set_trace() 
 
                 counter += 1
-                if np.mod(counter, 5) == 1:
-                    print("Epoch: [%2d] [%4d/%4d] time: %4.4f, d_loss: %.8f, g_loss: %.8f" \
-                        % (epoch, idx, batch_idxs,
-                           time.time() - start_time, d_loss, g_loss))
+                print("Epoch: [%2d] [%4d/%4d] time: %4.4f, d_loss: %.8f, g_loss: %.8f" \
+                    % (epoch, idx, batch_idxs,
+                        time.time() - start_time, errD_fake+errD_real, errG))
 
                 if np.mod(counter, 100) == 1:
                     samples, d_loss, g_loss = self.sess.run(
