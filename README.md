@@ -12,7 +12,6 @@ Prerequisites
 - Python 2.7 or Python 3.3+
 - [Tensorflow](https://www.tensorflow.org/)
 - [SciPy](http://www.scipy.org/install.html)
-- (Optional) [jpeglib](http://mariz.org/blog/2007/01/26/mac-os-x-decoder-jpeg-not-available/) : Only for Mac users
 
 
 Usage
@@ -31,13 +30,18 @@ To test with a existing model:
 
     $ python main.py --dataset celebA
 
+Or, you can use your own dataset by:
+
+    $ mkdir data/DATASET_NAME
+    ... add images to data/DATASET_NAME ...
+    $ python main.py --dataset DATASET_NAME --is_train True
+    $ python main.py --dataset DATASET_NAME
+
 
 Results
 -------
 
 At the beginning of 1st epoch:
-
-![result0](assets/result_16_01_03.png)
 
 ![result1](assets/result_16_01_03_.png)
 
