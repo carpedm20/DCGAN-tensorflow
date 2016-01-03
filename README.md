@@ -51,7 +51,7 @@ After 1st epoch:
 
 ![result2](assets/result_16_01_04.png)
 
-After 5th epoch:
+After 6th epoch:
 
 ![result3](assets/result_16_01_04_.png)
 
