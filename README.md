@@ -43,13 +43,7 @@ Or, you can use your own dataset by:
 Results
 -------
 
-At the beginning of 1st epoch:
-
-![result1](assets/result_16_01_03.png)
-
-After 1st epoch:
-
-![result2](assets/result_16_01_04.png)
+![result](https://media.giphy.com/media/l3nW2iYprSsXtagYo/giphy.gif)
 
 After 6th epoch:
 
