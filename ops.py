@@ -17,46 +17,20 @@ class batch_norm(object):
             self.ema = tf.train.ExponentialMovingAverage(decay=self.momentum)
             self.name=name
 
-    def get_assigner(self):
-        return self.ema.apply([self.mean, self.variance])
-
     def __call__(self, x, train=True):
-        if train:
-            shape = x.get_shape().as_list()
+        shape = x.get_shape().as_list()
 
-            with tf.variable_scope(self.name) as scope:
-                self.mean = tf.Variable(tf.constant(0.0, shape=[shape[-1]]),
-                                        trainable=False)
-                self.variance = tf.Variable(tf.constant(1.0, shape=[shape[-1]]),
-                                        trainable=False)
+        with tf.variable_scope(self.name) as scope:
+            self.gamma = tf.get_variable("gamma", [shape[-1]],
+                                initializer=tf.random_normal_initializer(1., 0.02))
+            self.beta = tf.get_variable("beta", [shape[-1]],
+                                initializer=tf.constant_initializer(0.))
 
-                self.gamma = tf.get_variable("gamma", [shape[-1]],
-                                    initializer=tf.random_normal_initializer(1., 0.02))
-                self.beta = tf.get_variable("beta", [shape[-1]],
-                                    initializer=tf.constant_initializer(0.))
+            mean, variance = tf.nn.moments(x, [0, 1, 2])
 
-                mean, variance = tf.nn.moments(x, [0, 1, 2])
-
-                assign_mean = self.mean.assign(mean)
-                assign_variance = self.variance.assign(variance)
-
-                with tf.control_dependencies([assign_mean, assign_variance]):
-                    return tf.nn.batch_norm_with_global_normalization(x,
-                                                                      self.mean,
-                                                                      self.variance,
-                                                                      self.beta,
-                                                                      self.gamma,
-                                                                      self.epsilon, True)
-        else:
-            mean = self.ema.average(self.mean)
-            variance = self.ema.average(self.variance)
-
-            return tf.nn.batch_norm_with_global_normalization(x,
-                                                              mean,
-                                                              variance,
-                                                              self.beta,
-                                                              self.gamma,
-                                                              self.epsilon, True)
+            return tf.nn.batch_norm_with_global_normalization(
+                x, mean, variance, self.beta, self.gamma, self.epsilon,
+                scale_after_normalization=True)
 
 def binary_cross_entropy_with_logits(logits, targets, name=None):
     """Computes binary cross entropy given `logits`.
@@ -73,8 +47,8 @@ def binary_cross_entropy_with_logits(logits, targets, name=None):
     with ops.op_scope([logits, targets], name, "bce_loss") as name:
         logits = ops.convert_to_tensor(logits, name="logits")
         targets = ops.convert_to_tensor(targets, name="targets")
-        return -tf.reduce_mean(logits * tf.log(targets + eps) +
-                               (1. - logits) * tf.log(1. - targets + eps))
+        return tf.reduce_mean(-(logits * tf.log(targets + eps) +
+                              (1. - logits) * tf.log(1. - targets + eps)))
 
 def conv_cond_concat(x, y):
     """Concatenate conditioning vector on feature map axis."""
