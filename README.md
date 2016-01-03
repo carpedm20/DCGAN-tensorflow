@@ -5,6 +5,8 @@ Tensorflow implementation of [Deep Convolutional Generative Adversarial Networks
 
 ![alt tag](DCGAN.png)
 
+*In this implementation, G (generatior) network updates twice for each D (discriminator) network due to the fast convergence of D network which is different from original paper*
+
 
 Prerequisites
 -------------
