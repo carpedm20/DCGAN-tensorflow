@@ -10,8 +10,8 @@ pp = pprint.PrettyPrinter()
 
 get_stddev = lambda x, k_h, k_w: 1/math.sqrt(k_w*k_h*x.get_shape()[-1])
 
-def get_image(image_path):
-    return transform(imread(image_path))
+def get_image(image_path, image_size):
+    return transform(imread(image_path), image_size)
 
 def save_images(images, size, image_path):
     return imsave(inverse_transform(images), size, image_path)
@@ -29,14 +29,14 @@ def imsave(images, size, path):
         img[j*h:j*h+h, i*w:i*w+w, :] = image
     return scipy.misc.imsave(path, img)
 
-def center_crop(x, crop_h, crop_w=None):
-    # npx : # of pixels width/height of images
+def center_crop(x, crop_h, crop_w=None, resize_w=64):
     if crop_w is None:
         crop_w = crop_h
     h, w = x.shape[:2]
     j = int(round((h - crop_h)/2.))
     i = int(round((w - crop_w)/2.))
-    return x[j:j+crop_h, i:i+crop_w]
+    return scipy.misc.imresize(x[j:j+crop_h, i:i+crop_w],
+                               [resize_w, resize_w])
 
 def transform(image, npx=64):
     # npx : # of pixels width/height of image

@@ -7,8 +7,8 @@ from ops import *
 from utils import *
 
 class DCGAN(object):
-    def __init__(self, sess, batch_size=64, sample_size = 64,
-                 image_shape=[64, 64, 3],
+    def __init__(self, sess, image_size=108, 
+                 batch_size=64, sample_size = 64, image_shape=[64, 64, 3],
                  y_dim=None, z_dim=100, gf_dim=64, df_dim=64,
                  gfc_dim=1024, dfc_dim=1024, c_dim=3, dataset_name='default'):
         """
@@ -26,6 +26,7 @@ class DCGAN(object):
         """
         self.sess = sess
         self.batch_size = batch_size
+        self.image_size = image_size
         self.sample_size = sample_size
         self.image_shape = image_shape
 
@@ -100,7 +101,7 @@ class DCGAN(object):
 
         sample_z = np.random.uniform(-1, 1, size=(self.sample_size , self.z_dim))
         sample_files = data[0:self.sample_size]
-        sample = [get_image(sample_file) for sample_file in sample_files]
+        sample = [get_image(sample_file, self.image_size) for sample_file in sample_files]
         sample_images = np.array(sample).astype(np.float32)
 
         counter = 1
@@ -110,7 +111,7 @@ class DCGAN(object):
         for epoch in xrange(config.epoch):
             for idx in xrange(0, batch_idxs):
                 batch_files = data[idx*config.batch_size:(idx+1)*config.batch_size]
-                batch = [get_image(batch_file) for batch_file in batch_files]
+                batch = [get_image(batch_file, self.image_size) for batch_file in batch_files]
                 batch_images = np.array(batch).astype(np.float32)
 
                 batch_z = np.random.uniform(-1, 1, [config.batch_size, self.z_dim]) \
