@@ -104,7 +104,7 @@ def _download_lsun(out_dir, category, set_name, tag):
     subprocess.call(cmd)
 
 def download_lsun(dirpath):
-    data_dir = os.path.join(dirpath, 'lusn')
+    data_dir = os.path.join(dirpath, 'lsun')
     if os.path.exists(data_dir):
         print('Found LSUN - skip')
         return
@@ -120,11 +120,17 @@ def download_lsun(dirpath):
         _download_lsun(data_dir, category, 'val', tag)
     _download_lsun(data_dir, '', 'test', tag)
 
+def prepare_data_dir(path = './data'):
+    if not os.path.exists(path):
+        os.mkdir(path)
+
 if __name__ == '__main__':
     args = parser.parse_args()
 
     if not args.datasets:
         raise Exception(" [!] You need to specify the name of datasets to download")
+
+    prepare_data_dir()
 
     if 'celebA' in args.datasets:
         download_celeb_a('./data')
