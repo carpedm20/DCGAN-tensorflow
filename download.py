@@ -8,15 +8,16 @@ Downloads the following:
 """
 
 from __future__ import print_function
+import six
 import os
 import sys
 import gzip
 import json
 import shutil
-import urllib2
 import zipfile
 import argparse
 import subprocess
+from six.moves import urllib
 
 parser = argparse.ArgumentParser(description='Download dataset for DCGAN.')
 parser.add_argument('--datasets', metavar='N', type=str, nargs='+',
@@ -25,9 +26,9 @@ parser.add_argument('--datasets', metavar='N', type=str, nargs='+',
 def download(url, dirpath):
     filename = url.split('/')[-1]
     filepath = os.path.join(dirpath, filename)
-    u = urllib2.urlopen(url)
+    u = urllib.request.urlopen(url)
     f = open(filepath, 'wb')
-    filesize = int(u.info().getheaders("Content-Length")[0])
+    filesize = int(u.headers["Content-Length"])
     print("Downloading: %s Bytes: %s" % (filename, filesize))
 
     downloaded = 0
@@ -86,7 +87,7 @@ def download_celeb_a(dirpath):
 
 def _list_categories(tag):
     url = 'http://lsun.cs.princeton.edu/htbin/list.cgi?tag=' + tag
-    f = urllib2.urlopen(url)
+    f = urllib.request.urlopen(url)
     return json.loads(f.read())
 
 def _download_lsun(out_dir, category, set_name, tag):
