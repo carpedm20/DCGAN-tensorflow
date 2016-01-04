@@ -8,7 +8,6 @@ Downloads the following:
 """
 
 from __future__ import print_function
-import six
 import os
 import sys
 import gzip
