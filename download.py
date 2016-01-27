@@ -13,10 +13,10 @@ import sys
 import gzip
 import json
 import shutil
-import urllib2
 import zipfile
 import argparse
 import subprocess
+from six.moves import urllib
 
 parser = argparse.ArgumentParser(description='Download dataset for DCGAN.')
 parser.add_argument('--datasets', metavar='N', type=str, nargs='+',
@@ -25,9 +25,9 @@ parser.add_argument('--datasets', metavar='N', type=str, nargs='+',
 def download(url, dirpath):
     filename = url.split('/')[-1]
     filepath = os.path.join(dirpath, filename)
-    u = urllib2.urlopen(url)
+    u = urllib.request.urlopen(url)
     f = open(filepath, 'wb')
-    filesize = int(u.info().getheaders("Content-Length")[0])
+    filesize = int(u.headers["Content-Length"])
     print("Downloading: %s Bytes: %s" % (filename, filesize))
 
     downloaded = 0
@@ -59,20 +59,6 @@ def unzip(filepath):
 def download_celeb_a(dirpath):
     data_dir = 'celebA'
     if os.path.exists(os.path.join(dirpath, data_dir)):
-        print('Found Stanford POS Tagger - skip')
-        return
-    url = 'https://www.dropbox.com/sh/8oqt9vytwxb3s4r/AADVdnYbokd7TXhpvfWLL3sga/img_align_celeba.zip?dl=1'
-    filepath = download(url, dirpath)
-    zip_dir = ''
-    with zipfile.ZipFile(filepath) as zf:
-        zip_dir = zf.namelist()[0]
-        zf.extractall(dirpath)
-    os.remove(filepath)
-    os.rename(os.path.join(dirpath, zip_dir), os.path.join(dirpath, data_dir))
-
-def download_celeb_a(dirpath):
-    data_dir = 'celebA'
-    if os.path.exists(os.path.join(dirpath, data_dir)):
         print('Found Celeb-A - skip')
         return
     url = 'https://www.dropbox.com/sh/8oqt9vytwxb3s4r/AADVdnYbokd7TXhpvfWLL3sga/img_align_celeba.zip?dl=1'
@@ -86,7 +72,7 @@ def download_celeb_a(dirpath):
 
 def _list_categories(tag):
     url = 'http://lsun.cs.princeton.edu/htbin/list.cgi?tag=' + tag
-    f = urllib2.urlopen(url)
+    f = urllib.request.urlopen(url)
     return json.loads(f.read())
 
 def _download_lsun(out_dir, category, set_name, tag):
@@ -103,7 +89,7 @@ def _download_lsun(out_dir, category, set_name, tag):
     subprocess.call(cmd)
 
 def download_lsun(dirpath):
-    data_dir = os.path.join(dirpath, 'lusn')
+    data_dir = os.path.join(dirpath, 'lsun')
     if os.path.exists(data_dir):
         print('Found LSUN - skip')
         return
@@ -119,11 +105,17 @@ def download_lsun(dirpath):
         _download_lsun(data_dir, category, 'val', tag)
     _download_lsun(data_dir, '', 'test', tag)
 
+def prepare_data_dir(path = './data'):
+    if not os.path.exists(path):
+        os.mkdir(path)
+
 if __name__ == '__main__':
     args = parser.parse_args()
 
     if not args.datasets:
         raise Exception(" [!] You need to specify the name of datasets to download")
+
+    prepare_data_dir()
 
     if 'celebA' in args.datasets:
         download_celeb_a('./data')

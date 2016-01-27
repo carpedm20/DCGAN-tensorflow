@@ -5,6 +5,8 @@ Tensorflow implementation of [Deep Convolutional Generative Adversarial Networks
 
 ![alt tag](DCGAN.png)
 
+*To avoid the fast convergence of D (discriminator) network, G (generatior) network is updatesd twice for each D network update which is a different from original paper.*
+
 
 Prerequisites
 -------------
@@ -26,7 +28,7 @@ To train a model with celebA dataset:
 
     $ python main.py --dataset celebA --is_train True
 
-To test with a existing model:
+To test with an existing model:
 
     $ python main.py --dataset celebA
 
@@ -41,13 +43,11 @@ Or, you can use your own dataset by:
 Results
 -------
 
-At the beginning of 1st epoch:
+![result](https://media.giphy.com/media/l3nW2iYprSsXtagYo/giphy.gif)
 
-![result1](assets/result_16_01_03_.png)
+After 6th epoch:
 
-After 1st epoch:
-
-![result2](assets/result_16_01_04.png)
+![result3](assets/result_16_01_04_.png)
 
 (in progress)
 
