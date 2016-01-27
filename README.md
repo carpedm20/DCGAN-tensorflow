@@ -49,7 +49,7 @@ After 6th epoch:
 
 ![result3](assets/result_16_01_04_.png)
 
-More results can be found [here](./assets/)
+More results can be found [here](./assets/).
 
 Author
 ------
