@@ -14,6 +14,7 @@ Prerequisites
 - Python 2.7 or Python 3.3+
 - [Tensorflow](https://www.tensorflow.org/)
 - [SciPy](http://www.scipy.org/install.html)
+- (Optional) [Align&Cropped Images.zip](http://mmlab.ie.cuhk.edu.hk/projects/CelebA.html) : Large-scale CelebFaces Dataset
 
 
 Usage
