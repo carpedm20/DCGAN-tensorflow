@@ -2,12 +2,8 @@
 data
 samples
 
-# checkpoint
-checkpoint
-
 # trash
 .dropbox
-test*
 
 # Created by https://www.gitignore.io/api/python,vim
 
