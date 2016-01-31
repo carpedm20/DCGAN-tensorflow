@@ -2,6 +2,7 @@
 Some codes from https://github.com/Newmu/dcgan_code
 """
 import math
+import json
 import pprint
 import scipy.misc
 import numpy as np
@@ -48,3 +49,48 @@ def transform(image, npx=64, is_crop=True):
 
 def inverse_transform(images):
     return (images+1.)/2.
+
+
+def to_json(output_path, *layers):
+    with open(output_path, "w") as layer_f:
+        for layer in layers:
+            layer_idx = layer.name.split('/')[0].split('h')[1]
+
+            if "lin/" in layer.name:
+                W = layer.eval()
+
+                biases = {"sy": 1, "sx": 1, "depth": W.shape[1], "w": [0] * W.shape[1]}
+
+                fs = []
+                for w in W.T:
+                    fs.append({"sy": 1, "sx": 1, "depth": W.shape[0], "w": list(w)})
+
+                layer_f.write("""
+                    var layer_%s = {
+                        "layer_type": "fc", 
+                        "sy": 1, "sx": 1, 
+                        "out_sx": 1, "out_sy": 1,
+                        "stride": 1, "pad": 0,
+                        "out_depth": %s, "in_depth": %s,
+                        "biases": %s,
+                        "filters": %s
+                    };""" % (layer_idx.split('_')[0], W.shape[1], W.shape[0], biases, fs))
+            else:
+                W = np.rollaxis(layer.eval(), 2, 0)
+
+                biases = {"sy": 1, "sx": 1, "depth": W.shape[0], "w": [0] * W.shape[0]}
+
+                fs = []
+                for w in W:
+                    fs.append({"sy": 5, "sx": 5, "depth": W.shape[3], "w": list(w.flatten())})
+
+                layer_f.write("""
+                    var layer_%s = {
+                        "layer_type": "deconv", 
+                        "sy": 5, "sx": 5,
+                        "out_sx": %s, "out_sy": %s,
+                        "stride": 2, "pad": 1,
+                        "out_depth": %s, "in_depth": %s,
+                        "biases": %s,
+                        "filters": %s
+                    };""" % (layer_idx, 2**(int(layer_idx)+2), 2**(int(layer_idx)+2), W.shape[0], W.shape[3], biases, fs))

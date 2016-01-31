@@ -4,7 +4,7 @@ import tensorflow as tf
 from time import gmtime, strftime
 
 from model import DCGAN
-from utils import pp, save_images
+from utils import pp, save_images, to_json
 
 flags = tf.app.flags
 flags.DEFINE_integer("epoch", 25, "Epoch to train [25]")
@@ -38,6 +38,8 @@ def main(_):
             dcgan.train(FLAGS)
         else:
             dcgan.load(FLAGS.checkpoint_dir)
+
+        to_json("./web/js/gen_layers.js", dcgan.h0_w, dcgan.h1_w, dcgan.h2_w, dcgan.h3_w, dcgan.h4_w)
         import ipdb; ipdb.set_trace() 
 
         z_sample = np.random.uniform(-1, 1, size=(FLAGS.batch_size, dcgan.z_dim))

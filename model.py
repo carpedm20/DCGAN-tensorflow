@@ -186,8 +186,8 @@ class DCGAN(object):
     def generator(self, z, y=None):
         if not self.y_dim:
             # project `z` and reshape
-            h0, self.h0_w = tf.reshape(linear(z, self.gf_dim*8*4*4, 'g_h0_lin'),
-                                              [-1, 4, 4, self.gf_dim * 8], with_w=True)
+            z_, self.h0_w = linear(z, self.gf_dim*8*4*4, 'g_h0_lin', with_w=True)
+            h0 = tf.reshape(z_, [-1, 4, 4, self.gf_dim * 8])
             h0 = tf.nn.relu(self.g_bn0(h0))
 
             h1, self.h1_w = deconv2d(h0, [self.batch_size, 8, 8, self.gf_dim*4], name='g_h1', with_w=True)

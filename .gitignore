@@ -2,6 +2,8 @@
 data
 samples
 
+web/js/gen_layers.js
+
 # checkpoint
 checkpoint
 
