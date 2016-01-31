@@ -27,11 +27,11 @@ First, download dataset with:
 
 To train a model with celebA dataset:
 
-    $ python main.py --dataset celebA --is_train True
+    $ python main.py --dataset celebA --is_train True --is_crop True
 
 To test with an existing model:
 
-    $ python main.py --dataset celebA
+    $ python main.py --dataset celebA --is_crop True
 
 Or, you can use your own dataset by:
 
