@@ -574,6 +574,7 @@ var convnetjs = convnetjs || { REVISION: 'ALPHA' };
   DeconvLayer.prototype = {
     forward: function(V, is_training) {
       // optimized code by @mdda that achieves 2x speedup over previous version
+      console.log(V);
       this.in_act = V;
       var A = new Vol(this.out_sx |0, this.out_sy |0, this.out_depth |0, 0.0);
 
@@ -596,6 +597,9 @@ var convnetjs = convnetjs || { REVISION: 'ALPHA' };
                 if(iy>=0 && iy<A.sy && ix>=0 && ix<A.sx) {
                   for(var fd=0;fd<V_depth;fd++) {
                     var a = f.w[((f.sx * fy)+fx)*V_depth+fd] * V.w[((V_sx * ay)+ax)*V_depth+fd];
+                    if (isNaN(a)) {
+                      a = 1;
+                    }
                     A.w[((A.sx * iy)+ix)*A.depth + d] += a;
                   }
                 }
