@@ -40,7 +40,6 @@ def main(_):
             dcgan.load(FLAGS.checkpoint_dir)
 
         to_json("./web/js/gen_layers.js", dcgan.h0_w, dcgan.h1_w, dcgan.h2_w, dcgan.h3_w, dcgan.h4_w)
-        import ipdb; ipdb.set_trace() 
 
         z_sample = np.random.uniform(-1, 1, size=(FLAGS.batch_size, dcgan.z_dim))
 

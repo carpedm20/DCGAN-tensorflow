@@ -574,7 +574,6 @@ var convnetjs = convnetjs || { REVISION: 'ALPHA' };
   DeconvLayer.prototype = {
     forward: function(V, is_training) {
       // optimized code by @mdda that achieves 2x speedup over previous version
-      console.log(V);
       this.in_act = V;
       var A = new Vol(this.out_sx |0, this.out_sy |0, this.out_depth |0, 0.0);
 

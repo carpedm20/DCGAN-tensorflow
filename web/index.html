@@ -156,9 +156,7 @@ var draw_activations_COLOR = function(elt, A, scale, grads) {
           else if(z<-1) z=-1;
           x.set(0,0,i,z);
       }
-      console.log(x);
       img = net.forward(x);
-      console.log(img);
       draw_activations_COLOR(document.getElementById('hoge'), img);
       //console.log(JSON.stringify(net.toJSON()));
   }
