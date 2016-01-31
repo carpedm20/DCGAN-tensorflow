@@ -7,7 +7,7 @@ from ops import *
 from utils import *
 
 class DCGAN(object):
-    def __init__(self, sess, image_size=108, 
+    def __init__(self, sess, image_size=108, is_crop=True,
                  batch_size=64, sample_size = 64, image_shape=[64, 64, 3],
                  y_dim=None, z_dim=100, gf_dim=64, df_dim=64,
                  gfc_dim=1024, dfc_dim=1024, c_dim=3, dataset_name='default'):
@@ -25,6 +25,7 @@ class DCGAN(object):
             c_dim: (optional) Dimension of image color. [3]
         """
         self.sess = sess
+        self.is_crop = is_crop
         self.batch_size = batch_size
         self.image_size = image_size
         self.sample_size = sample_size
@@ -101,17 +102,24 @@ class DCGAN(object):
 
         sample_z = np.random.uniform(-1, 1, size=(self.sample_size , self.z_dim))
         sample_files = data[0:self.sample_size]
-        sample = [get_image(sample_file, self.image_size) for sample_file in sample_files]
+        sample = [get_image(sample_file, self.image_size, is_crop=self.is_crop) for sample_file in sample_files]
         sample_images = np.array(sample).astype(np.float32)
 
         counter = 1
         start_time = time.time()
-        batch_idxs = min(len(data), config.train_size)/config.batch_size
+
+        if dcgan.load(FLAGS.checkpoint_dir):
+            print(" [*] Load SUCCESS")
+        else:
+            print(" [!] Load failed...")
 
         for epoch in xrange(config.epoch):
+            data = glob(os.path.join("./data", config.dataset, "*.jpg"))
+            batch_idxs = min(len(data), config.train_size)/config.batch_size
+
             for idx in xrange(0, batch_idxs):
                 batch_files = data[idx*config.batch_size:(idx+1)*config.batch_size]
-                batch = [get_image(batch_file, self.image_size) for batch_file in batch_files]
+                batch = [get_image(batch_file, self.image_size, is_crop=self.is_crop) for batch_file in batch_files]
                 batch_images = np.array(batch).astype(np.float32)
 
                 batch_z = np.random.uniform(-1, 1, [config.batch_size, self.z_dim]) \
@@ -129,9 +137,6 @@ class DCGAN(object):
                 errD_fake = self.d_loss_fake.eval({self.z: batch_z})
                 errD_real = self.d_loss_real.eval({self.images: batch_images})
                 errG = self.g_loss.eval({self.z: batch_z})
-                print("errD:", errD_fake+errD_real, "errD_fake:", errD_fake, "errD_real", errD_real, "errG", errG)
-
-                #import ipdb; ipdb.set_trace() 
 
                 counter += 1
                 print("Epoch: [%2d] [%4d/%4d] time: %4.4f, d_loss: %.8f, g_loss: %.8f" \
@@ -181,20 +186,20 @@ class DCGAN(object):
     def generator(self, z, y=None):
         if not self.y_dim:
             # project `z` and reshape
-            h0 = tf.reshape(linear(z, self.gf_dim*8*4*4, 'g_h0_lin'),
-                            [-1, 4, 4, self.gf_dim * 8])
+            z_, self.h0_w = linear(z, self.gf_dim*8*4*4, 'g_h0_lin', with_w=True)
+            h0 = tf.reshape(z_, [-1, 4, 4, self.gf_dim * 8])
             h0 = tf.nn.relu(self.g_bn0(h0))
 
-            h1 = deconv2d(h0, [self.batch_size, 8, 8, self.gf_dim*4], name='g_h1')
+            h1, self.h1_w = deconv2d(h0, [self.batch_size, 8, 8, self.gf_dim*4], name='g_h1', with_w=True)
             h1 = tf.nn.relu(self.g_bn1(h1))
 
-            h2 = deconv2d(h1, [self.batch_size, 16, 16, self.gf_dim*2], name='g_h2')
+            h2, self.h2_w = deconv2d(h1, [self.batch_size, 16, 16, self.gf_dim*2], name='g_h2', with_w=True)
             h2 = tf.nn.relu(self.g_bn2(h2))
 
-            h3 = deconv2d(h2, [self.batch_size, 32, 32, self.gf_dim*1], name='g_h3')
+            h3, self.h3_w = deconv2d(h2, [self.batch_size, 32, 32, self.gf_dim*1], name='g_h3', with_w=True)
             h3 = tf.nn.relu(self.g_bn3(h3))
 
-            h4 = deconv2d(h3, [self.batch_size, 64, 64, 3], name='g_h4')
+            h4, self.h4_w = deconv2d(h3, [self.batch_size, 64, 64, 3], name='g_h4', with_w=True)
 
             return tf.nn.tanh(h4)
         else:
@@ -272,5 +277,6 @@ class DCGAN(object):
         if ckpt and ckpt.model_checkpoint_path:
             ckpt_name = os.path.basename(ckpt.model_checkpoint_path)
             self.saver.restore(self.sess, os.path.join(checkpoint_dir, ckpt_name))
+            return True
         else:
-            raise Exception(" [!] Testing, but %s not found" % checkpoint_dir)
+            return False

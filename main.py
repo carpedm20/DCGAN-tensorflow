@@ -4,7 +4,7 @@ import tensorflow as tf
 from time import gmtime, strftime
 
 from model import DCGAN
-from utils import pp, save_images
+from utils import pp, save_images, to_json
 
 flags = tf.app.flags
 flags.DEFINE_integer("epoch", 25, "Epoch to train [25]")
@@ -17,6 +17,7 @@ flags.DEFINE_string("dataset", "celebA", "The name of dataset [celebA, mnist, ls
 flags.DEFINE_string("checkpoint_dir", "checkpoint", "Directory name to save the checkpoints [checkpoint]")
 flags.DEFINE_string("sample_dir", "samples", "Directory name to save the image samples [samples]")
 flags.DEFINE_boolean("is_train", False, "True for training, False for testing [False]")
+flags.DEFINE_boolean("is_crop", False, "True for training, False for testing [False]")
 FLAGS = flags.FLAGS
 
 def main(_):
@@ -29,14 +30,16 @@ def main(_):
 
     with tf.Session() as sess:
         if FLAGS.dataset == 'mnist':
-            dcgan = DCGAN(sess, image_size=FLAGS.image_size, batch_size=FLAGS.batch_size, y_dim=10)
+            dcgan = DCGAN(sess, image_size=FLAGS.image_size, batch_size=FLAGS.batch_size, y_dim=10, dataset_name=FLAGS.dataset, is_crop=FLAGS.is_crop)
         else:
-            dcgan = DCGAN(sess, image_size=FLAGS.image_size, batch_size=FLAGS.batch_size)
+            dcgan = DCGAN(sess, image_size=FLAGS.image_size, batch_size=FLAGS.batch_size, dataset_name=FLAGS.dataset, is_crop=FLAGS.is_crop)
 
         if FLAGS.is_train:
             dcgan.train(FLAGS)
         else:
             dcgan.load(FLAGS.checkpoint_dir)
+
+        to_json("./web/js/gen_layers.js", dcgan.h0_w, dcgan.h1_w, dcgan.h2_w, dcgan.h3_w, dcgan.h4_w)
 
         z_sample = np.random.uniform(-1, 1, size=(FLAGS.batch_size, dcgan.z_dim))
 
