@@ -33,7 +33,7 @@ To test with an existing model:
 
     $ python main.py --dataset celebA --is_crop True
 
-Or, you can use your own dataset by:
+Or, you can use your own dataset (without central crop) by:
 
     $ mkdir data/DATASET_NAME
     ... add images to data/DATASET_NAME ...
