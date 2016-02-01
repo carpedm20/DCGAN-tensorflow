@@ -1,6 +1,7 @@
 # Data
 data
 samples
+*.zip
 
 web/js/gen_layers.js
 
