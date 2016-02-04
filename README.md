@@ -50,6 +50,8 @@ After 6th epoch:
 
 ![result3](assets/result_16_01_04_.png)
 
+After 10th epoch:
+
 ![result4](assets/test_2016-01-27 15:08:54.png)
 
 With custom dataset (with high noises):
