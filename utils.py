@@ -61,6 +61,7 @@ def to_json(output_path, *layers):
                 B = b.eval()
 
                 biases = {"sy": 1, "sx": 1, "depth": W.shape[1], "w": list(B)}
+                import ipdb; ipdb.set_trace() 
 
                 fs = []
                 for w in W.T:
@@ -81,6 +82,7 @@ def to_json(output_path, *layers):
                 B = b.eval()
 
                 biases = {"sy": 1, "sx": 1, "depth": W.shape[0], "w": list(B)}
+                import ipdb; ipdb.set_trace() 
 
                 fs = []
                 for w in W:

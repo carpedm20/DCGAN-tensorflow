@@ -50,11 +50,26 @@ After 6th epoch:
 
 ![result3](assets/result_16_01_04_.png)
 
-![result4](assets/test_2016-01-27%2015:09:46.png)
-
 ![result4](assets/test_2016-01-27 15:08:54.png)
 
+With custom dataset (with high noises):
+
+![custom_result](assets/custom_dataset.png)
+
 More results can be found [here](./assets/).
+
+
+Training details
+----------------
+
+![d_loss](assets/d_loss.png)
+
+![g_loss](assets/g_loss.png)
+
+![d_hist](assets/d_hist.png)
+
+![d__hist](assets/d__hist.png)
+
 
 Author
 ------
