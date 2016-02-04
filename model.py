@@ -72,15 +72,25 @@ class DCGAN(object):
         self.z = tf.placeholder(tf.float32, [None, self.z_dim],
                                 name='z')
 
+        self.z_sum = tf.histogram_summary("z", self.z)
+
         self.G = self.generator(self.z)
         self.D = self.discriminator(self.images)
 
         self.sampler = self.sampler(self.z)
         self.D_ = self.discriminator(self.G, reuse=True)
 
+        self.d_sum = tf.histogram_summary("d", self.D)
+        self.d__sum = tf.histogram_summary("d_", self.D_)
+        self.G_sum = tf.image_summary("G", self.G)
+
         self.d_loss_real = binary_cross_entropy_with_logits(tf.ones_like(self.D), self.D)
         self.d_loss_fake = binary_cross_entropy_with_logits(tf.zeros_like(self.D_), self.D_)
         self.g_loss = binary_cross_entropy_with_logits(tf.ones_like(self.D_), self.D_)
+
+        self.d_loss_real_sum = tf.scalar_summary("d_loss_real", self.d_loss_real)
+        self.d_loss_fake_sum = tf.scalar_summary("d_loss_fake", self.d_loss_fake)
+        self.g_loss_sum = tf.scalar_summary("g_loss", self.g_loss)
                                                     
         self.d_loss = self.d_loss_real + self.d_loss_fake
 
@@ -101,6 +111,12 @@ class DCGAN(object):
         g_optim = tf.train.AdamOptimizer(config.learning_rate, beta1=config.beta1) \
                           .minimize(self.g_loss, var_list=self.g_vars)
         tf.initialize_all_variables().run()
+
+        self.saver = tf.train.Saver()
+        self.g_sum = tf.merge_summary([self.z_sum, self.d__sum, 
+            self.G_sum, self.d_loss_fake_sum, self.g_loss_sum])
+        self.d_sum = tf.merge_summary([self.z_sum, self.d_sum, self.d_loss_real_sum])
+        self.writer = tf.train.SummaryWriter("./logs", self.sess.graph_def)
 
         sample_z = np.random.uniform(-1, 1, size=(self.sample_size , self.z_dim))
         sample_files = data[0:self.sample_size]
@@ -128,13 +144,16 @@ class DCGAN(object):
                             .astype(np.float32)
 
                 # Update D network
-                self.sess.run(d_optim, feed_dict={ self.images: batch_images, self.z: batch_z })
+                _, summary_str = self.sess.run([d_optim, self.d_sum],
+                    feed_dict={ self.images: batch_images, self.z: batch_z })
 
                 # Update G network
-                self.sess.run(g_optim, feed_dict={ self.z: batch_z })
+                _, summary_str = self.sess.run([g_optim, self.g_sum],
+                    feed_dict={ self.z: batch_z })
 
                 # Run g_optim twice to make sure that d_loss does not go to zero (different from paper)
-                self.sess.run(g_optim, feed_dict={ self.z: batch_z }) 
+                _, summary_str = self.sess.run([g_optim, self.g_sum],
+                    feed_dict={ self.z: batch_z })
 
                 errD_fake = self.d_loss_fake.eval({self.z: batch_z})
                 errD_real = self.d_loss_real.eval({self.images: batch_images})

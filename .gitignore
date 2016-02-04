@@ -2,6 +2,7 @@
 data
 samples
 *.zip
+logs
 
 web/js/gen_layers.js
 
