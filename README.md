@@ -62,11 +62,13 @@ More results can be found [here](./assets/).
 Training details
 ----------------
 
-Details of the loss of Discriminator and Generator, and the histogram of true and fake result of discriminator (with custom dataset not celebA).
+Details of the loss of Discriminator and Generator (with custom dataset not celebA).
 
 ![d_loss](assets/d_loss.png)
 
 ![g_loss](assets/g_loss.png)
+
+Details of the histogram of true and fake result of discriminator (with custom dataset not celebA).
 
 ![d_hist](assets/d_hist.png)
 
