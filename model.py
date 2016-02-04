@@ -90,9 +90,11 @@ class DCGAN(object):
 
         self.d_loss_real_sum = tf.scalar_summary("d_loss_real", self.d_loss_real)
         self.d_loss_fake_sum = tf.scalar_summary("d_loss_fake", self.d_loss_fake)
-        self.g_loss_sum = tf.scalar_summary("g_loss", self.g_loss)
                                                     
         self.d_loss = self.d_loss_real + self.d_loss_fake
+
+        self.g_loss_sum = tf.scalar_summary("g_loss", self.g_loss)
+        self.d_loss_sum = tf.scalar_summary("d_loss", self.d_loss)
 
         t_vars = tf.trainable_variables()
 
@@ -115,7 +117,7 @@ class DCGAN(object):
         self.saver = tf.train.Saver()
         self.g_sum = tf.merge_summary([self.z_sum, self.d__sum, 
             self.G_sum, self.d_loss_fake_sum, self.g_loss_sum])
-        self.d_sum = tf.merge_summary([self.z_sum, self.d_sum, self.d_loss_real_sum])
+        self.d_sum = tf.merge_summary([self.z_sum, self.d_sum, self.d_loss_real_sum, self.d_loss_sum])
         self.writer = tf.train.SummaryWriter("./logs", self.sess.graph_def)
 
         sample_z = np.random.uniform(-1, 1, size=(self.sample_size , self.z_dim))
