@@ -80,12 +80,11 @@ def deconv2d(input_, output_shape,
         deconv = tf.nn.deconv2d(input_, w, output_shape=output_shape,
                                 strides=[1, d_h, d_w, 1])
 
-        biases = tf.Variable(tf.constant(0.0, shape=[output_shape[-1]], dtype=tf.float32),
-                             trainable=True, name='biases')
+        biases = tf.Variable([0.0] * output_shape[-1], name='biases')
         bias = tf.reshape(tf.nn.bias_add(deconv, biases), deconv.get_shape())
 
         if with_w:
-            return deconv, w
+            return deconv, w, biases
         else:
             return deconv
 
@@ -105,6 +104,6 @@ def linear(input_, output_size, scope=None, stddev=0.02, bias_start=0.0, with_w=
             "Bias", [output_size],
             initializer=tf.constant_initializer(bias_start))
         if with_w:
-            return tf.matmul(input_, matrix) + bias_term, matrix
+            return tf.matmul(input_, matrix) + bias_term, matrix, bias_term
         else:
             return tf.matmul(input_, matrix) + bias_term

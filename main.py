@@ -41,7 +41,8 @@ def main(_):
         else:
             dcgan.load(FLAGS.checkpoint_dir)
 
-        to_json("./web/js/gen_layers.js", dcgan.h0_w, dcgan.h1_w, dcgan.h2_w, dcgan.h3_w, dcgan.h4_w)
+        to_json("./web/js/gen_layers.js", [dcgan.h0_w, dcgan.h0_b], [dcgan.h1_w, dcgan.h1_b],
+            [dcgan.h2_w, dcgan.h2_b], [dcgan.h3_w, dcgan.h3_b], [dcgan.h4_w, dcgan.h4_b])
 
         z_sample = np.random.uniform(-1, 1, size=(FLAGS.batch_size, dcgan.z_dim))
 

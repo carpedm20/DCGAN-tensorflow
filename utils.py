@@ -53,13 +53,14 @@ def inverse_transform(images):
 
 def to_json(output_path, *layers):
     with open(output_path, "w") as layer_f:
-        for layer in layers:
-            layer_idx = layer.name.split('/')[0].split('h')[1]
+        for w, b in layers:
+            layer_idx = w.name.split('/')[0].split('h')[1]
 
-            if "lin/" in layer.name:
-                W = layer.eval()
+            if "lin/" in w.name:
+                W = w.eval()
+                B = b.eval()
 
-                biases = {"sy": 1, "sx": 1, "depth": W.shape[1], "w": [0] * W.shape[1]}
+                biases = {"sy": 1, "sx": 1, "depth": W.shape[1], "w": list(B)}
 
                 fs = []
                 for w in W.T:
@@ -76,9 +77,10 @@ def to_json(output_path, *layers):
                         "filters": %s
                     };""" % (layer_idx.split('_')[0], W.shape[1], W.shape[0], biases, fs))
             else:
-                W = np.rollaxis(layer.eval(), 2, 0)
+                W = np.rollaxis(w.eval(), 2, 0)
+                B = b.eval()
 
-                biases = {"sy": 1, "sx": 1, "depth": W.shape[0], "w": [0] * W.shape[0]}
+                biases = {"sy": 1, "sx": 1, "depth": W.shape[0], "w": list(B)}
 
                 fs = []
                 for w in W:
