@@ -64,9 +64,8 @@ def conv2d(input_, output_dim,
                             initializer=tf.truncated_normal_initializer(stddev=stddev))
         conv = tf.nn.conv2d(input_, w, strides=[1, d_h, d_w, 1], padding='SAME')
 
-        biases = tf.Variable(tf.constant(0.0, shape=[output_dim], dtype=tf.float32),
-                             trainable=True, name='biases')
-        bias = tf.reshape(tf.nn.bias_add(conv, biases), conv.get_shape())
+        biases = tf.get_variable('biases', [output_dim], initializer=tf.constant_initializer(0.0))
+        conv = tf.reshape(tf.nn.bias_add(conv, biases), conv.get_shape())
 
         return conv
 
@@ -80,8 +79,8 @@ def deconv2d(input_, output_shape,
         deconv = tf.nn.deconv2d(input_, w, output_shape=output_shape,
                                 strides=[1, d_h, d_w, 1])
 
-        biases = tf.Variable([0.0] * output_shape[-1], name='biases')
-        bias = tf.reshape(tf.nn.bias_add(deconv, biases), deconv.get_shape())
+        biases = tf.get_variable('biases', [output_shape[-1]], initializer=tf.constant_initializer(0.0))
+        deconv = tf.reshape(tf.nn.bias_add(deconv, biases), deconv.get_shape())
 
         if with_w:
             return deconv, w, biases
@@ -100,10 +99,9 @@ def linear(input_, output_size, scope=None, stddev=0.02, bias_start=0.0, with_w=
     with tf.variable_scope(scope or "Linear"):
         matrix = tf.get_variable("Matrix", [shape[1], output_size], tf.float32,
                                  tf.random_normal_initializer(stddev=stddev))
-        bias_term = tf.get_variable(
-            "Bias", [output_size],
+        bias = tf.get_variable("bias", [output_size],
             initializer=tf.constant_initializer(bias_start))
         if with_w:
-            return tf.matmul(input_, matrix) + bias_term, matrix, bias_term
+            return tf.matmul(input_, matrix) + bias, matrix, bias
         else:
-            return tf.matmul(input_, matrix) + bias_term
+            return tf.matmul(input_, matrix) + bias
