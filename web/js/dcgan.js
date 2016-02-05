@@ -1,18 +1,26 @@
-$(document).ready(function() {
-  var maxmin = function(w) {
-    if(w.length === 0) { return {}; } // ... ;s
+function rgb2hex(rgb){
+  rgb = rgb.match(/^rgba?[\s+]?\([\s+]?(\d+)[\s+]?,[\s+]?(\d+)[\s+]?,[\s+]?(\d+)[\s+]?/i);
+  return (rgb && rgb.length === 4) ?
+    ("0" + parseInt(rgb[1],10).toString(16)).slice(-2) +
+    ("0" + parseInt(rgb[2],10).toString(16)).slice(-2) +
+    ("0" + parseInt(rgb[3],10).toString(16)).slice(-2) : '';
+}
 
-    var maxv = w[0];
-    var minv = w[0];
-    var maxi = 0;
-    var mini = 0;
-    for(var i=1;i<w.length;i++) {
-      if(w[i] > maxv) { maxv = w[i]; maxi = i; } 
-      if(w[i] < minv) { minv = w[i]; mini = i; } 
-    }
-    return {maxi: maxi, maxv: maxv, mini: mini, minv: minv, dv:maxv-minv};
+var maxmin = function(w) {
+  if(w.length === 0) { return {}; } // ... ;s
+
+  var maxv = w[0];
+  var minv = w[0];
+  var maxi = 0;
+  var mini = 0;
+  for(var i=1;i<w.length;i++) {
+    if(w[i] > maxv) { maxv = w[i]; maxi = i; } 
+    if(w[i] < minv) { minv = w[i]; mini = i; } 
   }
+  return {maxi: maxi, maxv: maxv, mini: mini, minv: minv, dv:maxv-minv};
+}
 
+$(document).ready(function() {  
   var layer_defs, net;
   layer_defs = [];
   layer_defs.push({type:'input', out_sx:1, out_sy:1, out_depth:100});
@@ -58,11 +66,6 @@ $(document).ready(function() {
       doms.push(dom);
       document.getElementById('z').appendChild(doms[i]);
     }
-    $('.slider').slider({
-      formatter: function(value) {
-        return 'Current value: ' + value;
-      }
-    });
     for(var i=0; i<num_tags; i++){
       sliders.push(document.createElement('input'));
       sliders[i].type="range";
@@ -99,11 +102,11 @@ $(document).ready(function() {
 
   var test = function(){
     x = new convnetjs.Vol(1,1,100,0.0);
+    pixels = get_pixels();
+
     for(var i=0; i<100; i++){
       var z = strength[0].value/100.0*z0[i];
-      for(var j=0; j<num_tags; j++){
-        z += sliders[j].value/200.0 * zws['w'][j]['v'][i];
-      }
+      z += pixels[i];
       if(z>1) z=1;
       else if(z<-1) z=-1;
       x.set(0,0,i,z);
@@ -153,6 +156,178 @@ $(document).ready(function() {
     document.getElementById('hoge').appendChild(canv);
     $(canv).hide().fadeIn(1000);
   }
+
+  var currentColor = "#000000",
+    copyFrameIndex = -1,
+    tips = true;
+
+  // clear all frames, disable all frames except the first one and make first frame active
+  function clearAll() {
+    var framesLength = PIXEL.getFramesLength();
+    for(var i = framesLength-1; i >= 0; i--) {
+      PIXEL.log('REMOVE ' + i + ' FRAME OF ' + PIXEL.getFramesLength() + ' FRAMES!');
+      PIXEL.clearCanvasAt(i);
+      PIXEL.removeFrame(i);
+      disable($(".frame[data-frame=" + i + "]"));
+    }
+    PIXEL.setCurrentFrame(0);
+
+    deactivate($(".frame.active"));
+    activate($(".frame[data-frame=0]"));
+    enable($(".frame[data-frame=0]"));
+    disable($(".remove_frame"));
+    enable($(".add_frame"));
+    
+    copyFrameIndex = -1;
+  }
+
+  var get_pixels = function() {
+    var x = new Array(100);
+    var frame = PIXEL.getCurrentFrame();
+
+    for (var i=0; i<10; i++) {
+      for (var j=0; j<10; j++) {
+        var idx = i*10 + j;
+        if (frame.data[i][j] == "rgba(0, 0, 0, 0)") {
+          x[idx] = 1;
+        } else {
+          x[idx] = parseInt(frame.data[i][j].substring(1));
+        }
+      }
+    }
+
+    return x;
+  }
+
+  // deactivate element
+  function deactivate($el) {
+    return $el.removeClass("active");
+  }
+
+  // activate element
+  function activate($el) {
+    return $el.addClass("active");
+  }
+
+  // disable element
+  function disable($el) {
+    return $el.addClass("disabled");
+  }
+
+  // enable element
+  function enable($el) {
+    return $el.removeClass("disabled");
+  }
+
+  // is element enabled?
+  function isEnabled($el) {
+    return $el.size() > 0 && !$el.hasClass("disabled");
+  }
+
+  // track event
+  function trackEvent(e, url) {
+    _gaq.push(['_trackEvent', 'Drawings', e, url]);
+  }
+
+  // returns mouse or tap event relative coordinates
+  function getCoordinates(e) {
+    var x, y;
+    
+    x = e.offsetX ? e.offsetX : e.pageX - e.target.parentNode.offsetLeft;
+    y = e.offsetY ? e.offsetY : e.pageY - e.target.parentNode.offsetTop;
+    
+    return {x: x, y: y};
+  }
+
+  // mouse down event callback
+  function mouseDownCallback(e) {
+    PIXEL.setDraw(true);
+    var coordinates = getCoordinates(e);
+    
+    PIXEL.doAction(coordinates.x, coordinates.y, currentColor);
+  }
+
+  // mouse move event callback
+  function mouseMoveCallback(e) {
+    var coordinates = getCoordinates(e);
+    
+    PIXEL.doAction(coordinates.x, coordinates.y, currentColor);
+    e.preventDefault();
+  }
+
+  // mouse up event callback
+  function mouseUpCallback() {
+    PIXEL.setDraw(false);
+  }
+
+  var canvas = $("#canvas canvas"),
+      previewCanvases = $('.frames canvas');
+
+  if(typeof imageData != 'undefined') {
+    PIXEL.init(canvas[0], previewCanvases, true, imageData);
+
+    if(imageData.length > 1) {
+      maxFrames == PIXEL.getFramesLength() && disable($(".add_frame"));
+      PIXEL.getFramesLength() > 1 && enable($(".remove_frame"));
+      
+      for(var i = 1; i < PIXEL.getFramesLength(); i++) {
+        enable($(".frame[data-frame=" + i + "]"));
+      }
+    }
+  }
+  else {
+    PIXEL.init(canvas[0], previewCanvases, true);
+  }
+
+  // set drawing on mousedown
+  canvas.mousedown(mouseDownCallback).mousemove(mouseMoveCallback);
+  canvas.bind('touchstart', mouseDownCallback).bind('touchmove', mouseMoveCallback);
+
+  // reset drawing on mouseup
+  $(document).mouseup(mouseUpCallback);
+  $(document).bind('touchend', mouseUpCallback);
+
+  // controls
+  $("#clear").click(function() {
+    if(confirm("Sure?")) {
+      clearAll();
+    }
+  });
+
+  $(".action.selectable").click(function() {
+    PIXEL.setAction($(this).data('action'));
+    
+    deactivate($(".action.selectable.active"));
+    activate($(this));
+  });
+
+  // colors
+  $(".color").click(function() {
+    currentColor = $(this).data('color');
+    
+    deactivate($(".color.active"));
+    activate($(this));
+  });
+
+  // undo
+  $(".undo").click(function() {
+    PIXEL.undo();
+  });
+
+  // copy
+  $(".copy").click(function() {
+    copyFrameIndex = PIXEL.getCurrentFrameId();
+  });
+
+  $(".paste").click(function() {
+    if(copyFrameIndex > -1 && copyFrameIndex < PIXEL.getFramesLength()) {
+      PIXEL.pasteFrameAt(copyFrameIndex);
+    }
+  });
+
+  $(".rotate").click(function() {
+    PIXEL.rotate();
+  });
 
   initialize();
 }); 

@@ -57,7 +57,10 @@
                         <a class="page-scroll" href="#about">About</a>
                     </li>
                     <li>
-                        <a class="page-scroll" href="#contact">Generate</a>
+                        <a class="page-scroll" href="#about">Details</a>
+                    </li>
+                    <li>
+                        <a class="page-scroll" href="#generate">Generate</a>
                     </li>
                 </ul>
             </div>
@@ -81,7 +84,6 @@
         </div>
     </header>
 
-    <!-- About Section -->
     <section id="about" class="container content-section text-center">
         <div class="row">
             <div class="col-lg-8 col-lg-offset-2">
@@ -92,13 +94,57 @@
         </div>
     </section>
 
-    <!-- Download Section -->
-    <section id="download" class="content-section text-center">
+    <section id="details" class="container content-section text-center">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2">
+                <h2>뉴럴 프사</h2>
+                <p>뉴럴 프사는 이미지 생성 모델 중 하나인 <a href="http://startbootstrap.com/template-overviews/main/">Deep Convolutional Generative Adversarial Networks</a>로 만들어졌습니다. 뉴럴 프사는 인터넷에서 수집한 한국인의 얼굴 사진들을 반복적으로 보고 배워 얼굴의 패턴을 학습해서 스스로 얼굴 사진을 만들 수 있습니다.</p>
+                <p>뉴럴 프사의 핵심 코드는 TensorFlow로 구현되었으며 코드는 <a href="https://github.com/carpedm20/DCGAN-tensorflow">이곳</a>에 공개되어 있습니다.</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="generate" class="content-section text-center">
         <div class="row">
             <div class="col-lg-8 col-lg-offset-2">
                 <h2>Real-time Image Generation</h2>
                 <div id="hoge"></div>
 
+                <div class="row" id='canvas'>
+                    <canvas height='200' width='200' onselectstart="this.style.cursor='crosshair'; return false;">
+                        <p>
+                            Sorry, your browser doesn't support the <canvas> element.
+                        </p>
+                        <p>
+                            Please upgrade to
+                            <a href='http://www.microsoft.com/IE9'>IE 9</a>
+                            or use the latest
+                            <a href='http://www.google.com/chrome'>Chrome</a>
+                            or
+                            <a href='http://www.mozilla.com/'>Firefox</a>
+                        </p>
+                    </canvas>
+                </div>
+                <div class="row frames">
+                    <canvas height="16" width="16"></canvas>
+                </div>
+                <div class="row" id="colors">
+                    <div class="color" data-color="#000000">
+                      <div class="isometric" id="color_1" style="background-color: #000000"></div>
+                    </div>
+                    <div class="color" data-color="#444444">
+                      <div class="isometric" id="color_2" style="background-color: #444444"></div>
+                    </div>
+                    <div class="color" data-color="#888888">
+                      <div class="isometric" id="color_3" style="background-color: #888888"></div>
+                    </div>
+                    <div class="color" data-color="#CCCCCC">
+                      <div class="isometric" id="color_4" style="background-color: #CCCCCC"></div>
+                    </div>
+                    <div class="color" data-color="#FFFFFF">
+                      <div class="isometric" id="color_5" style="background-color: #FFFFFF"></div>
+                    </div>
+                </div>
                 <button type="button" id="draw" class="btn btn-default">Draw</button>
                 <button type="button" id="shuffle" class="btn btn-default">Random</button>
                 <button type="button" id="reset" class="btn btn-default">Reset</button>
@@ -131,9 +177,6 @@
         </div>
     </section>
 
-    <!-- Map Section -->
-    <div id="map"></div>
-
     <!-- Footer -->
     <footer>
         <div class="container text-center">
@@ -142,11 +185,11 @@
     </footer>
 
     <!-- jQuery -->
-    <script src="js/jquery.js"></script>
-    <script src="js/bootstrap.min.js"></script>
-    <script src="js/jquery.easing.min.js"></script>
+    <script src="js/vendor/jquery.js"></script>
+    <script src="js/vendor/bootstrap.min.js"></script>
+    <script src="js/vendor/jquery.easing.min.js"></script>
 
-    <script src="js/fakeLoader.min.js"></script>
+    <script src="js/vendor/fakeLoader.min.js"></script>
     <script type="text/javascript">
         $("#fakeLoader").fakeLoader({
             timeToHide:5000, //Time in milliseconds for fakeLoader disappear
@@ -155,7 +198,9 @@
             bgColor:"black"
         });
     </script>
-    <script type='text/javascript' src="js/bootstrap-slider.min.js"></script>
+    <script src="js/vendor/pixel.min.js"></script>
+    <script type="text/javascript">
+    </script>
 
     <!-- JavaScript -->
     <script src="js/main.js"></script>

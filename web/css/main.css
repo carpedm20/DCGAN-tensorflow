@@ -1,3 +1,95 @@
+canvas {
+    background-color: white;
+}
+
+#colors {
+    overflow: hidden;
+    width: 90px;
+    height: 330px;
+    margin-left: 30px;
+    float: left;
+}
+
+#colors .color {
+    float: left;
+    width: 40px;
+    height: 40px;
+}
+
+#colors .color div {
+    width: 100%;
+    height: 100%;
+  cursor: pointer;
+}
+
+#colors .color #color_1::before { background-color: #000000; }
+#colors .color #color_1::after { background-color: #000000; }
+#colors .color #color_2::before { background-color: #444444; }
+#colors .color #color_2::after { background-color: #303030; }
+#colors .color #color_3::before { background-color: #000088; }
+#colors .color #color_3::after { background-color: #00005f; }
+#colors .color #color_4::before { background-color: #1111ff; }
+#colors .color #color_4::after { background-color: #0000be; }
+#colors .color #color_5::before { background-color: #008800; }
+#colors .color #color_5::after { background-color: #005f00; }
+#colors .color #color_6::before { background-color: #11ff11; }
+#colors .color #color_6::after { background-color: #00be00; }
+#colors .color #color_7::before { background-color: #008888; }
+#colors .color #color_7::after { background-color: #005f5f; }
+#colors .color #color_8::before { background-color: #11ffff; }
+#colors .color #color_8::after { background-color: #00bebe; }
+#colors .color #color_9::before { background-color: #880000; }
+#colors .color #color_9::after { background-color: #5f0000; }
+#colors .color #color_10::before { background-color: #ff1111; }
+#colors .color #color_10::after { background-color: #be0000; }
+#colors .color #color_11::before { background-color: #880088; }
+#colors .color #color_11::after { background-color: #5f005f; }
+#colors .color #color_12::before { background-color: #ff11ff; }
+#colors .color #color_12::after { background-color: #be00be; }
+#colors .color #color_13::before { background-color: #884400; }
+#colors .color #color_13::after { background-color: #5f3000; }
+#colors .color #color_14::before { background-color: #ffff11; }
+#colors .color #color_14::after { background-color: #bebe00; }
+#colors .color #color_15::before { background-color: #888888; }
+#colors .color #color_15::after { background-color: #5f5f5f; }
+#colors .color #color_16::before { background-color: #cccccc; }
+#colors .color #color_16::after { background-color: #8f8f8f; }
+
+#colors .color .isometric::after {
+    width: 40px;
+    height: 10px;
+}
+#colors .color .isometric::before {
+    width: 10px;
+    height: 40px;
+}
+
+
+#colors .color.active div {
+    top: 10px;
+    left: 10px;
+}
+
+/* CANVAS */
+
+#canvas {
+    float: left;
+    cursor: crosshair;
+    width: 320px;
+    height: 320px;
+    background-image: url(/images/canvas_bg.png);
+    margin: 0 auto;
+}
+
+#canvas.isometric::after {
+    width: 320px;
+    height: 10px;
+}
+#canvas.isometric::before {
+    width: 10px;
+    height: 320px;
+}
+
 /*!
  * Start Bootstrap - Grayscale Bootstrap Theme (http://startbootstrap.com)
  * Code licensed under the Apache License v2.0.
@@ -273,12 +365,6 @@ a:focus {
     -o-background-size: cover;
 }
 
-#map {
-    width: 100%;
-    height: 200px;
-    margin-top: 100px;
-}
-
 @media(min-width:767px) {
     .content-section {
         padding-top: 250px;
@@ -286,11 +372,6 @@ a:focus {
 
     .download-section {
         padding: 100px 0;
-    }
-
-    #map {
-        height: 400px;
-        margin-top: 250px;
     }
 }
 
