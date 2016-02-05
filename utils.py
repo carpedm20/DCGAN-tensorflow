@@ -83,8 +83,8 @@ def to_json(output_path, *layers):
                 biases = {"sy": 1, "sx": 1, "depth": W.shape[0], "w": list(B)}
 
                 fs = []
-                for w in W:
-                    fs.append({"sy": 5, "sx": 5, "depth": W.shape[3], "w": list(w.flatten())})
+                for w_ in W:
+                    fs.append({"sy": 5, "sx": 5, "depth": W.shape[3], "w": list(w_.flatten())})
 
                 layer_f.write("""
                     var layer_%s = {
