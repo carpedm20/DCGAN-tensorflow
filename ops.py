@@ -26,10 +26,10 @@ class batch_norm(object):
             self.beta = tf.get_variable("beta", [shape[-1]],
                                 initializer=tf.constant_initializer(0.))
 
-            mean, variance = tf.nn.moments(x, [0, 1, 2])
+            self.mean, self.variance = tf.nn.moments(x, [0, 1, 2])
 
             return tf.nn.batch_norm_with_global_normalization(
-                x, mean, variance, self.beta, self.gamma, self.epsilon,
+                x, self.mean, self.variance, self.beta, self.gamma, self.epsilon,
                 scale_after_normalization=True)
 
 def binary_cross_entropy_with_logits(logits, targets, name=None):

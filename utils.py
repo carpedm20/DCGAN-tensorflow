@@ -53,15 +53,30 @@ def inverse_transform(images):
 
 def to_json(output_path, *layers):
     with open(output_path, "w") as layer_f:
-        for w, b in layers:
+        for w, b, bn in layers:
             layer_idx = w.name.split('/')[0].split('h')[1]
+
+            B = b.eval()
 
             if "lin/" in w.name:
                 W = w.eval()
-                B = b.eval()
+                depth = W.shape[1]
+            else:
+                W = np.rollaxis(w.eval(), 2, 0)
+                depth = W.shape[0]
 
-                biases = {"sy": 1, "sx": 1, "depth": W.shape[1], "w": list(B)}
+            biases = {"sy": 1, "sx": 1, "depth": depth, "w": list(B)}
+            if bn != None:
+                gamma = bn.gamma.eval()
+                beta = bn.beta.eval()
 
+                gamma = {"sy": 1, "sx": 1, "depth": depth, "w": list(gamma)}
+                beta = {"sy": 1, "sx": 1, "depth": depth, "w": list(beta)}
+            else:
+                gamma = {"sy": 1, "sx": 1, "depth": 0, "w": []}
+                beta = {"sy": 1, "sx": 1, "depth": 0, "w": []}
+
+            if "lin/" in w.name:
                 fs = []
                 for w in W.T:
                     fs.append({"sy": 1, "sx": 1, "depth": W.shape[0], "w": list(w)})
@@ -74,14 +89,11 @@ def to_json(output_path, *layers):
                         "stride": 1, "pad": 0,
                         "out_depth": %s, "in_depth": %s,
                         "biases": %s,
+                        "gamma": %s,
+                        "beta": %s,
                         "filters": %s
-                    };""" % (layer_idx.split('_')[0], W.shape[1], W.shape[0], biases, fs))
+                    };""" % (layer_idx.split('_')[0], W.shape[1], W.shape[0], biases, gamma, beta, fs))
             else:
-                W = np.rollaxis(w.eval(), 2, 0)
-                B = b.eval()
-
-                biases = {"sy": 1, "sx": 1, "depth": W.shape[0], "w": list(B)}
-
                 fs = []
                 for w_ in W:
                     fs.append({"sy": 5, "sx": 5, "depth": W.shape[3], "w": list(w_.flatten())})
@@ -94,5 +106,8 @@ def to_json(output_path, *layers):
                         "stride": 2, "pad": 1,
                         "out_depth": %s, "in_depth": %s,
                         "biases": %s,
+                        "gamma": %s,
+                        "beta": %s,
                         "filters": %s
-                    };""" % (layer_idx, 2**(int(layer_idx)+2), 2**(int(layer_idx)+2), W.shape[0], W.shape[3], biases, fs))
+                    };""" % (layer_idx, 2**(int(layer_idx)+2), 2**(int(layer_idx)+2),
+                             W.shape[0], W.shape[3], biases, gamma, beta, fs))

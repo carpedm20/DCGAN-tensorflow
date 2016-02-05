@@ -212,14 +212,14 @@ class DCGAN(object):
     def generator(self, z, y=None):
         if not self.y_dim:
             # project `z` and reshape
-            z_, self.h0_w, self.h0_b = linear(z, self.gf_dim*8*4*4, 'g_h0_lin', with_w=True)
+            self.z_, self.h0_w, self.h0_b = linear(z, self.gf_dim*8*4*4, 'g_h0_lin', with_w=True)
 
-            h0 = tf.reshape(z_, [-1, 4, 4, self.gf_dim * 8])
-            h0 = tf.nn.relu(self.g_bn0(h0))
+            self.h0 = tf.reshape(self.z_, [-1, 4, 4, self.gf_dim * 8])
+            h0 = tf.nn.relu(self.g_bn0(self.h0))
 
-            h1, self.h1_w, self.h1_b = deconv2d(h0, 
+            self.h1, self.h1_w, self.h1_b = deconv2d(h0, 
                 [self.batch_size, 8, 8, self.gf_dim*4], name='g_h1', with_w=True)
-            h1 = tf.nn.relu(self.g_bn1(h1))
+            h1 = tf.nn.relu(self.g_bn1(self.h1))
 
             h2, self.h2_w, self.h2_b = deconv2d(h1,
                 [self.batch_size, 16, 16, self.gf_dim*2], name='g_h2', with_w=True)

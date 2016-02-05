@@ -68,10 +68,10 @@ var draw_activations_COLOR = function(elt, A, scale, grads) {
   var layer_defs, net;
   layer_defs = [];
   layer_defs.push({type:'input', out_sx:1, out_sy:1, out_depth:100});
-  layer_defs.push({type:'deconv', sx:4, filters:512, stride:1, pad:0, activation:'relu'});
-  layer_defs.push({type:'deconv', sx:4, filters:256, stride:2, pad:1, activation:'relu'});
-  layer_defs.push({type:'deconv', sx:4, filters:128, stride:2, pad:1, activation:'relu'});
-  layer_defs.push({type:'deconv', sx:4, filters:64, stride:2, pad:1, activation:'relu'});
+  layer_defs.push({type:'deconv', sx:4, filters:512, stride:1, pad:0, bn:true, activation:'relu'});
+  layer_defs.push({type:'deconv', sx:4, filters:256, stride:2, pad:1, bn:true, activation:'relu'});
+  layer_defs.push({type:'deconv', sx:4, filters:128, stride:2, pad:1, bn:true, activation:'relu'});
+  layer_defs.push({type:'deconv', sx:4, filters:64, stride:2, pad:1, bn:true, activation:'relu'});
   layer_defs.push({type:'deconv', sx:4, filters:3, stride:2, pad:1, activation:'tanh'});
   
   net = new convnetjs.Net();
@@ -120,7 +120,8 @@ var draw_activations_COLOR = function(elt, A, scale, grads) {
         doms[i+1].appendChild(sliders[i]);
       }
       for(var i=0; i<100; i++){
-        z0.push(Math.random()*2.0-1.0);
+        //z0.push(Math.random()*2.0-1.0);
+        z0.push(0);
       }
       test();
   }
@@ -143,11 +144,8 @@ var draw_activations_COLOR = function(elt, A, scale, grads) {
 
   var test = function(){
 
-      //document.getElementById("json_net").inner_HTML = JSON.stringify(net.toJSON());
       x = new convnetjs.Vol(1,1,100,0.0);
       for(var i=0; i<100; i++){
-//        x.set(0,0,i,Math.random()*2.0-1.0);
-//        x.set(0,0,i,sliders[i].value/50.0-1.0);
           var z = strength[0].value/100.0*z0[i];
           for(var j=0; j<num_tags; j++){
             z += sliders[j].value/200.0 * zws['w'][j]['v'][i];
@@ -158,11 +156,7 @@ var draw_activations_COLOR = function(elt, A, scale, grads) {
       }
       img = net.forward(x);
       draw_activations_COLOR(document.getElementById('hoge'), img);
-      //console.log(JSON.stringify(net.toJSON()));
   }
-  // ------------------------
-  // END CIFAR-10 SPECIFIC STUFF
-  // ------------------------
 </script>
 
 </head>

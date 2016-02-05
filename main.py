@@ -41,13 +41,26 @@ def main(_):
         else:
             dcgan.load(FLAGS.checkpoint_dir)
 
-        to_json("./web/js/gen_layers.js", [dcgan.h0_w, dcgan.h0_b], [dcgan.h1_w, dcgan.h1_b],
-            [dcgan.h2_w, dcgan.h2_b], [dcgan.h3_w, dcgan.h3_b], [dcgan.h4_w, dcgan.h4_b])
+        to_json("./web/js/gen_layers.js", [dcgan.h0_w, dcgan.h0_b, dcgan.g_bn0],
+                                          [dcgan.h1_w, dcgan.h1_b, dcgan.g_bn1],
+                                          [dcgan.h2_w, dcgan.h2_b, dcgan.g_bn2],
+                                          [dcgan.h3_w, dcgan.h3_b, dcgan.g_bn3],
+                                          [dcgan.h4_w, dcgan.h4_b, None])
 
-        z_sample = np.random.uniform(-1, 1, size=(FLAGS.batch_size, dcgan.z_dim))
+        RANDOM = False
+        if RANDOM:
+          z_sample = np.random.uniform(-1, 1, size=(FLAGS.batch_size, dcgan.z_dim))
+          save_images(samples, [8, 8], './samples/test_%s.png' % strftime("%Y-%m-%d %H:%M:%S", gmtime()))
+        else:
+          values = np.arange(0, 1, 1./FLAGS.batch_size)
+          for idx in xrange(100):
+            print(" [*] %d" % idx)
+            z_sample = np.zeros([FLAGS.batch_size, dcgan.z_dim])
+            for kdx, z in enumerate(z_sample):
+              z[idx] = values[kdx]
 
-        samples = sess.run(dcgan.sampler, feed_dict={dcgan.z: z_sample})
-        save_images(samples, [8, 8], './samples/test_%s.png' % strftime("%Y-%m-%d %H:%M:%S", gmtime()))
+            samples = sess.run(dcgan.sampler, feed_dict={dcgan.z: z_sample})
+            save_images(samples, [8, 8], './samples/test_arange_%s.png' % (idx))
 
 if __name__ == '__main__':
     tf.app.run()

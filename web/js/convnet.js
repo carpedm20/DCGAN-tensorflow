@@ -36,6 +36,35 @@ var convnetjs = convnetjs || { REVISION: 'ALPHA' };
     }
   }
 
+  function average(data, nChannel){
+    var ans = zeros(nChannel);
+    for(var i=0; i < data.length; i++) {
+      ans[i % nChannel] += data[i];
+    }
+    var n = data.length / nChannel;
+    for(var i=0; i < nChannel; i++) {
+      ans[i] = ans[i] / n;
+    }
+    return ans;
+  }
+
+  function standardDeviation(v, nChannel){
+    var values = v.slice();
+    var avgs = average(values, nChannel);
+    
+    for(var i=0; i < values.length; i++) {
+      var diff = (values[i] - avgs[i % nChannel]);
+      values[i] = diff * diff;
+    }
+
+    var stdDev = average(values, nChannel);
+
+    for(var i=0; i < nChannel; i++) {
+      stdDev[i] = Math.sqrt(stdDev[i] + 0.00001);
+    }
+    return stdDev;
+  }
+
   var arrContains = function(arr, elt) {
     for(var i=0,n=arr.length;i<n;i++) {
       if(arr[i]===elt) return true;
@@ -123,7 +152,8 @@ var convnetjs = convnetjs || { REVISION: 'ALPHA' };
     }
   }
 
-  global.randf = randf;
+  global.average = average;
+  global.standardDeviation = standardDeviation;
   global.randi = randi;
   global.randn = randn;
   global.zeros = zeros;
@@ -541,6 +571,7 @@ var convnetjs = convnetjs || { REVISION: 'ALPHA' };
     this.in_depth = opt.in_depth;
     this.in_sx = opt.in_sx;
     this.in_sy = opt.in_sy;
+    this.bn = opt.bn;
 
     // optional
     this.sy = typeof opt.sy !== 'undefined' ? opt.sy : this.sx;
@@ -612,6 +643,29 @@ var convnetjs = convnetjs || { REVISION: 'ALPHA' };
           }
         }
       }
+      if (this.bn) {
+        if (this.out_sy == 1) {
+          var avg = global.average(A.w, 512);
+          var std = global.standardDeviation(A.w, 512);
+
+          for(var i=0;i<this.out_depth;i++) {
+            A.w[i] = ((A.w[i] - avg[i % 512])/std[i % 512]) * this.gamma.w[i % 512] + this.beta.w[i % 512];
+          }
+        }
+        else {
+          var avg = global.average(A.w, this.out_depth);
+          var std = global.standardDeviation(A.w, this.out_depth);
+
+          for(var d=0;d<this.out_depth;d++) {
+            for(var ay=0; ay<this.out_sy; y++,ay++) {  // xy_stride
+              for(var ax=0; ax<this.out_sx; x++,ax++) {  // xy_stride
+                var i = ((A.sx * ay)+ax)*A.depth + d;
+                A.w[i] = ((A.w[i] - avg[d])/std[d])*this.gamma.w[d] + this.beta.w[d];
+              }
+            }
+          }
+        }
+      }
       this.out_act = A;
       return this.out_act;
     },
@@ -666,6 +720,12 @@ var convnetjs = convnetjs || { REVISION: 'ALPHA' };
       }
       this.biases = new Vol(0,0,0,0);
       this.biases.fromJSON(json.biases);
+      if (this.bn) {
+        this.gamma = new Vol(0,0,0,0);
+        this.gamma.fromJSON(json.gamma);
+        this.beta= new Vol(0,0,0,0);
+        this.beta.fromJSON(json.beta);
+      }
     }
   }
 
