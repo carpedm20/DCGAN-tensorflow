@@ -53,6 +53,7 @@ def inverse_transform(images):
 
 def to_json(output_path, *layers):
     with open(output_path, "w") as layer_f:
+        lines = ""
         for w, b, bn in layers:
             layer_idx = w.name.split('/')[0].split('h')[1]
 
@@ -65,13 +66,13 @@ def to_json(output_path, *layers):
                 W = np.rollaxis(w.eval(), 2, 0)
                 depth = W.shape[0]
 
-            biases = {"sy": 1, "sx": 1, "depth": depth, "w": list(B)}
+            biases = {"sy": 1, "sx": 1, "depth": depth, "w": ['%.2f' % elem for elem in list(B)]}
             if bn != None:
                 gamma = bn.gamma.eval()
                 beta = bn.beta.eval()
 
-                gamma = {"sy": 1, "sx": 1, "depth": depth, "w": list(gamma)}
-                beta = {"sy": 1, "sx": 1, "depth": depth, "w": list(beta)}
+                gamma = {"sy": 1, "sx": 1, "depth": depth, "w": ['%.2f' % elem for elem in list(gamma)]}
+                beta = {"sy": 1, "sx": 1, "depth": depth, "w": ['%.2f' % elem for elem in list(beta)]}
             else:
                 gamma = {"sy": 1, "sx": 1, "depth": 0, "w": []}
                 beta = {"sy": 1, "sx": 1, "depth": 0, "w": []}
@@ -79,9 +80,9 @@ def to_json(output_path, *layers):
             if "lin/" in w.name:
                 fs = []
                 for w in W.T:
-                    fs.append({"sy": 1, "sx": 1, "depth": W.shape[0], "w": list(w)})
+                    fs.append({"sy": 1, "sx": 1, "depth": W.shape[0], "w": ['%.2f' % elem for elem in list(w)]})
 
-                layer_f.write("""
+                lines += """
                     var layer_%s = {
                         "layer_type": "fc", 
                         "sy": 1, "sx": 1, 
@@ -92,13 +93,13 @@ def to_json(output_path, *layers):
                         "gamma": %s,
                         "beta": %s,
                         "filters": %s
-                    };""" % (layer_idx.split('_')[0], W.shape[1], W.shape[0], biases, gamma, beta, fs))
+                    };""" % (layer_idx.split('_')[0], W.shape[1], W.shape[0], biases, gamma, beta, fs)
             else:
                 fs = []
                 for w_ in W:
-                    fs.append({"sy": 5, "sx": 5, "depth": W.shape[3], "w": list(w_.flatten())})
+                    fs.append({"sy": 5, "sx": 5, "depth": W.shape[3], "w": ['%.2f' % elem for elem in list(w_.flatten())]})
 
-                layer_f.write("""
+                lines += """
                     var layer_%s = {
                         "layer_type": "deconv", 
                         "sy": 5, "sx": 5,
@@ -110,4 +111,5 @@ def to_json(output_path, *layers):
                         "beta": %s,
                         "filters": %s
                     };""" % (layer_idx, 2**(int(layer_idx)+2), 2**(int(layer_idx)+2),
-                             W.shape[0], W.shape[3], biases, gamma, beta, fs))
+                             W.shape[0], W.shape[3], biases, gamma, beta, fs)
+        layer_f.write(" ".join(lines.replace("'","").split()))
