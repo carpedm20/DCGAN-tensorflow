@@ -5,8 +5,14 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="">
-    <meta name="author" content="">
+    <meta name="author" content="Taehoon Kim (carpedm20@gmail.com)">
+    <meta name="keywords" content="프사 뉴럴,머신러닝,인공지능,뉴럴" />
+    <meta name="description" content="프사 뉴럴" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta property="og:title" content="프사 뉴럴" />
+    <meta property="og:url" content="http://carpedm20.github.io/faces/"/>
+    <meta property="og:image" content="https://raw.githubusercontent.com/carpedm20/poet-neural/master/static/img/logo.png" />
+    <meta content="width=device-width,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" name="viewport">
 
     <title>프사 뉴럴</title>
 
@@ -99,7 +105,7 @@
         <div class="row">
             <div class="col-md-8 col-md-offset-2 col-xs-12">
                 <h2>프사 뉴럴</h2>
-                <p><b>프사 뉴럴</b>은 Facebook AI Research에서 개발한 <a href="http://arxiv.org/pdf/1511.06434v2.pdf">Deep Convolutional Generative Adversarial Networks</a> (DCGAN) 이라는 기계 학습 모델을 사용해 만들어졌습니다.</p>
+                <p><b>프사 뉴럴</b>은 Facebook AI Research에서 개발한 <a href="http://arxiv.org/pdf/1511.06434v2.pdf" target="_blank">Deep Convolutional Generative Adversarial Networks</a> (DCGAN) 이라는 기계 학습 모델을 사용해 만들어졌습니다.</p>
                 <p><b>프사 뉴럴</b>은 얼굴 사진을 만드는 인공 지능이며<br>이 페이지의 모든 사진은 <b>프사 뉴럴</b>이 만든 사진입니다.</p>
                 <div class="fb-like" data-href="http://carpedm20.github.io/faces/" data-layout="button_count" data-action="like" data-show-faces="true" data-share="true"></div>
             </div>
@@ -122,11 +128,11 @@
                             </p>
                             <p>
                                 Please upgrade to
-                                <a href='http://www.microsoft.com/IE9'>IE 9</a>
+                                <a href='http://www.microsoft.com/IE9' target="_blank">IE 9</a>
                                 or use the latest
-                                <a href='http://www.google.com/chrome'>Chrome</a>
+                                <a href='http://www.google.com/chrome' target="_blank">Chrome</a>
                                 or
-                                <a href='http://www.mozilla.com/'>Firefox</a>
+                                <a href='http://www.mozilla.com/' target="_blank">Firefox</a>
                             </p>
                         </canvas>
                     </div>
@@ -167,15 +173,16 @@
             <img class="col-md-6 col-md-offset-3 col-xs-10 col-xs-offset-1" src="http://cosmonio.com/Research/Deep-Learning/files/small_1420.png">
 
             <div class="col-md-8 col-md-offset-2 col-xs-12">
-                <p><b>프사 뉴럴</b>의 핵심 모델인 <a href="http://arxiv.org/pdf/1511.06434v2.pdf">DCGAN</a>은 두 개의 인공 신경망으로 구성되어 있으며, 각각</p>
+                <p><b>프사 뉴럴</b>의 핵심 모델인 <a href="http://arxiv.org/pdf/1511.06434v2.pdf" target="_blank">DCGAN</a>은 두 개의 인공 신경망으로 구성되어 있으며, 각각</p>
                 <p>1. 사진을 만들어내는 <b>생성자 (G)</b><br/>2. 사진이 진짜 사진인지 만들어진 사진인지를 구분하는 <b>구분자 (D)</b></p>
-                <p>라고 부릅니다. 두 신경망은 수많은 이미지를 반복적으로 보면서 생성자는 구분자를 속이기 위해, 구분자는 생성자가 만든 사진을 판별하도록 학습합니다. 그래서 사람들은 생성자와 구분자를 <b>도둑</b>과 <b>경찰</b>로 비유하기도 합니다.</p>
+                <p>라고 부릅니다.</p>
+                <p>두 신경망은 수많은 이미지를 반복적으로 보면서 생성자는 구분자를 속이기 위해, 구분자는 생성자가 만든 사진을 판별하도록 학습합니다. 그래서 생성자와 구분자를 <b>도둑</b>과 <b>경찰</b>로 비유하기도 합니다.</p>
             </div>
             <br/>
             <img class="col-md-6 col-md-offset-3 col-xs-10 col-xs-offset-1" src="img/model.png">
 
             <div class="col-md-8 col-md-offset-2 col-xs-12">
-                <p><br/>생성자는 <a href="http://cs231n.github.io/convolutional-networks/">Convolutional Neural Network</a>로, 구분자는 <a href="https://www.quora.com/How-does-a-deconvolutional-neural-network-work">Deconvolutional Network</a>로 구현했으며, 구분자는 인공 신경망에 실제 이미지를 넣은 결과를 <b>1</b>로, 만들어진 이미지의 결과는 <b>0</b>으로 구분하도록 학습합니다.</p>
+                <p><br/>생성자는 <a href="http://cs231n.github.io/convolutional-networks/" target="_blank">Convolutional Neural Network</a>로, 구분자는 <a href="https://www.quora.com/How-does-a-deconvolutional-neural-network-work" target="_blank">Deconvolutional Network</a>로 구현했으며, 구분자는 인공 신경망에 실제 이미지를 넣은 결과를 <b>1</b>로, 만들어진 이미지의 결과는 <b>0</b>으로 구분하도록 학습합니다.</p>
                 <p>반대로 생성자는 Gausian Distribution을 따르는 <b>z</b>라는 확률 변수를 두고, 사람의 이미지의 확률 분포를 <b>z</b>를 사용해 계산합니다. 이렇게 만들어진 이미지를 구분자가 실제 이미지라고 잘못 판단하도록 계속 학습합니다.</p>
             </div>
         </div>
@@ -185,7 +192,7 @@
         <div class="row">
             <div class="col-md-8 col-md-offset-2 col-xs-12">
                 <h2>Results</h2>
-                <p><b>프사 뉴럴</b>를 학습시키기 위해 인터넷에 10만 개 이상의 사진들을 모았고<br>Titan 980 Ti GPU를 사용해 이틀간 학습시켰습니다.</p>
+                <p><b>프사 뉴럴</b>를 학습시키기 위해 인터넷에 10만 개 이상의 사진들을 모았고 Titan 980 Ti GPU를 사용해 이틀간 학습시켰습니다.</p>
                 <p>아래는 초기 학습 단계에서 프사 뉴럴이 정해진 <b>z</b>로 얼굴 사진을 만들어 가는 과정을 보여줍니다.</p>
                 <video autoplay loop muted class="col-md-6 col-md-offset-3 col-xs-10 col-xs-offset-1">
                     <source src="videos/training.mp4" type="video/mp4">
@@ -205,7 +212,7 @@
             </div>
 
             <div class="col-md-8 col-md-offset-2">
-                <p><br><br><b>프사 뉴럴</b>은 <a href="https://www.tensorflow.org/">TensorFlow</a>로 구현했으며 코드는 <a href="https://github.com/carpedm20/DCGAN-tensorflow">이곳</a>에 공개되어 있습니다.</p>
+                <p><br><br><b>프사 뉴럴</b>은 <a href="https://www.tensorflow.org/" target="_blank">TensorFlow</a>로 구현했으며 코드는 <a href="https://github.com/carpedm20/DCGAN-tensorflow" target="_blank">이곳</a>에 공개되어 있습니다.</p>
             </div>
         </div>
     </section>
@@ -275,7 +282,7 @@
             bgColor:"black"
         });
     </script>
-    
+
     <script type="text/javascript" src="http://kenwheeler.github.io/slick/slick/slick.js"></script>
     <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
     <script src="js/vendor/jquery.easing.min.js"></script>
