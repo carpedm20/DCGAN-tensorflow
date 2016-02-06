@@ -20,7 +20,10 @@ def save_images(images, size, image_path):
 def imread(path):
     return scipy.misc.imread(path).astype(np.float)
 
-def imsave(images, size, path):
+def merge_images(images, size):
+    return inverse_transform(images)
+
+def merge(images, size):
     h, w = images.shape[1], images.shape[2]
     img = np.zeros((h * size[0], w * size[1], 3))
 
@@ -28,7 +31,11 @@ def imsave(images, size, path):
         i = idx % size[1]
         j = idx / size[1]
         img[j*h:j*h+h, i*w:i*w+w, :] = image
-    return scipy.misc.imsave(path, img)
+
+    return img
+
+def imsave(images, size, path):
+    return scipy.misc.imsave(path, merge(images, size))
 
 def center_crop(x, crop_h, crop_w=None, resize_w=64):
     if crop_w is None:
@@ -113,3 +120,15 @@ def to_json(output_path, *layers):
                     };""" % (layer_idx, 2**(int(layer_idx)+2), 2**(int(layer_idx)+2),
                              W.shape[0], W.shape[3], biases, gamma, beta, fs)
         layer_f.write(" ".join(lines.replace("'","").split()))
+
+def make_gif(images, fname, duration=2):
+  import moviepy.editor as mpy
+
+  def make_frame(t):
+    try:
+      return ((images[int(len(images)/duration*t)]+1)/2*255).astype(np.uint8)
+    except:
+      return ((images[-1]+1)/2*255).astype(np.uint8)
+
+  clip = mpy.VideoClip(make_frame, duration=duration)
+  clip.write_gif(fname, fps = len(images) / duration)

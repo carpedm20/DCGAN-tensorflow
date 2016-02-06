@@ -77,7 +77,6 @@ canvas {
     cursor: crosshair;
     width: 320px;
     height: 320px;
-    background-image: url(/images/canvas_bg.png);
     margin: 0 auto;
 }
 
@@ -232,6 +231,16 @@ a:focus {
     }
 }
 
+#background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    min-width: 100%;
+    min-height: 100%;
+    width: auto;
+    height: auto;
+}
+
 .intro {
     display: table;
     width: 100%;
@@ -239,7 +248,6 @@ a:focus {
     padding: 100px 0;
     text-align: center;
     color: #fff;
-    background: url(../img/intro-bg.jpg) no-repeat bottom center scroll;
     background-color: #000;
     -webkit-background-size: cover;
     -moz-background-size: cover;

@@ -1,8 +1,7 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 
 <head>
-
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -12,11 +11,8 @@
     <title>뉴럴 프사</title>
 
     <!-- CSS -->
-    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
     <link href="css/fakeLoader.css" rel="stylesheet">
-    <link href="css/bootstrap-slider.min.css" rel="stylesheet">
-
-    <!-- Custom CSS -->
     <link href="css/main.css" rel="stylesheet">
 
     <!-- Custom Fonts -->
@@ -30,7 +26,6 @@
         <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
         <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
     <![endif]-->
-
 </head>
 
 <body id="page-top" data-spy="scroll" data-target=".navbar-fixed-top">
@@ -43,7 +38,7 @@
                 <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-main-collapse">
                     <i class="fa fa-bars"></i>
                 </button>
-                <a class="navbar-brand page-scroll" href="#page-top">
+                <a class="navbar-brand page-scroll" href="http://carpedm20.github.io/" target="_blank">
                     <span class="light">carpedm20</span>
                 </a>
             </div>
@@ -69,6 +64,9 @@
 
     <!-- Intro Header -->
     <header class="intro">
+        <video autoplay loop muted id="background">
+            <source src="videos/background.mp4" type="video/mp4">
+        </video>
         <div class="intro-body">
             <div class="container">
                 <div class="row">
@@ -89,7 +87,7 @@
             <div class="col-lg-8 col-lg-offset-2">
                 <h2>뉴럴 프사</h2>
                 <p>뉴럴 프사는 이미지 생성 모델 중 하나인 <a href="http://startbootstrap.com/template-overviews/main/">Deep Convolutional Generative Adversarial Networks</a>로 만들어졌습니다. 뉴럴 프사는 인터넷에서 수집한 한국인의 얼굴 사진들을 반복적으로 보고 배워 얼굴의 패턴을 학습해서 스스로 얼굴 사진을 만들 수 있습니다.</p>
-                <p>뉴럴 프사의 핵심 코드는 TensorFlow로 구현되었으며 코드는 <a href="https://github.com/carpedm20/DCGAN-tensorflow">이곳</a>에 공개되어 있습니다.</p>
+                <p>뉴럴 프사의 코드는 TensorFlow로 구현되었으며 코드는 <a href="https://github.com/carpedm20/DCGAN-tensorflow">이곳</a>에 공개되어 있습니다.</p>
             </div>
         </div>
     </section>
@@ -108,48 +106,49 @@
         <div class="row">
             <div class="col-lg-8 col-lg-offset-2">
                 <h2>Real-time Image Generation</h2>
-                <div id="hoge"></div>
+                <div class="row" id="images">
+                </div>
 
-                <div class="row" id='canvas'>
-                    <canvas height='200' width='200' onselectstart="this.style.cursor='crosshair'; return false;">
-                        <p>
-                            Sorry, your browser doesn't support the <canvas> element.
-                        </p>
-                        <p>
-                            Please upgrade to
-                            <a href='http://www.microsoft.com/IE9'>IE 9</a>
-                            or use the latest
-                            <a href='http://www.google.com/chrome'>Chrome</a>
-                            or
-                            <a href='http://www.mozilla.com/'>Firefox</a>
-                        </p>
-                    </canvas>
+                <div class="row">
+                    <div class="col-lg-8">
+                        <canvas id="pixel" height='200' width='200' onselectstart="this.style.cursor='crosshair'; return false;">
+                            <p>
+                                Sorry, your browser doesn't support the <canvas> element.
+                            </p>
+                            <p>
+                                Please upgrade to
+                                <a href='http://www.microsoft.com/IE9'>IE 9</a>
+                                or use the latest
+                                <a href='http://www.google.com/chrome'>Chrome</a>
+                                or
+                                <a href='http://www.mozilla.com/'>Firefox</a>
+                            </p>
+                        </canvas>
+                    </div>
+                    <div class="col-lg-4" id="color">
+                        <div class="color" data-color="#000000">
+                          <div class="isometric" id="color_1" style="background-color: #000000"></div>
+                        </div>
+                        <div class="color" data-color="#444444">
+                          <div class="isometric" id="color_2" style="background-color: #444444"></div>
+                        </div>
+                        <div class="color" data-color="#888888">
+                          <div class="isometric" id="color_3" style="background-color: #888888"></div>
+                        </div>
+                        <div class="color" data-color="#CCCCCC">
+                          <div class="isometric" id="color_4" style="background-color: #CCCCCC"></div>
+                        </div>
+                        <div class="color" data-color="#FFFFFF">
+                          <div class="isometric" id="color_5" style="background-color: #FFFFFF"></div>
+                        </div>
+                    </div>
                 </div>
-                <div class="row frames">
-                    <canvas height="16" width="16"></canvas>
+                <div class="row">
+                <button uib-popover="I appeared on mouse enter!" popover-trigger="mouseenter" type="button" class="btn btn-default">Mouseenter</button>
+                    <button type="button" id="draw" class="btn btn-default">Draw</button>
+                    <button type="button" id="shuffle" class="btn btn-default">Random</button>
+                    <button type="button" id="clear" class="btn btn-default">Reset</button>
                 </div>
-                <div class="row" id="colors">
-                    <div class="color" data-color="#000000">
-                      <div class="isometric" id="color_1" style="background-color: #000000"></div>
-                    </div>
-                    <div class="color" data-color="#444444">
-                      <div class="isometric" id="color_2" style="background-color: #444444"></div>
-                    </div>
-                    <div class="color" data-color="#888888">
-                      <div class="isometric" id="color_3" style="background-color: #888888"></div>
-                    </div>
-                    <div class="color" data-color="#CCCCCC">
-                      <div class="isometric" id="color_4" style="background-color: #CCCCCC"></div>
-                    </div>
-                    <div class="color" data-color="#FFFFFF">
-                      <div class="isometric" id="color_5" style="background-color: #FFFFFF"></div>
-                    </div>
-                </div>
-                <button type="button" id="draw" class="btn btn-default">Draw</button>
-                <button type="button" id="shuffle" class="btn btn-default">Random</button>
-                <button type="button" id="reset" class="btn btn-default">Reset</button>
-                <div id="z" style="visibility: hidden;"></div>
-                <div id="param" style="visibility: hidden;"></div>
             </div>
         </div>
     </section>
@@ -180,34 +179,20 @@
     <!-- Footer -->
     <footer>
         <div class="container text-center">
-            <p>Copyright &copy; carpedm20 2016</p>
+            <p>Copyright &copy; <a href="http://carpedm20.github.io/" target="_blank">carpedm20</a> 2016</p>
         </div>
     </footer>
 
     <!-- jQuery -->
-    <script src="js/vendor/jquery.js"></script>
-    <script src="js/vendor/bootstrap.min.js"></script>
-    <script src="js/vendor/jquery.easing.min.js"></script>
-
+    <script src="//code.jquery.com/jquery-2.2.0.min.js"></script>
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
     <script src="js/vendor/fakeLoader.min.js"></script>
-    <script type="text/javascript">
-        $("#fakeLoader").fakeLoader({
-            timeToHide:5000, //Time in milliseconds for fakeLoader disappear
-            zIndex:"999",//Default zIndex
-            spinner:"spinner3",
-            bgColor:"black"
-        });
-    </script>
     <script src="js/vendor/pixel.min.js"></script>
-    <script type="text/javascript">
-    </script>
 
-    <!-- JavaScript -->
-    <script src="js/main.js"></script>
     <script src="js/convnet.js"></script>
-    <script src="js/gen_layers.js"></script>
+    <script src="js/layers.js" defer></script>
     <script src="js/zws5.js"></script>
-    <script src="js/dcgan.js"></script>
+    <script src="js/app.js"></script>
 
     <!-- Google Analytics: change UA-XXXXX-X to be your site's ID. -->
     <script>
