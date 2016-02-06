@@ -52,7 +52,7 @@
                         <a class="page-scroll" href="#about">About</a>
                     </li>
                     <li>
-                        <a class="page-scroll" href="#about">Details</a>
+                        <a class="page-scroll" href="#details">Details</a>
                     </li>
                     <li>
                         <a class="page-scroll" href="#generate">Generate</a>
@@ -70,9 +70,9 @@
         <div class="intro-body">
             <div class="container">
                 <div class="row">
-                    <div class="col-md-8 col-md-offset-2">
+                    <div class="col-md-8 col-md-offset-2 logo">
                         <h1 class="brand-heading">뉴럴 프사</h1>
-                        <p class="intro-text">인공지능이 만드는 한국인의 얼굴</p>
+                        <p class="intro-text">인공지능이 만드는 얼굴들</p>
                         <a href="#about" class="btn btn-circle page-scroll">
                             <i class="fa fa-angle-double-down animated"></i>
                         </a>
@@ -84,7 +84,7 @@
 
     <section id="about" class="container content-section text-center">
         <div class="row">
-            <div class="col-lg-8 col-lg-offset-2">
+            <div class="col-md-8 col-md-offset-2">
                 <h2>뉴럴 프사</h2>
                 <p>뉴럴 프사는 이미지 생성 모델 중 하나인 <a href="http://startbootstrap.com/template-overviews/main/">Deep Convolutional Generative Adversarial Networks</a>로 만들어졌습니다. 뉴럴 프사는 인터넷에서 수집한 한국인의 얼굴 사진들을 반복적으로 보고 배워 얼굴의 패턴을 학습해서 스스로 얼굴 사진을 만들 수 있습니다.</p>
                 <p>뉴럴 프사의 코드는 TensorFlow로 구현되었으며 코드는 <a href="https://github.com/carpedm20/DCGAN-tensorflow">이곳</a>에 공개되어 있습니다.</p>
@@ -94,17 +94,16 @@
 
     <section id="details" class="container content-section text-center">
         <div class="row">
-            <div class="col-lg-8 col-lg-offset-2">
-                <h2>뉴럴 프사</h2>
-                <p>뉴럴 프사는 이미지 생성 모델 중 하나인 <a href="http://startbootstrap.com/template-overviews/main/">Deep Convolutional Generative Adversarial Networks</a>로 만들어졌습니다. 뉴럴 프사는 인터넷에서 수집한 한국인의 얼굴 사진들을 반복적으로 보고 배워 얼굴의 패턴을 학습해서 스스로 얼굴 사진을 만들 수 있습니다.</p>
-                <p>뉴럴 프사의 핵심 코드는 TensorFlow로 구현되었으며 코드는 <a href="https://github.com/carpedm20/DCGAN-tensorflow">이곳</a>에 공개되어 있습니다.</p>
+            <div class="col-md-8 col-md-offset-2">
+                <h2>Deep Convolutional Generative Adversarial Networks</h2>
+                <img src="img/demo.png"/>
             </div>
         </div>
     </section>
 
     <section id="generate" class="content-section text-center">
         <div class="row">
-            <div class="col-lg-8 col-lg-offset-2">
+            <div class="col-md-8 col-md-offset-2">
                 <h2>Real-time Image Generation</h2>
                 <div class="row" id="images">
                 </div>
@@ -186,6 +185,7 @@
     <!-- jQuery -->
     <script src="//code.jquery.com/jquery-2.2.0.min.js"></script>
     <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+    <script src="js/vendor/jquery.easing.min.js"></script>
     <script src="js/vendor/fakeLoader.min.js"></script>
     <script src="js/vendor/pixel.min.js"></script>
 

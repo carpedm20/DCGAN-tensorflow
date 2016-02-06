@@ -460,3 +460,8 @@ img::-moz-selection {
 body {
     webkit-tap-highlight-color: rgba(255,255,255,.2);
 }
+
+.logo {
+    background-color: rgba(0,0,0,0.7);
+    padding: 30px;
+}

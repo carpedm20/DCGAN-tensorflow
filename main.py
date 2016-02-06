@@ -48,7 +48,7 @@ def main(_):
                                       [dcgan.h3_w, dcgan.h3_b, dcgan.g_bn3],
                                       [dcgan.h4_w, dcgan.h4_b, None])
 
-        OPTION = 5
+        OPTION = 7
         if OPTION == 0:
           z_sample = np.random.uniform(-1, 1, size=(FLAGS.batch_size, dcgan.z_dim))
           save_images(samples, [8, 8], './samples/test_%s.png' % strftime("%Y-%m-%d %H:%M:%S", gmtime()))
@@ -115,11 +115,10 @@ def main(_):
             make_gif(image_set[-1], './samples/test_gif_%s.gif' % (idx))
 
           new_image_set = [merge(np.array([images[idx] for images in image_set]), [10, 20]) for idx in range(64) + range(63, -1, -1)]
-          make_gif(new_image_set, './samples/test_gif_merged.gif', duration=4)
+          make_gif(new_image_set, './samples/test_gif_random_merged.gif', duration=4)
         elif OPTION == 6:
           image_set = []
 
-          values = np.arange(0, 0.5, 1./FLAGS.batch_size)
           z_idx = [[random.randint(0,99) for _ in xrange(10)] for _ in xrange(dcgan.z_dim)]
 
           for idx in xrange(100):
@@ -132,13 +131,28 @@ def main(_):
                 z_sample[kdx][z_idx[idx][jdx]] = values[kdx]
 
             image_set.append(sess.run(dcgan.sampler, feed_dict={dcgan.z: z_sample}))
-            save_images(image_set[-1], [8, 8], './samples/test_arange_%s.png' % (idx))
+            save_images(image_set[-1], [8, 8], './samples/test_random_arange_%s.png' % (idx))
 
           new_image_set = [merge(np.array([images[idx] for images in image_set]), [10, 10]) for idx in range(64) + range(63, -1, -1)]
           make_gif(new_image_set, './samples/test_gif_merged_random.gif', duration=8)
-        elif OPTION == 6:
-          new_image_set = [merge(np.array([images[idx] for images in image_set]), [10, 10]) for idx in range(64) + range(63, -1, -1)]
-          make_gif(new_image_set, './samples/test_gif_merged_random.gif', duration=8)
+        elif OPTION == 7:
+          for _ in xrange(50):
+            z_idx = [[random.randint(0,99) for _ in xrange(10)] for _ in xrange(8)]
+
+            zs = []
+            for idx in xrange(8):
+              z = np.random.uniform(-0.5, 0.5, size=(dcgan.z_dim))
+              zs.append(np.tile(z, (8, 1)))
+
+            z_sample = np.concatenate(zs)
+            values = np.arange(0, 0.4, 0.4/8)
+
+            for idx in xrange(FLAGS.batch_size):
+              for jdx in xrange(8):
+                z_sample[idx][z_idx[idx/8][jdx]] = values[idx%8]
+
+            samples = sess.run(dcgan.sampler, feed_dict={dcgan.z: z_sample})
+            save_images(samples, [8, 8], './samples/multiple_testt_%s.png' % strftime("%Y-%m-%d %H:%M:%S", gmtime()))
 
 
 if __name__ == '__main__':
