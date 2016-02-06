@@ -57,6 +57,22 @@ function mouseUpCallback() {
 }
 
 $(document).ready(function() {
+    $('.slick').slick({
+        slidesToShow: 2,
+        autoplay: true,
+        dots: true,
+        autoplaySpeed: 3000,
+        responsive: [
+            {
+                breakpoint: 480,
+                settings: {
+                    slidesToShow: 1,
+                    slidesToScroll: 1
+                }
+            }
+        ]
+    });
+
     var layer_defs = [];
     layer_defs.push({type:"input", out_sx:1, out_sy:1, out_depth:100});
     layer_defs.push({type:"deconv", sx:4, filters:512, stride:1, pad:0, bn:true, activation:"relu"});

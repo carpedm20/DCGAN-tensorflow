@@ -141,11 +141,11 @@ def main(_):
 
             zs = []
             for idx in xrange(8):
-              z = np.random.uniform(-0.5, 0.5, size=(dcgan.z_dim))
+              z = np.random.uniform(-0.2, 0.2, size=(dcgan.z_dim))
               zs.append(np.tile(z, (8, 1)))
 
             z_sample = np.concatenate(zs)
-            values = np.arange(0, 0.4, 0.4/8)
+            values = np.arange(0, 1, 1/8.)
 
             for idx in xrange(FLAGS.batch_size):
               for jdx in xrange(8):
