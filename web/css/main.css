@@ -135,6 +135,10 @@ p {
     }
 }
 
+b {
+    color: #3A8BB2;
+}
+
 a {
     color: #42dca3;
     -webkit-transition: all .2s ease-in-out;
