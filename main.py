@@ -48,7 +48,7 @@ def main(_):
                                       [dcgan.h3_w, dcgan.h3_b, dcgan.g_bn3],
                                       [dcgan.h4_w, dcgan.h4_b, None])
 
-        OPTION = 100
+        OPTION = 7
         if OPTION == 0:
           z_sample = np.random.uniform(-1, 1, size=(FLAGS.batch_size, dcgan.z_dim))
           save_images(samples, [8, 8], './samples/test_%s.png' % strftime("%Y-%m-%d %H:%M:%S", gmtime()))
@@ -136,6 +136,28 @@ def main(_):
           new_image_set = [merge(np.array([images[idx] for images in image_set]), [10, 10]) for idx in range(64) + range(63, -1, -1)]
           make_gif(new_image_set, './samples/test_gif_merged_random.gif', duration=8)
         elif OPTION == 7:
+          counter = 0
+          for _ in xrange(50):
+            import scipy.misc
+            z_idx = [[random.randint(0,99) for _ in xrange(10)] for _ in xrange(8)]
+
+            zs = []
+            for idx in xrange(8):
+              z = np.random.uniform(-0.2, 0.2, size=(dcgan.z_dim))
+              zs.append(np.tile(z, (8, 1)))
+
+            z_sample = np.concatenate(zs)
+            values = np.arange(0, 1, 1/8.)
+
+            for idx in xrange(FLAGS.batch_size):
+              for jdx in xrange(8):
+                z_sample[idx][z_idx[idx/8][jdx]] = values[idx%8]
+
+            samples = sess.run(dcgan.sampler, feed_dict={dcgan.z: z_sample})
+            for sample in samples:
+              scipy.misc.imsave('./samples/turing/%s.png' % counter, sample)
+              counter += 1
+        elif OPTION == 8:
           for _ in xrange(50):
             z_idx = [[random.randint(0,99) for _ in xrange(10)] for _ in xrange(8)]
 

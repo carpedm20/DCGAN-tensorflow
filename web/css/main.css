@@ -470,3 +470,6 @@ body {
     background-color: rgba(0,0,0,0.7);
     padding: 30px;
 }
+
+.tooltip > .tooltip-inner { background-color: white; color: black; }
+.tooltip > .tooltip-arrow { border-bottom-color: white; color: black; }

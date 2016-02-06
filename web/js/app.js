@@ -29,12 +29,6 @@ var clip_pixel = function(x){
     else return 255*(x+1.0)/2.0;
 }
 
-$("#fakeLoader").fakeLoader({
-    zIndex:"999",//Default zIndex
-    spinner:"spinner3",
-    bgColor:"black"
-});
-
 // mouse down event callback
 function mouseDownCallback(e) {
     PIXEL.setDraw(true);
@@ -72,6 +66,23 @@ $(document).ready(function() {
             }
         ]
     });
+    $('.turing-slick').slick({
+        slidesToShow: 6,
+        autoplay: true,
+        dots: true,
+        autoplaySpeed: 3000,
+        responsive: [
+            {
+                breakpoint: 480,
+                settings: {
+                    slidesToShow: 3,
+                    slidesToScroll: 3
+                }
+            }
+        ]
+    });
+
+    $("[data-toggle=tooltip]").tooltip();
 
     var layer_defs = [];
     layer_defs.push({type:"input", out_sx:1, out_sy:1, out_depth:100});
