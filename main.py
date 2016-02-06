@@ -48,7 +48,7 @@ def main(_):
                                       [dcgan.h3_w, dcgan.h3_b, dcgan.g_bn3],
                                       [dcgan.h4_w, dcgan.h4_b, None])
 
-        OPTION = 7
+        OPTION = 100
         if OPTION == 0:
           z_sample = np.random.uniform(-1, 1, size=(FLAGS.batch_size, dcgan.z_dim))
           save_images(samples, [8, 8], './samples/test_%s.png' % strftime("%Y-%m-%d %H:%M:%S", gmtime()))
@@ -153,6 +153,16 @@ def main(_):
 
             samples = sess.run(dcgan.sampler, feed_dict={dcgan.z: z_sample})
             save_images(samples, [8, 8], './samples/multiple_testt_%s.png' % strftime("%Y-%m-%d %H:%M:%S", gmtime()))
+        else:
+          import scipy.misc
+          from glob import glob
+
+          samples = []
+          fnames = glob("/Users/carpedm20/Downloads/x/1/*.png")
+          fnames = sorted(fnames, key = lambda x: int(x.split("_")[1]) * 10000 + int(x.split('_')[2].split(".")[0]))
+          for f in fnames:
+            samples.append(scipy.misc.imread(f))
+          make_gif(samples, './samples/training.gif', duration=8, true_image=True)
 
 
 if __name__ == '__main__':
