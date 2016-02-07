@@ -11,7 +11,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta property="og:title" content="프사 뉴럴" />
     <meta property="og:url" content="http://carpedm20.github.io/faces/"/>
-    <meta property="og:image" content="https://raw.githubusercontent.com/carpedm20/DCGAN-tensorflow/master/web/img/logo.png" />
+    <meta property="og:image" content="https://raw.githubusercontent.com/carpedm20/DCGAN-tensorflow/master/web/img/ogimage.png" />
     <meta property="og:image:width" content="1000" />
     <meta property="og:image:height" content="1000" />
     <meta content="width=device-width,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" name="viewport">
@@ -109,7 +109,7 @@
     <section id="about" class="container content-section text-center">
         <div class="row">
             <h2>프사 뉴럴</h2>
-            <div class="col-md-8 col-md-offset-2 col-xs-12 text-left">
+            <div class="col-md-8 col-md-offset-2 col-xs-12">
                 <p><b>프사 뉴럴</b>은 Facebook AI Research에서 개발한 <a href="http://arxiv.org/pdf/1511.06434v2.pdf" target="_blank">Deep Convolutional Generative Adversarial Networks</a> (DCGAN) 이라는 기계 학습 모델을 사용해 만들어졌습니다.</p>
                 <p><b>프사 뉴럴</b>은 얼굴 사진을 만드는 인공 지능이며<br>이 페이지의 모든 사진은 <b>프사 뉴럴</b>이 만든 사진입니다.</p>
             </div>
@@ -124,11 +124,11 @@
         <div class="row">
             <h2>Real-time Image Generation</h2>
             <div class="col-md-8 col-md-offset-2 col-xs-12 text-left">
-                <p><b>프사 뉴럴</b>은 0에서 1사이의 100개의 숫자 <b>z</b>로 사람의 이미지를 만들어내는 인공지능입니다.</p>
-                <p>1. 아래에 보이는 100개의 픽셀들을 <b>z</b>의 각 숫자를 나타냅니다.<br/>2. DRAW 버튼을 누르시면 픽셀이 의미하는 <b>z</b>로 이미지가 실시간으로 만들어집니다.<br/>3. 만들어진 사진 위에 마우스를 올리면 사진에 사용된 <b>z</b>가 보입니다.<br/>4. 만들어진 이미지를 누르시면 그 이미지의 <b>z</b>가 복사됩니다.</p>
+                <p><b>프사 뉴럴</b>은 0에서 1 사이의 100개의 숫자 <b>z</b>로 사람의 이미지를 만들어내는 인공지능입니다.</p>
+                <p>1. 아래에 보이는 100개의 픽셀을 <b>z</b>의 각 숫자를 나타냅니다.<br/>2. DRAW 버튼을 누르시면 픽셀이 의미하는 <b>z</b>로 이미지가 실시간으로 만들어집니다.<br/>3. 만들어진 사진 위에 마우스를 올리면 사진에 사용된 <b>z</b>가 보입니다.<br/>4. 만들어진 이미지를 누르시면 그 이미지의 <b>z</b>가 복사됩니다.</p>
             </div>
             <div class="col-md-8 col-md-offset-2 col-xs-12">
-                <p><small>(컴퓨터 성능에 따라 1~10초가 걸릴며, 모바일에서는 만들어지지 않습니다)</small></p>
+                <p><small>(컴퓨터 성능에 따라 1~10초가 걸립니다)</small></p>
                 <div class="row" id="images">
                 </div>
             </div>
@@ -190,14 +190,14 @@
                 <p><b>프사 뉴럴</b>의 핵심 모델인 <a href="http://arxiv.org/pdf/1511.06434v2.pdf" target="_blank">DCGAN</a>은 두 개의 인공 신경망으로 구성되어 있으며, 각각</p>
                 <p>1. 사진을 만들어내는 <b>생성자 (G)</b><br/>2. 진짜 사진과 생성자가 만든 사진을 구분하는 <b>구분자 (D)</b></p>
                 <p>라고 부릅니다.</p>
-                <p>두 신경망은 수많은 이미지를 반복적으로 보면서 생성자는 구분자를 속이기 위해, 구분자는 생성자가 만든 사진을 판별하기 위해 학습합니다. 이러한 학습 방법을 <a href="https://en.wikipedia.org/wiki/Adversarial_machine_learning">적대적 학습 (Adversarial Learning)</a> 이라고 하며, 생성자와 구분자를 <b>도둑</b>과 <b>경찰</b>로 비유하기도 합니다.</p>
+                <p>두 신경망은 수많은 이미지를 반복적으로 보면서 생성자는 구분자를 속이기 위해, 구분자는 생성자가 만든 사진을 판별하기 위해 학습합니다. 이러한 학습 방법을 <a href="https://en.wikipedia.org/wiki/Adversarial_machine_learning">적대적 학습 (Adversarial Learning)</a>이라고 하며, 생성자와 구분자를 <b>도둑</b>과 <b>경찰</b>로 비유하기도 합니다.</p>
             </div>
             <br/>
             <img class="col-md-6 col-md-offset-3 col-xs-10 col-xs-offset-1" src="img/model.png">
 
             <div class="col-md-8 col-md-offset-2 col-xs-12 text-left">
-                <p><br/>생성자와 구분자는 여러가지 인공 신경망 종류 중에서 각각 <a href="https://www.quora.com/How-does-a-deconvolutional-neural-network-work" target="_blank">Deconvolutional Network (DNN)</a>과 <a href="http://cs231n.github.io/convolutional-networks/" target="_blank">Convolutional Neural Network (CNN)</a>로 구현되어 있습니다. <b>CNN</b>은 수백개의 픽셀로 이루어진 이미지를 작은 차원의 숫자들 (<b>z</b>) 로 잘 요약할 수 있는 필터를 배우는 인공 신경망이며, <b>DNN</b>은 이렇게 작아진 차원의 숫자들로 원래 이미지를 복원하는 필터를 배우는 신경망입니다.</p>
-                <p>구분자는 인공 신경망에 실제 이미지를 넣은 결과를 <b>1</b>로, 만들어진 이미지의 결과는 <b>0</b>으로 구분하도록 학습합니다. 반대로 생성자는 Gausian Distribution을 따르는 <b>z</b>라는 확률 변수를 두고, 사람의 이미지의 확률 분포를 <b>z</b>를 사용해 계산합니다. 이렇게 만들어진 이미지를 구분자가 실제 이미지라고 잘못 판단하도록 계속 학습합니다.</p>
+                <p><br/>생성자와 구분자는 여러 가지 인공 신경망 종류 중에서 각각 <a href="https://www.quora.com/How-does-a-deconvolutional-neural-network-work" target="_blank">Deconvolutional Network (DNN)</a>과 <a href="http://cs231n.github.io/convolutional-networks/" target="_blank">Convolutional Neural Network (CNN)</a>로 구현되어 있습니다. <b>CNN</b>은 수백 개의 픽셀로 이루어진 이미지를 작은 차원의 숫자들 (<b>z</b>)로 잘 요약할 수 있는 필터를 배우는 인공 신경망이며, <b>DNN</b>은 이렇게 작아진 차원의 숫자들로 원래 이미지를 복원하는 필터를 배우는 신경망입니다.</p>
+                <p>구분자는 인공 신경망에 실제 이미지를 넣은 결과를 <b>1</b>로, 만들어진 이미지의 결과는 <b>0</b>으로 구분하도록 학습합니다. 반대로 생성자는 Gaussian Distribution을 따르는 <b>z</b>라는 확률 변수를 두고, 사람의 이미지의 확률 분포를 <b>z</b>를 사용해 계산합니다. 이렇게 만들어진 이미지를 구분자가 실제 이미지라고 잘못 판단하도록 계속 학습합니다.</p>
             </div>
         </div>
     </section>
@@ -214,7 +214,7 @@
             </div>
 
             <div class="col-md-8 col-md-offset-2 col-xs-12 text-left">
-                <p><br/><br/>생성자가 사용하는 <b>z</b>는 0에서 1 사이의 Gaussian Disctribution을 따르는 확률 변수이며, 평균값인 <b>0.5</b>로 이미지를 만들게 되면, <b>프사 뉴럴</b>이 생각하는 평균적인 얼굴을 알 수 있습니다.</p>
+                <p><br/><br/>생성자가 사용하는 <b>z</b>는 0에서 1 사이의 <a href="https://ko.wikipedia.org/wiki/%EC%A0%95%EA%B7%9C%EB%B6%84%ED%8F%AC">Gaussian Distribution</a>을 따르는 확률 변수이며, 평균값인 <b>0.5</b>로 이미지를 만들게 되면, <b>프사 뉴럴</b>이 생각하는 평균적인 얼굴을 알 수 있습니다.</p>
             </div>
             <div class="col-md-8 col-md-offset-2 col-xs-12">
                 <img src="img/average.png"/>
@@ -230,7 +230,7 @@
             </div>
 
             <div class="col-md-8 col-md-offset-2 col-xs-12 text-left">
-                <p><br/><br/>아래의 사진들은 100 차원의 <b>z</b> 값 중에서 임의의 차원들을 0부터 1까지 바꾸면서 <b>생성자</b> 신경망에 넣은 결과이며, 점점 미소를 짓거나, 안경이 생기거나, 흑백 사진이 되거나, 성별이 바뀌는 등의 결과를 확인하실 수 있습니다.</p>
+                <p><br/><br/>아래의 사진들은 100차원의 <b>z</b> 값 중에서 임의의 차원들을 0부터 1까지 바꾸면서 <b>생성자</b> 신경망에 넣은 결과이며, 점점 미소를 짓거나, 안경이 생기거나, 흑백 사진이 되거나, 성별이 바뀌는 등의 결과를 확인하실 수 있습니다.</p>
             </div>
         </div>
         <div class="row">
@@ -256,7 +256,7 @@
         <div class="row">
             <h2>Misc.</h2>
             <div class="col-md-8 col-md-offset-2 col-xs-12">
-                <p>마지막으로 <a href="https://namu.wiki/w/%ED%8A%9C%EB%A7%81%20%ED%85%8C%EC%8A%A4%ED%8A%B8">튜링 테스트</a>를 해 보겠습니다 :)<br>아래 사진들 중에 진짜 사진은 무엇일까요?</p>
+                <p>마지막으로 <a href="https://namu.wiki/w/%ED%8A%9C%EB%A7%81%20%ED%85%8C%EC%8A%A4%ED%8A%B8">튜링 테스트</a>를 해 보겠습니다 :)<br>아래 사진 중에서 진짜 사진은 무엇일까요?</p>
                 <p><small>(마우스를 올리시면 정답이 보입니다)</small></p>
             </div>
         </div>
@@ -312,13 +312,13 @@
                 <h3>Taehoon Kim</h3>
                 <h3><a href="http://carpedm20.github.io/" target="_blank">@carpedm20</a></h3>
 
-                <a href="https://github.com/carpedm20/" target="_blank">
+                <a class="ico" href="https://github.com/carpedm20/" target="_blank">
                     <i class="fa fa-github-square fa-5"></i>
                 </a>
-                <a href="https://www.linkedin.com/in/carpedm20" target="_blank">
+                <a class="ico" href="https://www.linkedin.com/in/carpedm20" target="_blank">
                     <i class="fa fa-linkedin-square fa-5"></i>
                 </a>
-                <a href="https://www.facebook.com/carpedm20" target="_blank">
+                <a class="ico" href="https://www.facebook.com/carpedm20" target="_blank">
                     <i class="fa fa-facebook-square fa-5"></i>
                 </a>
                 <a href="https://twitter.com/carpedm20" target="_blank">
