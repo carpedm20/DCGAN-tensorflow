@@ -90,29 +90,7 @@ function cloneCanvas(oldCanvas) {
     return newCanvas;
 }
 
-setTimeout(function(){$("#fakeLoader").fadeOut(1000)},3000);
-
-var JavaScript = {
-  load: function(src, callback) {
-    var script = document.createElement('script'),
-        loaded;
-    script.setAttribute('src', src);
-    if (callback) {
-      script.onreadystatechange = script.onload = function() {
-        if (!loaded) {
-          callback();
-        }
-        loaded = true;
-      };
-    }
-    document.getElementsByTagName('head')[0].appendChild(script);
-  }
-};
-
-JavaScript.load("js/layers.js", function() {
-    $("#loading").hide();
-    $("#draw-btn").show();
-    
+$( document ).ready(function() {
     draw_pixels(make_z(100, 255));
 
     $('.slick').slick({
@@ -235,9 +213,14 @@ JavaScript.load("js/layers.js", function() {
         draw();
     });
 
+    $("#loading").hide();
+    $("#draw-btn").show();
+
     if (!mobilecheck()) {
         draw();
     }
+
+    $("#fakeLoader").fadeOut(3000);
 });
 
 
