@@ -8,6 +8,12 @@ Tensorflow implementation of [Deep Convolutional Generative Adversarial Networks
 *To avoid the fast convergence of D (discriminator) network, G (generatior) network is updatesd twice for each D network update which is a different from original paper.*
 
 
+Online Demo
+-----------
+
+[link](http://carpedm20.github.io/faces/)
+
+
 Prerequisites
 -------------
 
