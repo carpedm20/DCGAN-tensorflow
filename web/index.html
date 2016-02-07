@@ -120,18 +120,21 @@
 
     <section id="generate" class="container content-section text-center">
         <div class="row">
-            <h2>Real-time Image Generation</h2>
+            <h2>Image Generation</h2>
+            <div class="col-md-8 col-md-offset-2">
+                <img class="col-xs-3" src="img/single1.gif">
+                <img class="col-xs-3" src="img/single2.gif">
+                <img class="col-xs-3" src="img/single3.gif">
+                <img class="col-xs-3" src="img/single4.gif">
+            </div>
             <div class="col-md-8 col-md-offset-2 col-xs-12 text-left">
                 <p><b>프사 뉴럴</b>은 0에서 1 사이의 100개의 숫자 <b>z</b>로 사람의 이미지를 만들어내는 인공지능입니다.</p>
-                <p>1. 아래에 보이는 100개의 픽셀을 <b>z</b>의 각 숫자를 나타냅니다.<br/>2. DRAW 버튼을 누르시면 픽셀이 의미하는 <b>z</b>로 이미지가 실시간으로 만들어집니다.<br/>3. 만들어진 사진 위에 마우스를 올리면 사진에 사용된 <b>z</b>가 보입니다.<br/>4. 만들어진 이미지를 누르시면 그 이미지의 <b>z</b>가 복사됩니다.</p>
+                <p>1. 아래에 보이는 100개의 픽셀을 <b>z</b>의 각 숫자를 나타냅니다.<br/>2. 만들어진 사진 위에 마우스를 올리면 사진에 사용된 <b>z</b>가 보입니다.<br/>3. 만들어진 이미지를 누르시면 그 이미지의 <b>z</b>가 복사됩니다.</p>
             </div>
             <div class="col-md-8 col-md-offset-2 col-xs-12">
-                <p><small>(컴퓨터 성능에 따라 1~10초가 걸립니다)</small></p>
+                <p><small>(브라우저 성능에 따라 1~10초가 걸립니다)</small></p>
                 <div class="row" id="images">
                 </div>
-            </div>
-
-            <div class="col-md-8 col-md-offset-2 col-xs-12">
                 <div class="row">
                     <br/>
                     <div class="col-md-7 col-xs-8">
@@ -169,8 +172,8 @@
                 </div>
                 <div class="row">
                     <br/>
-                    <button type="button" id="draw" class="btn btn-default">Draw</button>
-                    <button type="button" id="shuffle" class="btn btn-default">Random</button>
+                    <button type="button" id="draw" class="btn btn-default">만들기</button>
+                    <button type="button" id="shuffle" class="btn btn-default">랜덤 얼굴</button>
                 </div>
             </div>
         </div>

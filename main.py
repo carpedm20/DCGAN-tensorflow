@@ -48,7 +48,7 @@ def main(_):
                                       [dcgan.h3_w, dcgan.h3_b, dcgan.g_bn3],
                                       [dcgan.h4_w, dcgan.h4_b, None])
 
-        OPTION = 6
+        OPTION = 2
         if OPTION == 0:
           z_sample = np.random.uniform(-0.5, 0.5, size=(FLAGS.batch_size, dcgan.z_dim))
           samples = sess.run(dcgan.sampler, feed_dict={dcgan.z: z_sample})
@@ -65,9 +65,11 @@ def main(_):
             save_images(samples, [8, 8], './samples/test_arange_%s.png' % (idx))
         elif OPTION == 2:
           values = np.arange(0, 1, 1./FLAGS.batch_size)
-          for idx in [random.randint(100) for _ in xrange(5)]:
+          for idx in [random.randint(0, 99) for _ in xrange(100)]:
             print(" [*] %d" % idx)
-            z_sample = np.zeros([FLAGS.batch_size, dcgan.z_dim])
+            z = np.random.uniform(-0.2, 0.2, size=(dcgan.z_dim))
+            z_sample = np.tile(z, (FLAGS.batch_size, 1))
+            #z_sample = np.zeros([FLAGS.batch_size, dcgan.z_dim])
             for kdx, z in enumerate(z_sample):
               z[idx] = values[kdx]
 
