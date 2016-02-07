@@ -7,9 +7,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="author" content="Taehoon Kim (carpedm20@gmail.com)">
     <meta name="keywords" content="프사 뉴럴,neural face,dcgan,carpedm20" />
-    <meta name="description" content="프사 뉴럴 | 인공지능이 만든 얼굴들" />
+    <meta name="description" content="Face from AI | 인공지능이 만든 얼굴들" />
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta property="og:title" content="프사 뉴럴 | 인공지능이 만든 얼굴들" />
+    <meta property="og:title" content="Neural Face | 프사 뉴럴" />
     <meta property="og:url" content="http://carpedm20.github.io/faces/"/>
     <meta property="og:image" content="https://raw.githubusercontent.com/carpedm20/DCGAN-tensorflow/master/web/img/ogimage.png" />
     <meta content="width=device-width,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" name="viewport">
@@ -23,8 +23,7 @@
         }
     </style>
 
-    <title lang="ko">프사 뉴럴 | 인공지능이 만든 얼굴들</title>
-    <title lang="en">Neural Face | Face from AI</title>
+    <title lang="en">Neural Face | 프사 뉴럴</title>
 
     <!-- CSS -->
     <link rel="stylesheet" type="text/css" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
@@ -46,7 +45,7 @@
     <![endif]-->
 </head>
 
-<body id="page-top" data-spy="scroll" data-target=".navbar-fixed-top"  class="ko">
+<body id="page-top" data-spy="scroll" data-target=".navbar-fixed-top"  class="en">
     <div id="fakeLoader"></div>
     <div id="fb-root"></div>
     <script>(function(d, s, id) {
@@ -128,8 +127,8 @@
                 <p><b>프사 뉴럴</b>은 얼굴 사진을 만드는 인공 지능이며<br>이 페이지에 나오는 모든 사람들은 이세상에 존재하지 않습니다.</p>
             </div>
             <div lang="en" class="col-md-8 col-md-offset-2 col-xs-12">
-                <p><b>Neural Face</b> uses <a href="http://arxiv.org/pdf/1511.06434v2.pdf" target="_blank">Deep Convolutional Generative Adversarial Networks</a> (DCGAN), which is developed by Facebook AI Research recently.</p>
-                <p><b>Neural Face</b> is an Artificial Intelligence which generates face images<br>and all of the people in this page do not exists.</p>
+                <p><b>Neural Face</b> uses <a href="http://arxiv.org/pdf/1511.06434v2.pdf" target="_blank">Deep Convolutional Generative Adversarial Networks</a> (DCGAN), which is developed by Facebook AI Research.</p>
+                <p><b>Neural Face</b> is an Artificial Intelligence which generates face images<br>and all images in this page are not REAL.</p>
             </div>
             <div class="col-md-8 col-md-offset-2 col-xs-12">
                 <div class="fb-like" data-href="http://carpedm20.github.io/faces/" data-layout="button_count" data-action="like" data-show-faces="true" data-share="true"></div>
@@ -152,8 +151,8 @@
                 <p>1. 아래에 보이는 100개의 픽셀을 <b>z</b>의 각 숫자를 나타냅니다.<br/>2. 만들어진 사진 위에 마우스를 올리면 사진에 사용된 <b>z</b>가 보입니다.<br/>3. 만들어진 이미지를 누르시면 그 이미지의 <b>z</b>가 복사됩니다.</p>
             </div>
             <div lang="en" class="col-md-8 col-md-offset-2 col-xs-12 text-left">
-                <br/><p><b>Neural Face</b> uses a vector <b>z</b> of 100 real numbers whose value varries between 0 and 1.</p>
-                <p>1. Each pixel in bellow represents the each dimension of <b>z</b>.<br/>2. If you hover your mouse over an image, <b>z</b> which is used for that image will be displayed.<br/>3. If you click an image, <b>z</b> will be copyed to palette.</p>
+                <br/><p><b>Neural Face</b> uses a vector <b>z</b> that consists of 100 real numbers range from 0 to 1.</p>
+                <p>1. Each pixel in bellow pallete represents each values in <b>z</b>.<br/>2. If you hover your mouse over an image, <b>z</b> for that image will be displayed.<br/>3. If you click an image, <b>z</b> will be copyed to the palette.</p>
             </div>
             <div class="col-md-8 col-md-offset-2 col-xs-12">
                 <p lang="ko"><small>(브라우저 성능에 따라 1~10초가 걸립니다)</small></p>
@@ -235,10 +234,9 @@
                 <p>두 신경망은 수많은 이미지를 반복적으로 보면서 생성자는 구분자를 속이기 위해, 구분자는 생성자가 만든 사진을 판별하기 위해 학습합니다. 이러한 학습 방법을 <a href="https://en.wikipedia.org/wiki/Adversarial_machine_learning">적대적 학습 (Adversarial Learning)</a>이라고 하며, 생성자와 구분자를 <b>도둑</b>과 <b>경찰</b>로 비유하기도 합니다.</p>
             </div>
             <div lang="en" class="col-md-8 col-md-offset-2 col-xs-12 text-left">
-                <p><b>프사 뉴럴</b>의 핵심 모델인 <a href="http://arxiv.org/pdf/1511.06434v2.pdf" target="_blank">DCGAN</a>은 두 개의 인공 신경망으로 구성되어 있으며, 각각</p>
-                <p>1. 사진을 만들어내는 <b>생성자 (G)</b><br/>2. 진짜 사진과 생성자가 만든 사진을 구분하는 <b>구분자 (D)</b></p>
-                <p>라고 부릅니다.</p>
-                <p>두 신경망은 수많은 이미지를 반복적으로 보면서 생성자는 구분자를 속이기 위해, 구분자는 생성자가 만든 사진을 판별하기 위해 학습합니다. 이러한 학습 방법을 <a href="https://en.wikipedia.org/wiki/Adversarial_machine_learning">적대적 학습 (Adversarial Learning)</a>이라고 하며, 생성자와 구분자를 <b>도둑</b>과 <b>경찰</b>로 비유하기도 합니다.</p>
+                <p><a href="http://arxiv.org/pdf/1511.06434v2.pdf" target="_blank">DCGAN</a>, which is the core of <b>Neural Face</b>, consists of two different neural networks which are:</p>
+                <p>1. <b>Generator (G)</b> that generates an image<br/>2. <b>Discriminator (D)</b> that discriminate real images from generated images</p>
+                <p>Two neural networks read numerous of images to deceive each other and this kind of learning is called <a href="https://en.wikipedia.org/wiki/Adversarial_machine_learning">Adversarial Learning</a>. Because of this, <b>Generator</b> and <b>Discriminator</b> are described as a <b>theif</b> and a <b>police</b>.</p>
             </div>
             <br/>
             <img class="col-md-6 col-md-offset-3 col-xs-10 col-xs-offset-1" src="img/model.png">
@@ -248,8 +246,8 @@
                 <p>구분자는 인공 신경망에 실제 이미지를 넣은 결과를 <b>1</b>로, 만들어진 이미지의 결과는 <b>0</b>으로 구분하도록 학습합니다. 반대로 생성자는 Gaussian Distribution을 따르는 <b>z</b>라는 확률 변수를 두고, 사람의 이미지의 확률 분포를 <b>z</b>를 사용해 계산합니다. 이렇게 만들어진 이미지를 구분자가 실제 이미지라고 잘못 판단하도록 계속 학습합니다.</p>
             </div>
             <div lang="en" class="col-md-8 col-md-offset-2 col-xs-12 text-left">
-                <p><br/>생성자와 구분자는 여러 가지 인공 신경망 종류 중에서 각각 <a href="https://www.quora.com/How-does-a-deconvolutional-neural-network-work" target="_blank">Deconvolutional Network (DNN)</a>과 <a href="http://cs231n.github.io/convolutional-networks/" target="_blank">Convolutional Neural Network (CNN)</a>로 구현되어 있습니다. <b>CNN</b>은 수백 개의 픽셀로 이루어진 이미지를 작은 차원의 숫자들 (<b>z</b>)로 잘 요약할 수 있는 필터를 배우는 인공 신경망이며, <b>DNN</b>은 이렇게 작아진 차원의 숫자들로 원래 이미지를 복원하는 필터를 배우는 신경망입니다.</p>
-                <p>구분자는 인공 신경망에 실제 이미지를 넣은 결과를 <b>1</b>로, 만들어진 이미지의 결과는 <b>0</b>으로 구분하도록 학습합니다. 반대로 생성자는 Gaussian Distribution을 따르는 <b>z</b>라는 확률 변수를 두고, 사람의 이미지의 확률 분포를 <b>z</b>를 사용해 계산합니다. 이렇게 만들어진 이미지를 구분자가 실제 이미지라고 잘못 판단하도록 계속 학습합니다.</p>
+                <p><br/>Generator and Discriminator consists of <a href="https://www.quora.com/How-does-a-deconvolutional-neural-network-work" target="_blank">Deconvolutional Network (DNN)</a> and <a href="http://cs231n.github.io/convolutional-networks/" target="_blank">Convolutional Neural Network (CNN)</a>. <b>CNN</b> is a neural network which encode the hundreds of pixels of an image into a vector of small dimensions (<b>z</b>) which is a summary of the image and <b>DNN</b> is a network that learns filters to recover the original image from <b>z</b>.</p>
+                <p>When a real image is given, Discirminator should tell <b>1</b> and <b>0</b> for fake generated image from Generator. In the contrast, Generator generate an image from <b>z</b> which follows Gaussian Distribution and try to figure out the distribution of human image from <b>z</b>. In this way, a Generator tries to cheat Discriminator into making a wrong decision.</p>
             </div>
         </div>
     </section>
@@ -258,10 +256,10 @@
         <div class="row">
             <h2>Results</h2>
             <div class="col-md-8 col-md-offset-2 col-xs-12 text-left">
-                <p lang="ko"><b>프사 뉴럴</b>를 학습시키기 위해 인터넷에 10만 개 이상의 사진들을 모았고 이 사진들에서 얼굴 사진만 잘라서 얼굴 데이터 셋을 만들었습니다. 코드는 최근에 구글에서 공개한 <a href="https://www.tensorflow.org/" target="_blank">TensorFlow</a>로 구현했으며 GTX 980 Ti GPU를 사용하여 이틀간 학습시켰습니다.</p>
+                <p lang="ko"><b>프사 뉴럴</b>를 학습시키기 위해 인터넷에 10만 개 이상의 사진들을 모았고 이 사진들에서 얼굴 사진만 잘라서 얼굴 데이터 셋을 만들었습니다. 코드는 최근에 구글에서 공개한 <a href="https://www.tensorflow.org/" target="_blank">TensorFlow</a>로 구현했으며 GTX 980 Ti를 사용하여 이틀간 학습시켰습니다.</p>
                 <p lang="ko">아래는 초기 학습 단계에서 프사 뉴럴이 정해진 <b>z</b>로 얼굴 사진을 만들어 가는 과정을 보여줍니다.</p>
-                <p lang="en"><b>프사 뉴럴</b>를 학습시키기 위해 인터넷에 10만 개 이상의 사진들을 모았고 이 사진들에서 얼굴 사진만 잘라서 얼굴 데이터 셋을 만들었습니다. 코드는 최근에 구글에서 공개한 <a href="https://www.tensorflow.org/" target="_blank">TensorFlow</a>로 구현했으며 GTX 980 Ti GPU를 사용하여 이틀간 학습시켰습니다.</p>
-                <p lang="en">아래는 초기 학습 단계에서 프사 뉴럴이 정해진 <b>z</b>로 얼굴 사진을 만들어 가는 과정을 보여줍니다.</p>
+                <p lang="en">More than 100K images are crawled from online communities and those images are cropped by using <a href="https://github.com/cmusatyalab/openface">openface</a> which is a face recognition framework. <b>Neural Face</b> is implemented with <a href="https://www.tensorflow.org/" target="_blank">TensorFlow</a> and GTX 980 Ti is used to train for two days.</p>
+                <p lang="en">Below is a series of images generated by <b>Generator</b> with a fixed <b>z</b> between the first and the fith epoch of training.</p>
                 <video autoplay loop muted class="col-md-6 col-md-offset-3 col-xs-10 col-xs-offset-1">
                     <source src="videos/training.mp4" type="video/mp4">
                 </video>
@@ -269,7 +267,7 @@
 
             <div class="col-md-8 col-md-offset-2 col-xs-12 text-left">
                 <p lang="ko"><br/><br/>생성자가 사용하는 <b>z</b>는 -1에서 1 사이의 <a href="https://ko.wikipedia.org/wiki/%EC%A0%95%EA%B7%9C%EB%B6%84%ED%8F%AC">Gaussian Distribution</a>을 따르는 확률 변수이며, 평균값인 <b>0</b>으로 이미지를 만들게 되면, <b>프사 뉴럴</b>이 생각하는 평균적인 얼굴을 알 수 있습니다.</p>
-                <p lang="en"><br/><br/>The vector <b>z</b> has real values from -1 to 1 and it follows the <a href="https://en.wikipedia.org/wiki/%EC%A0%95%EA%B7%9C%EB%B6%84%ED%8F%AC">Gaussian Distribution</a>. We can see the most common face that is interpreted by <b>Neural Face</b> using <b>0</b> as all values of <b>z</b>.</p>
+                <p lang="en"><br/><br/>The vector <b>z</b> has real values from -1 to 1 and it follows the <a href="https://en.wikipedia.org/wiki/Normal_distribution">Gaussian Distribution</a>. We can see the most common face that is interpreted by <b>Neural Face</b> using <b>0</b> as all values of <b>z</b>.</p>
             </div>
             <div class="col-md-8 col-md-offset-2 col-xs-12">
                 <img src="img/average.png"/>
@@ -277,7 +275,7 @@
 
             <div class="col-md-8 col-md-offset-2 col-xs-12 text-left">
                 <p lang="ko"><br/><br/>평균값 <b>0</b>에서 랜덤한 차원의 값을 조금씩 바꾸면 아래와 같은 변화를 볼 수 있습니다.</p>
-                <p lang="en"><br/><br/>Below images are genearted by changing the values of <b>z</b> continuously, starting from the average value, <b>0</b>, to -1 or 1.</p>
+                <p lang="en"><br/><br/>Below images are genearted by changing the values of <b>z</b> continuously, starting from the average value (<b>0</b>) to -1 or 1.</p>
             </div>
             <div class="col-md-8 col-md-offset-2 col-xs-12">
                 <video autoplay loop muted class="col-md-6 col-md-offset-3 col-xs-10 col-xs-offset-1">
@@ -318,7 +316,7 @@
                 <p><small>(마우스로 클릭하면 정답이 보입니다)</small></p>
             </div>
             <div lang="en" class="col-md-8 col-md-offset-2 col-xs-12">
-                <p>Lastly, Let's conduct a <a href="https://namu.wiki/w/%ED%8A%9C%EB%A7%81%20%ED%85%8C%EC%8A%A4%ED%8A%B8">Turing Test</a> :)<br>Can you guess which is the real one?</p>
+                <p>Lastly, let's conduct a <a href="https://en.wikipedia.org/wiki/Turing_test">Turing Test</a> :)<br>Can you guess which are the real images?</p>
                 <p><small>(Answer will be showed if you click an image)</small></p>
             </div>
         </div>
