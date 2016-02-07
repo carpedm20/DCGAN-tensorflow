@@ -11,6 +11,8 @@ Tensorflow implementation of [Deep Convolutional Generative Adversarial Networks
 Online Demo
 -----------
 
+![demo](https://raw.githubusercontent.com/carpedm20/blog/master/content/images/face.png)
+
 [link](http://carpedm20.github.io/faces/)
 
 
