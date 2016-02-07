@@ -49,7 +49,10 @@ var convnetjs = convnetjs || { REVISION: 'ALPHA' };
   }
 
   function standardDeviation(v, nChannel){
-    var values = v.slice();
+    var values = new Float64Array(v.length);
+    for(var i=0;i<v.length;i++) {
+      values[i] = v[i];
+    }
     var avgs = average(values, nChannel);
     
     for(var i=0; i < values.length; i++) {

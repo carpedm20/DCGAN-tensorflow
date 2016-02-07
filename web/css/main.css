@@ -5,7 +5,6 @@ canvas {
 #colors {
     overflow: hidden;
     width: 90px;
-    height: 330px;
     margin-left: 30px;
     float: left;
 }
@@ -246,6 +245,8 @@ a:focus {
 }
 
 .intro {
+    overflow: hidden;
+    position: relative;
     display: table;
     width: 100%;
     height: auto;
@@ -473,3 +474,16 @@ body {
 
 .tooltip > .tooltip-inner { background-color: white; color: black; }
 .tooltip > .tooltip-arrow { border-bottom-color: white; color: black; }
+
+.tooltip {
+    opacity: 0.95 !important;
+}
+
+.pixel-tooltip {
+    padding: 0px !important;
+    background-color: transparent !important;
+}
+
+.fa-5 {
+    font-size: 40px !important;
+}

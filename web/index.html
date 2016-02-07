@@ -6,12 +6,14 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="author" content="Taehoon Kim (carpedm20@gmail.com)">
-    <meta name="keywords" content="프사 뉴럴,머신러닝,인공지능,뉴럴" />
+    <meta name="keywords" content="프사 뉴럴,머신러닝,dcgan,carpedm20" />
     <meta name="description" content="프사 뉴럴" />
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta property="og:title" content="프사 뉴럴" />
     <meta property="og:url" content="http://carpedm20.github.io/faces/"/>
-    <meta property="og:image" content="https://raw.githubusercontent.com/carpedm20/poet-neural/master/static/img/logo.png" />
+    <meta property="og:image" content="https://raw.githubusercontent.com/carpedm20/DCGAN-tensorflow/master/web/img/logo.png" />
+    <meta property="og:image:width" content="1000" />
+    <meta property="og:image:height" content="1000" />
     <meta content="width=device-width,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" name="viewport">
 
     <title>프사 뉴럴</title>
@@ -76,6 +78,9 @@
                     <li>
                         <a class="page-scroll" href="#results">Results</a>
                     </li>
+                    <li>
+                        <a class="page-scroll" href="#aboutme">Me?</a>
+                    </li>
                 </ul>
             </div>
         </div>
@@ -103,26 +108,36 @@
 
     <section id="about" class="container content-section text-center">
         <div class="row">
-            <div class="col-md-8 col-md-offset-2 col-xs-12">
-                <h2>프사 뉴럴</h2>
+            <h2>프사 뉴럴</h2>
+            <div class="col-md-8 col-md-offset-2 col-xs-12 text-left">
                 <p><b>프사 뉴럴</b>은 Facebook AI Research에서 개발한 <a href="http://arxiv.org/pdf/1511.06434v2.pdf" target="_blank">Deep Convolutional Generative Adversarial Networks</a> (DCGAN) 이라는 기계 학습 모델을 사용해 만들어졌습니다.</p>
                 <p><b>프사 뉴럴</b>은 얼굴 사진을 만드는 인공 지능이며<br>이 페이지의 모든 사진은 <b>프사 뉴럴</b>이 만든 사진입니다.</p>
+            </div>
+            <div class="col-md-8 col-md-offset-2 col-xs-12">
                 <div class="fb-like" data-href="http://carpedm20.github.io/faces/" data-layout="button_count" data-action="like" data-show-faces="true" data-share="true"></div>
             </div>
         </div>
     </section>
 
 
-    <section id="generate" class="content-section text-center">
+    <section id="generate" class="container content-section text-center">
         <div class="row">
-            <div class="col-md-8 col-md-offset-2">
-                <h2>Real-time Image Generation</h2>
+            <h2>Real-time Image Generation</h2>
+            <div class="col-md-8 col-md-offset-2 col-xs-12 text-left">
+                <p><b>프사 뉴럴</b>은 0에서 1사이의 100개의 숫자 <b>z</b>로 사람의 이미지를 만들어내는 인공지능입니다.</p>
+                <p>1. 아래에 보이는 100개의 픽셀들을 <b>z</b>의 각 숫자를 나타냅니다.<br/>2. DRAW 버튼을 누르시면 픽셀이 의미하는 <b>z</b>로 이미지가 실시간으로 만들어집니다.<br/>3. 만들어진 사진 위에 마우스를 올리면 사진에 사용된 <b>z</b>가 보입니다.<br/>4. 만들어진 이미지를 누르시면 그 이미지의 <b>z</b>가 복사됩니다.</p>
+            </div>
+            <div class="col-md-8 col-md-offset-2 col-xs-12">
+                <p><small>(컴퓨터 성능에 따라 1~10초가 걸릴며, 모바일에서는 만들어지지 않습니다)</small></p>
                 <div class="row" id="images">
                 </div>
+            </div>
 
+            <div class="col-md-8 col-md-offset-2 col-xs-12">
                 <div class="row">
-                    <div class="col-lg-8">
-                        <canvas id="pixel" height='200' width='200' onselectstart="this.style.cursor='crosshair'; return false;">
+                    <br/>
+                    <div class="col-md-7 col-xs-8">
+                        <canvas id="pixel" height='200' width='200' style="float:right" onselectstart="this.style.cursor='crosshair'; return false;">
                             <p>
                                 Sorry, your browser doesn't support the <canvas> element.
                             </p>
@@ -136,7 +151,7 @@
                             </p>
                         </canvas>
                     </div>
-                    <div class="col-lg-4" id="color">
+                    <div class="col-xs-5" id="colors">
                         <div class="color" data-color="#000000">
                           <div class="isometric" id="color_1" style="background-color: #000000"></div>
                         </div>
@@ -155,10 +170,9 @@
                     </div>
                 </div>
                 <div class="row">
-                <button uib-popover="I appeared on mouse enter!" popover-trigger="mouseenter" type="button" class="btn btn-default">Mouseenter</button>
+                    <br/>
                     <button type="button" id="draw" class="btn btn-default">Draw</button>
                     <button type="button" id="shuffle" class="btn btn-default">Random</button>
-                    <button type="button" id="clear" class="btn btn-default">Reset</button>
                 </div>
             </div>
         </div>
@@ -172,96 +186,144 @@
 
             <img class="col-md-6 col-md-offset-3 col-xs-10 col-xs-offset-1" src="http://cosmonio.com/Research/Deep-Learning/files/small_1420.png">
 
-            <div class="col-md-8 col-md-offset-2 col-xs-12">
+            <div class="col-md-8 col-md-offset-2 col-xs-12 text-left">
                 <p><b>프사 뉴럴</b>의 핵심 모델인 <a href="http://arxiv.org/pdf/1511.06434v2.pdf" target="_blank">DCGAN</a>은 두 개의 인공 신경망으로 구성되어 있으며, 각각</p>
-                <p>1. 사진을 만들어내는 <b>생성자 (G)</b><br/>2. 사진이 진짜 사진인지 만들어진 사진인지를 구분하는 <b>구분자 (D)</b></p>
+                <p>1. 사진을 만들어내는 <b>생성자 (G)</b><br/>2. 진짜 사진과 생성자가 만든 사진을 구분하는 <b>구분자 (D)</b></p>
                 <p>라고 부릅니다.</p>
-                <p>두 신경망은 수많은 이미지를 반복적으로 보면서 생성자는 구분자를 속이기 위해, 구분자는 생성자가 만든 사진을 판별하도록 학습합니다. 그래서 생성자와 구분자를 <b>도둑</b>과 <b>경찰</b>로 비유하기도 합니다.</p>
+                <p>두 신경망은 수많은 이미지를 반복적으로 보면서 생성자는 구분자를 속이기 위해, 구분자는 생성자가 만든 사진을 판별하기 위해 학습합니다. 이러한 학습 방법을 <a href="https://en.wikipedia.org/wiki/Adversarial_machine_learning">적대적 학습 (Adversarial Learning)</a> 이라고 하며, 생성자와 구분자를 <b>도둑</b>과 <b>경찰</b>로 비유하기도 합니다.</p>
             </div>
             <br/>
             <img class="col-md-6 col-md-offset-3 col-xs-10 col-xs-offset-1" src="img/model.png">
 
-            <div class="col-md-8 col-md-offset-2 col-xs-12">
-                <p><br/>생성자는 <a href="http://cs231n.github.io/convolutional-networks/" target="_blank">Convolutional Neural Network</a>로, 구분자는 <a href="https://www.quora.com/How-does-a-deconvolutional-neural-network-work" target="_blank">Deconvolutional Network</a>로 구현했으며, 구분자는 인공 신경망에 실제 이미지를 넣은 결과를 <b>1</b>로, 만들어진 이미지의 결과는 <b>0</b>으로 구분하도록 학습합니다.</p>
-                <p>반대로 생성자는 Gausian Distribution을 따르는 <b>z</b>라는 확률 변수를 두고, 사람의 이미지의 확률 분포를 <b>z</b>를 사용해 계산합니다. 이렇게 만들어진 이미지를 구분자가 실제 이미지라고 잘못 판단하도록 계속 학습합니다.</p>
+            <div class="col-md-8 col-md-offset-2 col-xs-12 text-left">
+                <p><br/>생성자와 구분자는 여러가지 인공 신경망 종류 중에서 각각 <a href="https://www.quora.com/How-does-a-deconvolutional-neural-network-work" target="_blank">Deconvolutional Network (DNN)</a>과 <a href="http://cs231n.github.io/convolutional-networks/" target="_blank">Convolutional Neural Network (CNN)</a>로 구현되어 있습니다. <b>CNN</b>은 수백개의 픽셀로 이루어진 이미지를 작은 차원의 숫자들 (<b>z</b>) 로 잘 요약할 수 있는 필터를 배우는 인공 신경망이며, <b>DNN</b>은 이렇게 작아진 차원의 숫자들로 원래 이미지를 복원하는 필터를 배우는 신경망입니다.</p>
+                <p>구분자는 인공 신경망에 실제 이미지를 넣은 결과를 <b>1</b>로, 만들어진 이미지의 결과는 <b>0</b>으로 구분하도록 학습합니다. 반대로 생성자는 Gausian Distribution을 따르는 <b>z</b>라는 확률 변수를 두고, 사람의 이미지의 확률 분포를 <b>z</b>를 사용해 계산합니다. 이렇게 만들어진 이미지를 구분자가 실제 이미지라고 잘못 판단하도록 계속 학습합니다.</p>
             </div>
         </div>
     </section>
 
-    <section id="results" class="content-section text-center">
+    <section id="results" class="container content-section text-center">
         <div class="row">
-            <div class="col-md-8 col-md-offset-2 col-xs-12">
-                <h2>Results</h2>
-                <p><b>프사 뉴럴</b>를 학습시키기 위해 인터넷에 10만 개 이상의 사진들을 모았고 Titan 980 Ti GPU를 사용해 이틀간 학습시켰습니다.</p>
+            <h2>Results</h2>
+            <div class="col-md-8 col-md-offset-2 col-xs-12 text-left">
+                <p><b>프사 뉴럴</b>를 학습시키기 위해 인터넷에 10만 개 이상의 사진들을 모았고 이 사진들에서 얼굴 사진만 잘라서 얼굴 데이터 셋을 만들었습니다. 코드는 최근에 구글에서 공개한 <a href="https://www.tensorflow.org/" target="_blank">TensorFlow</a>로 구현했으며 GTX 980 Ti GPU를 사용하여 이틀간 학습시켰습니다.</p>
                 <p>아래는 초기 학습 단계에서 프사 뉴럴이 정해진 <b>z</b>로 얼굴 사진을 만들어 가는 과정을 보여줍니다.</p>
                 <video autoplay loop muted class="col-md-6 col-md-offset-3 col-xs-10 col-xs-offset-1">
                     <source src="videos/training.mp4" type="video/mp4">
                 </video>
             </div>
 
-            <div class="col-md-8 col-md-offset-2">
-                <p><br/><br/>아래의 사진들은 100 차원의 <b>z</b> 값 중에서 임의의 차원들을 0부터 1까지 바꾸면서 <b>생성자</b> 신경망에 넣은 결과이며, 점점 미소를 짓거나, 안경이 생기거나, 성별이 바뀌는 등의 결과를 확인하실 수 있습니다.</p>
+            <div class="col-md-8 col-md-offset-2 col-xs-12 text-left">
+                <p><br/><br/>생성자가 사용하는 <b>z</b>는 0에서 1 사이의 Gaussian Disctribution을 따르는 확률 변수이며, 평균값인 <b>0.5</b>로 이미지를 만들게 되면, <b>프사 뉴럴</b>이 생각하는 평균적인 얼굴을 알 수 있습니다.</p>
             </div>
-            <div class="col-md-8 col-md-offset-2 slick">
-                <img src="img/change1.png"/>
-                <img src="img/change2.png"/>
-                <img src="img/change3.png"/>
-                <img src="img/change4.png"/>
-                <img src="img/change5.png"/>
-                <img src="img/change6.png"/>
+            <div class="col-md-8 col-md-offset-2 col-xs-12">
+                <img src="img/average.png"/>
             </div>
 
-            <div class="col-md-8 col-md-offset-2">
-                <p><br><br><b>프사 뉴럴</b>은 <a href="https://www.tensorflow.org/" target="_blank">TensorFlow</a>로 구현했으며 코드는 <a href="https://github.com/carpedm20/DCGAN-tensorflow" target="_blank">이곳</a>에 공개되어 있습니다.</p>
+            <div class="col-md-8 col-md-offset-2 col-xs-12 text-left">
+                <p><br/><br/>평균값 <b>0.5</b>에서 랜덤한 차원의 값을 조금씩 바꾸면 아래와 같은 변화를 볼 수 있습니다.</p>
+            </div>
+            <div class="col-md-8 col-md-offset-2 col-xs-12">
+                <video autoplay loop muted class="col-md-6 col-md-offset-3 col-xs-10 col-xs-offset-1">
+                    <source src="videos/random.mp4" type="video/mp4">
+                </video>
+            </div>
+
+            <div class="col-md-8 col-md-offset-2 col-xs-12 text-left">
+                <p><br/><br/>아래의 사진들은 100 차원의 <b>z</b> 값 중에서 임의의 차원들을 0부터 1까지 바꾸면서 <b>생성자</b> 신경망에 넣은 결과이며, 점점 미소를 짓거나, 안경이 생기거나, 흑백 사진이 되거나, 성별이 바뀌는 등의 결과를 확인하실 수 있습니다.</p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-8 col-md-offset-2 col-xs-12">
+                <div class="slick">
+                    <img src="img/change1.png"/>
+                    <img src="img/change2.png"/>
+                    <img src="img/change3.png"/>
+                    <img src="img/change4.png"/>
+                    <img src="img/change5.png"/>
+                    <img src="img/change6.png"/>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-8 col-md-offset-2 col-xs-12">
+                <p><br><br><b>프사 뉴럴</b>의 코드는 <a href="https://github.com/carpedm20/DCGAN-tensorflow" target="_blank">이곳</a>에 공개되어 있습니다.</p>
             </div>
         </div>
     </section>
 
-    <section id="results" class="content-section text-center">
+    <section id="results" class="container content-section text-center">
         <div class="row">
-            <div class="col-md-8 col-md-offset-2">
-                <h2>Misc.</h2>
-                <p>마지막으로 튜링 테스트를 해 보겠습니다 :)<br>아래 사진들 중에 진짜 사진은 무엇일까요?</p>
+            <h2>Misc.</h2>
+            <div class="col-md-8 col-md-offset-2 col-xs-12">
+                <p>마지막으로 <a href="https://namu.wiki/w/%ED%8A%9C%EB%A7%81%20%ED%85%8C%EC%8A%A4%ED%8A%B8">튜링 테스트</a>를 해 보겠습니다 :)<br>아래 사진들 중에 진짜 사진은 무엇일까요?</p>
                 <p><small>(마우스를 올리시면 정답이 보입니다)</small></p>
             </div>
-
-            <div class="col-md-8 col-md-offset-2 turing-slick">
-                <img data-container="body" data-toggle="tooltip" title="true." src="img/t1.jpg"/>
-                <img data-container="body" data-toggle="tooltip" title="fake!" src="img/f1.png"/>
-                <img data-container="body" data-toggle="tooltip" title="fake!" src="img/f2.png"/>
-                <img data-container="body" data-toggle="tooltip" title="fake!" src="img/f3.png"/>
-                <img data-container="body" data-toggle="tooltip" title="true." src="img/t6.jpg"/>
-                <img data-container="body" data-toggle="tooltip" title="fake!" src="img/f4.png"/>
-                <img data-container="body" data-toggle="tooltip" title="fake!" src="img/f5.png"/>
-                <img data-container="body" data-toggle="tooltip" title="fake!" src="img/f6.png"/>
-                <img data-container="body" data-toggle="tooltip" title="true." src="img/t2.jpg"/>
-                <img data-container="body" data-toggle="tooltip" title="fake!" src="img/f7.png"/>
-                <img data-container="body" data-toggle="tooltip" title="true." src="img/t7.jpg"/>
-                <img data-container="body" data-toggle="tooltip" title="fake!" src="img/f8.png"/>
-                <img data-container="body" data-toggle="tooltip" title="fake!" src="img/f9.png"/>
-                <img data-container="body" data-toggle="tooltip" title="fake!" src="img/f17.png"/>
-                <img data-container="body" data-toggle="tooltip" title="true." src="img/t3.jpg"/>
-                <img data-container="body" data-toggle="tooltip" title="fake!" src="img/f10.png"/>
-                <img data-container="body" data-toggle="tooltip" title="fake!" src="img/f11.png"/>
-                <img data-container="body" data-toggle="tooltip" title="fake!" src="img/f12.png"/>
-                <img data-container="body" data-toggle="tooltip" title="fake!" src="img/f13.png"/>
-                <img data-container="body" data-toggle="tooltip" title="true." src="img/t4.jpg"/>
-                <img data-container="body" data-toggle="tooltip" title="fake!" src="img/f14.png"/>
-                <img data-container="body" data-toggle="tooltip" title="fake!" src="img/f15.png"/>
-                <img data-container="body" data-toggle="tooltip" title="fake!" src="img/f16.png"/>
-                <img data-container="body" data-toggle="tooltip" title="true." src="img/t5.jpg"/>
+        </div>
+        <div class="row">
+            <div class="col-md-8 col-md-offset-2 col-xs-12">
+                <div class="turing-slick">
+                    <img data-container="body" data-toggle="tooltip" title="true." src="img/t1.jpg"/>
+                    <img data-container="body" data-toggle="tooltip" title="fake!" src="img/f1.png"/>
+                    <img data-container="body" data-toggle="tooltip" title="fake!" src="img/f2.png"/>
+                    <img data-container="body" data-toggle="tooltip" title="fake!" src="img/f3.png"/>
+                    <img data-container="body" data-toggle="tooltip" title="true." src="img/t6.jpg"/>
+                    <img data-container="body" data-toggle="tooltip" title="fake!" src="img/f4.png"/>
+                    <img data-container="body" data-toggle="tooltip" title="fake!" src="img/f5.png"/>
+                    <img data-container="body" data-toggle="tooltip" title="fake!" src="img/f6.png"/>
+                    <img data-container="body" data-toggle="tooltip" title="true." src="img/t2.jpg"/>
+                    <img data-container="body" data-toggle="tooltip" title="fake!" src="img/f7.png"/>
+                    <img data-container="body" data-toggle="tooltip" title="true." src="img/t7.jpg"/>
+                    <img data-container="body" data-toggle="tooltip" title="fake!" src="img/f8.png"/>
+                    <img data-container="body" data-toggle="tooltip" title="fake!" src="img/f9.png"/>
+                    <img data-container="body" data-toggle="tooltip" title="fake!" src="img/f17.png"/>
+                    <img data-container="body" data-toggle="tooltip" title="true." src="img/t3.jpg"/>
+                    <img data-container="body" data-toggle="tooltip" title="fake!" src="img/f10.png"/>
+                    <img data-container="body" data-toggle="tooltip" title="fake!" src="img/f11.png"/>
+                    <img data-container="body" data-toggle="tooltip" title="fake!" src="img/f12.png"/>
+                    <img data-container="body" data-toggle="tooltip" title="fake!" src="img/f13.png"/>
+                    <img data-container="body" data-toggle="tooltip" title="true." src="img/t4.jpg"/>
+                    <img data-container="body" data-toggle="tooltip" title="fake!" src="img/f14.png"/>
+                    <img data-container="body" data-toggle="tooltip" title="fake!" src="img/f15.png"/>
+                    <img data-container="body" data-toggle="tooltip" title="fake!" src="img/f16.png"/>
+                    <img data-container="body" data-toggle="tooltip" title="true." src="img/t5.jpg"/>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-8 col-md-offset-2 col-xs-12">
+                <br/></br/>
+                <br/></br/>
+                <br/></br/>
+                <h2>Other Projects</h2>
+                <ul style="list-style-type:none; padding: 0; font-size: 20px;">
+                    <li><a href="https://github.com/carpedm20/MemN2N-tensorflow" target="_blank">Memory Networks</a> in TensorFlow</li>
+                    <li><a href="https://github.com/carpedm20/NTM-tensorflow" target="_blank">Neural Turing Machine</a> in TensorFlow</li>
+                    <li><a href="https://github.com/carpedm20/lstm-char-cnn-tensorflow" target="_blank">LSTM Character CNN Networks</a> in TensorFlow</li>
+                </ul>
             </div>
         </div>
     </section>
 
     <!-- Contact Section -->
-    <section id="contact" class="container content-section text-center">
+    <section id="aboutme" class="container content-section text-center">
         <div class="row">
             <div class="col-lg-8 col-lg-offset-2">
-                <h2>About me</h2>
-                <br>
                 <h3>Taehoon Kim</h3>
                 <h3><a href="http://carpedm20.github.io/" target="_blank">@carpedm20</a></h3>
+
+                <a href="https://github.com/carpedm20/" target="_blank">
+                    <i class="fa fa-github-square fa-5"></i>
+                </a>
+                <a href="https://www.linkedin.com/in/carpedm20" target="_blank">
+                    <i class="fa fa-linkedin-square fa-5"></i>
+                </a>
+                <a href="https://www.facebook.com/carpedm20" target="_blank">
+                    <i class="fa fa-facebook-square fa-5"></i>
+                </a>
+                <a href="https://twitter.com/carpedm20" target="_blank">
+                    <i class="fa fa-twitter-square fa-5"></i>
+                </a>
             </div>
         </div>
     </section>
@@ -276,7 +338,7 @@
     <script src="//code.jquery.com/jquery-2.2.0.min.js"></script>
     <script src="js/vendor/fakeLoader.min.js"></script>
     <script>
-        getElementById("fakeLoader").fakeLoader({
+        $("#fakeLoader").fakeLoader({
             zIndex:"999",//Default zIndex
             spinner:"spinner3",
             bgColor:"black"

@@ -6,6 +6,20 @@ function rgb2hex(rgb){
         ("0" + parseInt(rgb[3],10).toString(16)).slice(-2) : "";
 }
 
+var make_z = function(max_length, scale) {
+    var z = []
+    var scale = scale | 2;
+    while(z.length < max_length){
+      var randomnumber=Math.random() * scale;
+      var found=false;
+      for(var i=0;i<z.length;i++){
+        if(z[i]==randomnumber){found=true;break}
+      }
+      if(!found)z[z.length]=randomnumber;
+    }
+    return z;
+}
+
 var get_pixels = function() {
     var x = new Array(100);
     var frame = PIXEL.getCurrentFrame();
@@ -13,14 +27,37 @@ var get_pixels = function() {
     for (var i=0;  i < 10;  i++) {
         for (var j=0;  j < 10;  j++) {
             var idx = i*10 + j;
-            if (frame.data[i][j] == "rgba(0, 0, 0, 0)") {
-                x[idx] = 1;
+            if (frame[i][j] == "rgba(0, 0, 0, 0)") {
+                x[idx] = 0;
             } else {
-                x[idx] = parseInt(frame.data[i][j].substring(1));
+                x[idx] = ((parseInt(frame[i][j].substring(1,3) ,16)/255*2)-1)/2;
             }
         }
     }
     return x;
+}
+
+var recover_pixels = function(x) {
+    for (var i=0;  i < 10;  i++) {
+        for (var j=0;  j < 10;  j++) {
+            var idx = i*10 + j;
+            x[idx] = ((x[idx] * 2) + 1) / 2 * 255;
+        }
+    }
+    return x;
+}
+
+var draw_pixels = function(x) {
+    var frame = PIXEL.getCurrentFrame();
+
+    for (var i=0;  i < 10;  i++) {
+        for (var j=0;  j < 10;  j++) {
+            var hex = Math.ceil(x[i*10+j]).toString(16);
+            PIXEL.setDraw(true);
+            PIXEL.doAction(i*20, j*20, "#" + hex + hex + hex);
+            PIXEL.setDraw(false);
+        }
+    }
 }
 
 var clip_pixel = function(x){
@@ -29,28 +66,26 @@ var clip_pixel = function(x){
     else return 255*(x+1.0)/2.0;
 }
 
-// mouse down event callback
-function mouseDownCallback(e) {
-    PIXEL.setDraw(true);
-    var coordinates = getCoordinates(e);
-    
-    PIXEL.doAction(coordinates.x, coordinates.y, currentColor);
-}
+function cloneCanvas(oldCanvas) {
 
-// mouse move event callback
-function mouseMoveCallback(e) {
-    var coordinates = getCoordinates(e);
-    
-    PIXEL.doAction(coordinates.x, coordinates.y, currentColor);
-    e.preventDefault();
-}
+    //create a new canvas
+    var newCanvas = document.createElement('canvas');
+    var context = newCanvas.getContext('2d');
 
-// mouse up event callback
-function mouseUpCallback() {
-    PIXEL.setDraw(false);
+    //set dimensions
+    newCanvas.width = oldCanvas.width;
+    newCanvas.height = oldCanvas.height;
+
+    //apply the old canvas to the new one
+    context.drawImage(oldCanvas, 0, 0);
+
+    //return the new canvas
+    return newCanvas;
 }
 
 $(document).ready(function() {
+    draw_pixels(make_z(100, 255));
+
     $('.slick').slick({
         slidesToShow: 2,
         autoplay: true,
@@ -58,7 +93,7 @@ $(document).ready(function() {
         autoplaySpeed: 3000,
         responsive: [
             {
-                breakpoint: 480,
+                breakpoint: 980,
                 settings: {
                     slidesToShow: 1,
                     slidesToScroll: 1
@@ -73,7 +108,14 @@ $(document).ready(function() {
         autoplaySpeed: 3000,
         responsive: [
             {
-                breakpoint: 480,
+                breakpoint: 1200,
+                settings: {
+                    slidesToShow: 5,
+                    slidesToScroll: 5
+                }
+            },
+            {
+                breakpoint: 980,
                 settings: {
                     slidesToShow: 3,
                     slidesToScroll: 3
@@ -103,7 +145,13 @@ $(document).ready(function() {
 
     var input = new convnetjs.Vol(1, 1, 100, 0.0);
 
+    var duplicates = [];
+    var pixels = [];
+
     var draw = function() {
+        cur_pixel = get_pixels();
+        input.w = cur_pixel;
+
         var output = net.forward(input);
         var scale = 2;
         var W = output.sx * scale;
@@ -132,19 +180,33 @@ $(document).ready(function() {
             }
         }
         ctx.putImageData(g, 0, 0);
-
         document.getElementById("images").appendChild(canv);
 
-        $(canv).attr('data-original-title', canvas[0].outerHTML)
-               .tooltip({html:true})
-               .hide()
-               .fadeIn(1000);
+        duplicates.push(cloneCanvas(document.getElementById("pixel")));
+        pixels.push(cur_pixel);
+
+        $(canv).tooltip({
+                html: true,
+                template: '<div class="tooltip"><div class="tooltip-inner pixel-tooltip"></div></div>',
+                title: function(e) {
+                     var duplicated = duplicates[parseInt($(this).attr("id")) - 1];
+                     return duplicated;
+                },
+                }).hide()
+                .attr("id", duplicates.length)
+                .fadeIn(1000)
+                .click(function() {
+                    draw_pixels(recover_pixels(pixels[parseInt($(this).attr("id")) - 1]));
+                });
     }
 
     $("#fakeLoader").fadeOut(3000);
 
     $("#draw").click(draw);
-    $("#shuffle").click(draw);
+    $("#shuffle").click(function() {
+        draw_pixels(make_z(100, 255));
+        draw();
+    });
 });
 
 
@@ -196,7 +258,7 @@ var currentColor = "#000000",
 function mouseDownCallback(e) {
     PIXEL.setDraw(true);
     var coordinates = getCoordinates(e);
-    
+
     PIXEL.doAction(coordinates.x, coordinates.y, currentColor);
 }
 
@@ -223,32 +285,6 @@ canvas.bind('touchstart', mouseDownCallback).bind('touchmove', mouseMoveCallback
 // reset drawing on mouseup
 $(document).mouseup(mouseUpCallback);
 $(document).bind('touchend', mouseUpCallback);
-
-// controls
-$("#clear").click(function() {
-    if(confirm("Sure?")) {
-        clearAll();
-    }
-});
-
-function clearAll() {
-    var framesLength = PIXEL.getFramesLength();
-    for(var i = framesLength-1; i >= 0; i--) {
-        PIXEL.log('REMOVE ' + i + ' FRAME OF ' + PIXEL.getFramesLength() + ' FRAMES!');
-        PIXEL.clearCanvasAt(i);
-        PIXEL.removeFrame(i);
-        disable($(".frame[data-frame=" + i + "]"));
-    }
-    PIXEL.setCurrentFrame(0);
-
-    deactivate($(".frame.active"));
-    activate($(".frame[data-frame=0]"));
-    enable($(".frame[data-frame=0]"));
-    disable($(".remove_frame"));
-    enable($(".add_frame"));
-    
-    copyFrameIndex = -1;
-}
 
 $(".action.selectable").click(function() {
     PIXEL.setAction($(this).data('action'));
