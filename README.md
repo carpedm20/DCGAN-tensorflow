@@ -62,11 +62,15 @@ After 10th epoch:
 
 ![result4](assets/test_2016-01-27 15:08:54.png)
 
-With custom dataset (with high noises):
+With asian face dataset (with high noises):
 
-![custom_result](assets/custom_dataset.png)
+![custom_result1](web/img/change5.png)
 
-More results can be found [here](./assets/).
+![custom_result1](web/img/change2.png)
+
+![custom_result2](web/img/change4.png)
+
+More results can be found [here](./assets/) and [here](./web/img/).
 
 
 Training details

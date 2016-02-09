@@ -207,8 +207,8 @@ $( document ).ready(function() {
                 });
     }
 
-    $("#draw").click(draw);
-    $("#shuffle").click(function() {
+    $(".draw").click(draw);
+    $(".shuffle").click(function() {
         draw_pixels(make_z(100, 255));
         draw();
     });
