@@ -48,6 +48,7 @@ def main(_):
                                       [dcgan.h3_w, dcgan.h3_b, dcgan.g_bn3],
                                       [dcgan.h4_w, dcgan.h4_b, None])
 
+        # Below is codes for visualization
         OPTION = 2
         if OPTION == 0:
           z_sample = np.random.uniform(-0.5, 0.5, size=(FLAGS.batch_size, dcgan.z_dim))
