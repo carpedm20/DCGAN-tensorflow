@@ -1,11 +1,9 @@
 import os
-import random
 import numpy as np
 import tensorflow as tf
-from time import gmtime, strftime
 
 from model import DCGAN
-from utils import pp, save_images, to_json, make_gif, merge
+from utils import pp, visualize, to_json
 
 flags = tf.app.flags
 flags.DEFINE_integer("epoch", 25, "Epoch to train [25]")
@@ -50,147 +48,7 @@ def main(_):
 
         # Below is codes for visualization
         OPTION = 2
-        if OPTION == 0:
-          z_sample = np.random.uniform(-0.5, 0.5, size=(FLAGS.batch_size, dcgan.z_dim))
-          samples = sess.run(dcgan.sampler, feed_dict={dcgan.z: z_sample})
-          save_images(samples, [8, 8], './samples/test_%s.png' % strftime("%Y-%m-%d %H:%M:%S", gmtime()))
-        elif OPTION == 1:
-          values = np.arange(0, 1, 1./FLAGS.batch_size)
-          for idx in xrange(100):
-            print(" [*] %d" % idx)
-            z_sample = np.zeros([FLAGS.batch_size, dcgan.z_dim])
-            for kdx, z in enumerate(z_sample):
-              z[idx] = values[kdx]
-
-            samples = sess.run(dcgan.sampler, feed_dict={dcgan.z: z_sample})
-            save_images(samples, [8, 8], './samples/test_arange_%s.png' % (idx))
-        elif OPTION == 2:
-          values = np.arange(0, 1, 1./FLAGS.batch_size)
-          for idx in [random.randint(0, 99) for _ in xrange(100)]:
-            print(" [*] %d" % idx)
-            z = np.random.uniform(-0.2, 0.2, size=(dcgan.z_dim))
-            z_sample = np.tile(z, (FLAGS.batch_size, 1))
-            #z_sample = np.zeros([FLAGS.batch_size, dcgan.z_dim])
-            for kdx, z in enumerate(z_sample):
-              z[idx] = values[kdx]
-
-            samples = sess.run(dcgan.sampler, feed_dict={dcgan.z: z_sample})
-            make_gif(samples, './samples/test_gif_%s.gif' % (idx))
-        elif OPTION == 3:
-          values = np.arange(0, 1, 1./FLAGS.batch_size)
-          for idx in xrange(100):
-            print(" [*] %d" % idx)
-            z_sample = np.zeros([FLAGS.batch_size, dcgan.z_dim])
-            for kdx, z in enumerate(z_sample):
-              z[idx] = values[kdx]
-
-            samples = sess.run(dcgan.sampler, feed_dict={dcgan.z: z_sample})
-            make_gif(samples, './samples/test_gif_%s.gif' % (idx))
-        elif OPTION == 4:
-          image_set = []
-          values = np.arange(0, 1, 1./FLAGS.batch_size)
-
-          for idx in xrange(100):
-            print(" [*] %d" % idx)
-            z_sample = np.zeros([FLAGS.batch_size, dcgan.z_dim])
-            for kdx, z in enumerate(z_sample): z[idx] = values[kdx]
-
-            image_set.append(sess.run(dcgan.sampler, feed_dict={dcgan.z: z_sample}))
-            make_gif(image_set[-1], './samples/test_gif_%s.gif' % (idx))
-
-          new_image_set = [merge(np.array([images[idx] for images in image_set]), [10, 10]) for idx in range(64) + range(63, -1, -1)]
-          make_gif(new_image_set, './samples/test_gif_merged.gif', duration=8)
-        elif OPTION == 5:
-          image_set = []
-          values = np.arange(0, 1, 1./FLAGS.batch_size)
-          z_idx = [[random.randint(0,99) for _ in xrange(5)] for _ in xrange(200)]
-
-          for idx in xrange(200):
-            print(" [*] %d" % idx)
-            #z_sample = np.zeros([FLAGS.batch_size, dcgan.z_dim])
-            z = np.random.uniform(-1e-1, 1e-1, size=(dcgan.z_dim))
-            z_sample = np.tile(z, (FLAGS.batch_size, 1))
-
-            for kdx, z in enumerate(z_sample):
-              for jdx in xrange(5):
-                z_sample[kdx][z_idx[idx][jdx]] = values[kdx]
-
-            image_set.append(sess.run(dcgan.sampler, feed_dict={dcgan.z: z_sample}))
-            make_gif(image_set[-1], './samples/test_gif_%s.gif' % (idx))
-
-          new_image_set = [merge(np.array([images[idx] for images in image_set]), [10, 20]) for idx in range(64) + range(63, -1, -1)]
-          make_gif(new_image_set, './samples/test_gif_random_merged.gif', duration=4)
-        elif OPTION == 6:
-          image_set = []
-
-          values = np.arange(0, 1, 1.0/FLAGS.batch_size).tolist()
-          z_idx = [[random.randint(0,99) for _ in xrange(10)] for _ in xrange(100)]
-
-          for idx in xrange(100):
-            print(" [*] %d" % idx)
-            z = np.random.uniform(-0.2, 0.2, size=(dcgan.z_dim))
-            z_sample = np.tile(z, (FLAGS.batch_size, 1))
-
-            for kdx, z in enumerate(z_sample):
-              for jdx in xrange(10):
-                z_sample[kdx][z_idx[idx][jdx]] = values[kdx]
-
-            image_set.append(sess.run(dcgan.sampler, feed_dict={dcgan.z: z_sample}))
-            save_images(image_set[-1], [8, 8], './samples/test_random_arange_%s.png' % (idx))
-
-          new_image_set = [merge(np.array([images[idx] for images in image_set]), [10, 10]) for idx in range(64) + range(63, -1, -1)]
-          make_gif(new_image_set, './samples/test_gif_merged_random.gif', duration=4)
-        elif OPTION == 7:
-          for _ in xrange(50):
-            z_idx = [[random.randint(0,99) for _ in xrange(10)] for _ in xrange(8)]
-
-            zs = []
-            for idx in xrange(8):
-              z = np.random.uniform(-0.2, 0.2, size=(dcgan.z_dim))
-              zs.append(np.tile(z, (8, 1)))
-
-            z_sample = np.concatenate(zs)
-            values = np.arange(0, 1, 1/8.)
-
-            for idx in xrange(FLAGS.batch_size):
-              for jdx in xrange(8):
-                z_sample[idx][z_idx[idx/8][jdx]] = values[idx%8]
-
-            samples = sess.run(dcgan.sampler, feed_dict={dcgan.z: z_sample})
-            save_images(samples, [8, 8], './samples/multiple_testt_%s.png' % strftime("%Y-%m-%d %H:%M:%S", gmtime()))
-        elif OPTION == 8:
-          counter = 0
-          for _ in xrange(50):
-            import scipy.misc
-            z_idx = [[random.randint(0,99) for _ in xrange(10)] for _ in xrange(8)]
-
-            zs = []
-            for idx in xrange(8):
-              z = np.random.uniform(-0.2, 0.2, size=(dcgan.z_dim))
-              zs.append(np.tile(z, (8, 1)))
-
-            z_sample = np.concatenate(zs)
-            values = np.arange(0, 1, 1/8.)
-
-            for idx in xrange(FLAGS.batch_size):
-              for jdx in xrange(8):
-                z_sample[idx][z_idx[idx/8][jdx]] = values[idx%8]
-
-            samples = sess.run(dcgan.sampler, feed_dict={dcgan.z: z_sample})
-            for sample in samples:
-              scipy.misc.imsave('./samples/turing/%s.png' % counter, sample)
-              counter += 1
-        else:
-          import scipy.misc
-          from glob import glob
-
-          samples = []
-          fnames = glob("/Users/carpedm20/Downloads/x/1/*.png")
-          fnames = sorted(fnames, key = lambda x: int(x.split("_")[1]) * 10000 + int(x.split('_')[2].split(".")[0]))
-          for f in fnames:
-            samples.append(scipy.misc.imread(f))
-          make_gif(samples, './samples/training.gif', duration=8, true_image=True)
-
+        visualize(sess, dcgan, FLAGS, OPTION)
 
 if __name__ == '__main__':
     tf.app.run()
