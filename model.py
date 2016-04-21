@@ -84,9 +84,9 @@ class DCGAN(object):
         self.d__sum = tf.histogram_summary("d_", self.D_)
         self.G_sum = tf.image_summary("G", self.G)
 
-        self.d_loss_real = binary_cross_entropy_with_logits(tf.ones_like(self.D), self.D)
-        self.d_loss_fake = binary_cross_entropy_with_logits(tf.zeros_like(self.D_), self.D_)
-        self.g_loss = binary_cross_entropy_with_logits(tf.ones_like(self.D_), self.D_)
+        self.d_loss_real = binary_cross_entropy(self.D, tf.ones_like(self.D))
+        self.d_loss_fake = binary_cross_entropy(self.D_, tf.zeros_like(self.D_))
+        self.g_loss = binary_cross_entropy(self.D_, tf.ones_like(self.D_))
 
         self.d_loss_real_sum = tf.scalar_summary("d_loss_real", self.d_loss_real)
         self.d_loss_fake_sum = tf.scalar_summary("d_loss_fake", self.d_loss_fake)
