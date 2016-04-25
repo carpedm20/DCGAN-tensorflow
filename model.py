@@ -75,18 +75,18 @@ class DCGAN(object):
         self.z_sum = tf.histogram_summary("z", self.z)
 
         self.G = self.generator(self.z)
-        self.D = self.discriminator(self.images)
+        self.D, self.D_logits = self.discriminator(self.images)
 
         self.sampler = self.sampler(self.z)
-        self.D_ = self.discriminator(self.G, reuse=True)
+        self.D_, self.D_logits_ = self.discriminator(self.G, reuse=True)
 
         self.d_sum = tf.histogram_summary("d", self.D)
         self.d__sum = tf.histogram_summary("d_", self.D_)
         self.G_sum = tf.image_summary("G", self.G)
 
-        self.d_loss_real = binary_cross_entropy(self.D, tf.ones_like(self.D))
-        self.d_loss_fake = binary_cross_entropy(self.D_, tf.zeros_like(self.D_))
-        self.g_loss = binary_cross_entropy(self.D_, tf.ones_like(self.D_))
+        self.d_loss_real = tf.nn.sigmoid_cross_entropy_with_logits(self.D_logits, tf.ones_like(self.D))
+        self.d_loss_fake = tf.nn.sigmoid_cross_entropy_with_logits(self.D_logits_, tf.zeros_like(self.D_))
+        self.g_loss = tf.nn.sigmoid_cross_entropy_with_logits(self.D_logits_, tf.ones_like(self.D_))
 
         self.d_loss_real_sum = tf.scalar_summary("d_loss_real", self.d_loss_real)
         self.d_loss_fake_sum = tf.scalar_summary("d_loss_fake", self.d_loss_fake)
@@ -192,7 +192,7 @@ class DCGAN(object):
             h3 = lrelu(self.d_bn3(conv2d(h2, self.df_dim*8, name='d_h3_conv')))
             h4 = linear(tf.reshape(h3, [self.batch_size, -1]), 1, 'd_h3_lin')
 
-            return tf.nn.sigmoid(h4)
+            return tf.nn.sigmoid(h4), h4
         else:
             yb = tf.reshape(y, [None, 1, 1, self.y_dim])
             x = conv_cond_concat(image, yb)
