@@ -44,18 +44,18 @@ class DCGAN(object):
         self.c_dim = 3
 
         # batch normalization : deals with poor initialization helps gradient flow
-        self.d_bn1 = batch_norm(batch_size, name='d_bn1')
-        self.d_bn2 = batch_norm(batch_size, name='d_bn2')
+        self.d_bn1 = batch_norm(name='d_bn1')
+        self.d_bn2 = batch_norm(name='d_bn2')
 
         if not self.y_dim:
-            self.d_bn3 = batch_norm(batch_size, name='d_bn3')
+            self.d_bn3 = batch_norm(name='d_bn3')
 
-        self.g_bn0 = batch_norm(batch_size, name='g_bn0')
-        self.g_bn1 = batch_norm(batch_size, name='g_bn1')
-        self.g_bn2 = batch_norm(batch_size, name='g_bn2')
+        self.g_bn0 = batch_norm(name='g_bn0')
+        self.g_bn1 = batch_norm(name='g_bn1')
+        self.g_bn2 = batch_norm(name='g_bn2')
 
         if not self.y_dim:
-            self.g_bn3 = batch_norm(batch_size, name='g_bn3')
+            self.g_bn3 = batch_norm(name='g_bn3')
 
         self.dataset_name = dataset_name
         self.checkpoint_dir = checkpoint_dir
@@ -84,9 +84,9 @@ class DCGAN(object):
         self.d__sum = tf.histogram_summary("d_", self.D_)
         self.G_sum = tf.image_summary("G", self.G)
 
-        self.d_loss_real = tf.nn.sigmoid_cross_entropy_with_logits(self.D_logits, tf.ones_like(self.D))
-        self.d_loss_fake = tf.nn.sigmoid_cross_entropy_with_logits(self.D_logits_, tf.zeros_like(self.D_))
-        self.g_loss = tf.nn.sigmoid_cross_entropy_with_logits(self.D_logits_, tf.ones_like(self.D_))
+        self.d_loss_real = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(self.D_logits, tf.ones_like(self.D)))
+        self.d_loss_fake = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(self.D_logits_, tf.zeros_like(self.D_)))
+        self.g_loss = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(self.D_logits_, tf.ones_like(self.D_)))
 
         self.d_loss_real_sum = tf.scalar_summary("d_loss_real", self.d_loss_real)
         self.d_loss_fake_sum = tf.scalar_summary("d_loss_fake", self.d_loss_fake)
