@@ -2,6 +2,8 @@ import os
 import time
 from glob import glob
 import tensorflow as tf
+from six.moves import xrange
+from __future__ import division
 
 from ops import *
 from utils import *
