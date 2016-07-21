@@ -8,6 +8,7 @@ import pprint
 import scipy.misc
 import numpy as np
 from time import gmtime, strftime
+from __future__ import division
 
 pp = pprint.PrettyPrinter()
 
