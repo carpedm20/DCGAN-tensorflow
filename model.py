@@ -1,7 +1,9 @@
+from __future__ import division
 import os
 import time
 from glob import glob
 import tensorflow as tf
+from six.moves import xrange
 
 from ops import *
 from utils import *
@@ -135,7 +137,7 @@ class DCGAN(object):
 
         for epoch in xrange(config.epoch):
             data = glob(os.path.join("./data", config.dataset, "*.jpg"))
-            batch_idxs = min(len(data), config.train_size)/config.batch_size
+            batch_idxs = min(len(data), config.train_size) // config.batch_size
 
             for idx in xrange(0, batch_idxs):
                 batch_files = data[idx*config.batch_size:(idx+1)*config.batch_size]
