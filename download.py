@@ -105,6 +105,8 @@ def download_lsun(dirpath):
         _download_lsun(data_dir, category, 'val', tag)
     _download_lsun(data_dir, '', 'test', tag)
 
+def download_mnist(dirpath):
+
 def prepare_data_dir(path = './data'):
     if not os.path.exists(path):
         os.mkdir(path)
@@ -121,3 +123,5 @@ if __name__ == '__main__':
         download_celeb_a('./data')
     if 'lsun' in args.datasets:
         download_lsun('./data')
+    if 'mnist' in args.datasets:
+        download_mnist('./data')
