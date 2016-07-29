@@ -106,6 +106,12 @@ def download_lsun(dirpath):
     _download_lsun(data_dir, '', 'test', tag)
 
 def download_mnist(dirpath):
+  data_dir = os.path.join(dirpath, 'mnist')
+    if os.path.exists(data_dir):
+        print('Found MNIST - skip')
+        return
+    else:
+        os.mkdir(data_dir)
 
 def prepare_data_dir(path = './data'):
     if not os.path.exists(path):
