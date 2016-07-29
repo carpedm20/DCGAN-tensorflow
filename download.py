@@ -20,7 +20,7 @@ from six.moves import urllib
 
 parser = argparse.ArgumentParser(description='Download dataset for DCGAN.')
 parser.add_argument('--datasets', metavar='N', type=str, nargs='+',
-                   help='name of dataset to download [celebA, lusn]')
+                   help='name of dataset to download [celebA, lusn, mnist]')
 
 def download(url, dirpath):
     filename = url.split('/')[-1]
