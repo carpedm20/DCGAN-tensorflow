@@ -20,7 +20,7 @@ from six.moves import urllib
 
 parser = argparse.ArgumentParser(description='Download dataset for DCGAN.')
 parser.add_argument('--datasets', metavar='N', type=str, nargs='+',
-                   help='name of dataset to download [celebA, lusn]')
+                   help='name of dataset to download [celebA, lusn, mnist]')
 
 def download(url, dirpath):
     filename = url.split('/')[-1]
@@ -105,6 +105,26 @@ def download_lsun(dirpath):
         _download_lsun(data_dir, category, 'val', tag)
     _download_lsun(data_dir, '', 'test', tag)
 
+def download_mnist(dirpath):
+    data_dir = os.path.join(dirpath, 'mnist')
+    if os.path.exists(data_dir):
+        print('Found MNIST - skip')
+        return
+    else:
+        os.mkdir(data_dir)
+    url_base = 'http://yann.lecun.com/exdb/mnist/' 
+    file_names = ['train-images-idx3-ubyte.gz','train-labels-idx1-ubyte.gz','t10k-images-idx3-ubyte.gz','t10k-labels-idx3-ubyte.gz']
+    for file_name in file_names:
+        url = (url_base+file_name).format(**locals())
+        print(url)
+        out_path = os.path.join(data_dir,file_name)
+        cmd = ['curl', url, '-o', out_path]
+        print('Downloading ', file_name)
+        subprocess.call(cmd)
+        cmd = ['gzip -d', out_path]
+        print('Decompressing ', file_name)
+        subprocess.call(cmd)
+
 def prepare_data_dir(path = './data'):
     if not os.path.exists(path):
         os.mkdir(path)
@@ -121,3 +141,5 @@ if __name__ == '__main__':
         download_celeb_a('./data')
     if 'lsun' in args.datasets:
         download_lsun('./data')
+    if 'mnist' in args.datasets:
+        download_mnist('./data')
