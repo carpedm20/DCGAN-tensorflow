@@ -297,9 +297,9 @@ class DCGAN(object):
 
             h1 = tf.nn.relu(self.g_bn1(linear(z, self.gf_dim*2*7*7, 'g_h1_lin')))            
             h1 = tf.reshape(h1, [self.batch_size, 7, 7, self.gf_dim * 2])
-            # print(h1.get_shape())
+
             h1 = conv_cond_concat(h1, yb)
-            # print(h1.get_shape())
+
             h2 = tf.nn.relu(self.g_bn2(deconv2d(h1, [self.batch_size, 14, 14, self.gf_dim * 2], name='g_h2')))
             h2 = conv_cond_concat(h2, yb)
 
