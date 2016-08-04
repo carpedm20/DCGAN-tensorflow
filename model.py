@@ -79,10 +79,10 @@ class DCGAN(object):
 
         if self.y_dim:
             self.G = self.generator(self.z, self.y)
-            self.D, self.D_logits = self.discriminator(self.images, self.y, reuse=False)
+            self.D_logits, self.D = self.discriminator(self.images, self.y, reuse=False)
 
             self.sampler = self.sampler(self.z, self.y)
-            self.D_, self.D_logits_ = self.discriminator(self.G, self.y, reuse=True)
+            self.D_logits_, self.D_ = self.discriminator(self.G, self.y, reuse=True)
         else:
             self.G = self.generator(self.z)
             self.D, self.D_logits = self.discriminator(self.images)
@@ -378,7 +378,7 @@ class DCGAN(object):
         for i, label in enumerate(y):
             y_vec[i,y[i]] = 1.0
         
-        return X,y_vec
+        return X/255.,y_vec
             
     def save(self, checkpoint_dir, step):
         model_name = "DCGAN.model"
