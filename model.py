@@ -28,6 +28,9 @@ class DCGAN(object):
             gfc_dim: (optional) Dimension of gen untis for for fully connected layer. [1024]
             dfc_dim: (optional) Dimension of discrim units for fully connected layer. [1024]
             c_dim: (optional) Dimension of image color. [3]
+            Note that changing c_dim from its default value may require changing the
+            parameters of scipy.misc.imread() in the function imread() in utils.py and
+            reshaping batch_images in the train() function in model.py, among other things.
         """
         self.sess = sess
         self.is_crop = is_crop
