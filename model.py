@@ -132,7 +132,6 @@ class DCGAN(object):
                           .minimize(self.g_loss, var_list=self.g_vars)
         tf.initialize_all_variables().run()
 
-        self.saver = tf.train.Saver()
         self.g_sum = tf.merge_summary([self.z_sum, self.d__sum, 
             self.G_sum, self.d_loss_fake_sum, self.g_loss_sum])
         self.d_sum = tf.merge_summary([self.z_sum, self.d_sum, self.d_loss_real_sum, self.d_loss_sum])
@@ -231,7 +230,7 @@ class DCGAN(object):
                             feed_dict={self.z: sample_z, self.images: sample_images}
                         )
                     save_images(samples, [8, 8],
-                                './samples/train_%s_%s.png' % (epoch, idx))
+                                './samples/train_{:02d}_{:04d}.png'.format(epoch, idx))
                     print("[Sample] d_loss: %.8f, g_loss: %.8f" % (d_loss, g_loss))
 
                 if np.mod(counter, 500) == 2:
