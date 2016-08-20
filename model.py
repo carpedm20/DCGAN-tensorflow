@@ -25,15 +25,13 @@ class DCGAN(object):
             z_dim: (optional) Dimension of dim for Z. [100]
             gf_dim: (optional) Dimension of gen filters in first conv layer. [64]
             df_dim: (optional) Dimension of discrim filters in first conv layer. [64]
-            gfc_dim: (optional) Dimension of gen untis for for fully connected layer. [1024]
+            gfc_dim: (optional) Dimension of gen units for for fully connected layer. [1024]
             dfc_dim: (optional) Dimension of discrim units for fully connected layer. [1024]
-            c_dim: (optional) Dimension of image color. [3]
-            Note that changing c_dim from its default value may require changing the
-            parameters of scipy.misc.imread() in the function imread() in utils.py and
-            reshaping batch_images in the train() function in model.py, among other things.
+            c_dim: (optional) Dimension of image color. For grayscale input, set to 1. [3]
         """
         self.sess = sess
         self.is_crop = is_crop
+        self.is_grayscale = (c_dim == 1)
         self.batch_size = batch_size
         self.image_size = image_size
         self.sample_size = sample_size
@@ -145,8 +143,11 @@ class DCGAN(object):
             sample_labels = data_y[0:self.sample_size]
         else:
             sample_files = data[0:self.sample_size]
-            sample = [get_image(sample_file, self.image_size, is_crop=self.is_crop, resize_w=self.output_size) for sample_file in sample_files]
-            sample_images = np.array(sample).astype(np.float32)
+            sample = [get_image(sample_file, self.image_size, is_crop=self.is_crop, resize_w=self.output_size, is_grayscale = self.is_grayscale) for sample_file in sample_files]
+            if (self.is_grayscale):
+                sample_images = np.array(sample).astype(np.float32)[:, :, :, None]
+            else:
+                sample_images = np.array(sample).astype(np.float32)
             
         counter = 1
         start_time = time.time()
@@ -169,8 +170,11 @@ class DCGAN(object):
                     batch_labels = data_y[idx*config.batch_size:(idx+1)*config.batch_size]
                 else:
                     batch_files = data[idx*config.batch_size:(idx+1)*config.batch_size]
-                    batch = [get_image(batch_file, self.image_size, is_crop=self.is_crop, resize_w=self.output_size) for batch_file in batch_files]
-                    batch_images = np.array(batch).astype(np.float32)
+                    batch = [get_image(batch_file, self.image_size, is_crop=self.is_crop, resize_w=self.output_size, is_grayscale = self.is_grayscale) for batch_file in batch_files]
+                    if (self.is_grayscale):
+                        batch_images = np.array(batch).astype(np.float32)[:, :, :, None]
+                    else:
+                        batch_images = np.array(batch).astype(np.float32)
 
                 batch_z = np.random.uniform(-1, 1, [config.batch_size, self.z_dim]) \
                             .astype(np.float32)
