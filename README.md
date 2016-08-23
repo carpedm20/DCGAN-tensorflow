@@ -27,9 +27,8 @@ Tensorflow implementation of [Deep Convolutional Generative Adversarial Networks
 
 First, download dataset with:
 
-    $ mkdir data
-    $ python download.py --datasets mnist
-    $ python download.py --datasets celebA
+    $ python download.py mnist
+    $ python download.py celebA
 
 To train a model with downloaded dataset:
 

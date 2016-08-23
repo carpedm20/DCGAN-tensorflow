@@ -19,7 +19,7 @@ import subprocess
 from six.moves import urllib
 
 parser = argparse.ArgumentParser(description='Download dataset for DCGAN.')
-parser.add_argument('--datasets', metavar='N', type=str, nargs='+',
+parser.add_argument('datasets', metavar='N', type=str, nargs='+', choices=['celebA', 'lusn', 'mnist'],
                    help='name of dataset to download [celebA, lusn, mnist]')
 
 def download(url, dirpath):
@@ -131,10 +131,6 @@ def prepare_data_dir(path = './data'):
 
 if __name__ == '__main__':
     args = parser.parse_args()
-
-    if not args.datasets:
-        raise Exception(" [!] You need to specify the name of datasets to download")
-
     prepare_data_dir()
 
     if 'celebA' in args.datasets:
