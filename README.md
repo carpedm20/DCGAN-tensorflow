@@ -5,7 +5,7 @@ Tensorflow implementation of [Deep Convolutional Generative Adversarial Networks
 ![alt tag](DCGAN.png)
 
 * [Brandon Amos](http://bamos.github.io/) wrote an excellent [blog post](http://bamos.github.io/2016/08/09/deep-completion/) and [image completion code](https://github.com/bamos/dcgan-completion.tensorflow) based on this repo.
-* *To avoid the fast convergence of D (discriminator) network, G (generatior) network is updatesd twice for each D network update which is a different from original paper.*
+* *To avoid the fast convergence of D (discriminator) network, G (generator) network is updated twice for each D network update, which differs from original paper.*
 
 
 ## Online Demo
