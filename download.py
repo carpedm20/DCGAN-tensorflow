@@ -19,8 +19,8 @@ import subprocess
 from six.moves import urllib
 
 parser = argparse.ArgumentParser(description='Download dataset for DCGAN.')
-parser.add_argument('datasets', metavar='N', type=str, nargs='+', choices=['celebA', 'lusn', 'mnist'],
-                   help='name of dataset to download [celebA, lusn, mnist]')
+parser.add_argument('datasets', metavar='N', type=str, nargs='+', choices=['celebA', 'lsun', 'mnist'],
+                   help='name of dataset to download [celebA, lsun, mnist]')
 
 def download(url, dirpath):
     filename = url.split('/')[-1]
@@ -112,7 +112,7 @@ def download_mnist(dirpath):
         return
     else:
         os.mkdir(data_dir)
-    url_base = 'http://yann.lecun.com/exdb/mnist/' 
+    url_base = 'http://yann.lecun.com/exdb/mnist/'
     file_names = ['train-images-idx3-ubyte.gz','train-labels-idx1-ubyte.gz','t10k-images-idx3-ubyte.gz','t10k-labels-idx1-ubyte.gz']
     for file_name in file_names:
         url = (url_base+file_name).format(**locals())
