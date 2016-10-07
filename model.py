@@ -14,7 +14,7 @@ class DCGAN(object):
                  batch_size=64, sample_size = 64, output_size=64,
                  y_dim=None, z_dim=100, gf_dim=64, df_dim=64,
                  gfc_dim=1024, dfc_dim=1024, c_dim=3, dataset_name='default',
-                 checkpoint_dir=None):
+                 checkpoint_dir=None, sample_dir=None):
         """
 
         Args:
@@ -234,7 +234,7 @@ class DCGAN(object):
                             feed_dict={self.z: sample_z, self.images: sample_images}
                         )
                     save_images(samples, [8, 8],
-                                './samples/train_{:02d}_{:04d}.png'.format(epoch, idx))
+                                './{}/train_{:02d}_{:04d}.png'.format(config.sample_dir, epoch, idx))
                     print("[Sample] d_loss: %.8f, g_loss: %.8f" % (d_loss, g_loss))
 
                 if np.mod(counter, 500) == 2:
