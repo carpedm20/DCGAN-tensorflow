@@ -226,7 +226,7 @@ class DCGAN(object):
                     if config.dataset == 'mnist':
                         samples, d_loss, g_loss = self.sess.run(
                             [self.sampler, self.d_loss, self.g_loss],
-                            feed_dict={self.z: sample_z, self.images: sample_images, self.y:batch_labels}
+                            feed_dict={self.z: sample_z, self.images: sample_images, self.y:sample_labels}
                         )
                     else:
                         samples, d_loss, g_loss = self.sess.run(
