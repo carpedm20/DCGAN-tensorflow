@@ -128,7 +128,8 @@ class DCGAN(object):
                           .minimize(self.d_loss, var_list=self.d_vars)
         g_optim = tf.train.AdamOptimizer(config.learning_rate, beta1=config.beta1) \
                           .minimize(self.g_loss, var_list=self.g_vars)
-        tf.initialize_all_variables().run()
+        init_op = tf.global_variables_initializer()
+        self.sess.run(init_op)
 
         self.g_sum = tf.summary.merge([self.z_sum, self.d__sum,
             self.G_sum, self.d_loss_fake_sum, self.g_loss_sum])
