@@ -32,6 +32,7 @@ class batch_norm(object):
                                             updates_collections=None,
                                             epsilon=self.epsilon,
                                             scale=True,
+                                            is_training=train,
                                             scope=self.name)
 
 
