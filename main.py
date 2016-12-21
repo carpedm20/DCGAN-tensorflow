@@ -34,27 +34,41 @@ def main(_):
 
     with tf.Session() as sess:
         if FLAGS.dataset == 'mnist':
-            dcgan = DCGAN(sess, image_size=FLAGS.image_size, batch_size=FLAGS.batch_size, y_dim=10, output_size=28, c_dim=1,
-                    dataset_name=FLAGS.dataset, is_crop=FLAGS.is_crop, checkpoint_dir=FLAGS.checkpoint_dir, sample_dir=FLAGS.sample_dir)
+            dcgan = DCGAN(sess,
+                          image_size=FLAGS.image_size,
+                          batch_size=FLAGS.batch_size,
+                          y_dim=10,
+                          output_size=28,
+                          c_dim=1,
+                          dataset_name=FLAGS.dataset,
+                          is_crop=FLAGS.is_crop,
+                          checkpoint_dir=FLAGS.checkpoint_dir,
+                          sample_dir=FLAGS.sample_dir)
         else:
-            dcgan = DCGAN(sess, image_size=FLAGS.image_size, batch_size=FLAGS.batch_size, output_size=FLAGS.output_size, c_dim=FLAGS.c_dim,
-                    dataset_name=FLAGS.dataset, is_crop=FLAGS.is_crop, checkpoint_dir=FLAGS.checkpoint_dir, sample_dir=FLAGS.sample_dir)
+            dcgan = DCGAN(sess,
+                          image_size=FLAGS.image_size,
+                          batch_size=FLAGS.batch_size,
+                          output_size=FLAGS.output_size,
+                          c_dim=FLAGS.c_dim,
+                          dataset_name=FLAGS.dataset,
+                          is_crop=FLAGS.is_crop,
+                          checkpoint_dir=FLAGS.checkpoint_dir,
+                          sample_dir=FLAGS.sample_dir)
 
         if FLAGS.is_train:
             dcgan.train(FLAGS)
         else:
             dcgan.load(FLAGS.checkpoint_dir)
 
-        if FLAGS.visualize:
-            # to_json("./web/js/layers.js", [dcgan.h0_w, dcgan.h0_b, dcgan.g_bn0],
-            #                               [dcgan.h1_w, dcgan.h1_b, dcgan.g_bn1],
-            #                               [dcgan.h2_w, dcgan.h2_b, dcgan.g_bn2],
-            #                               [dcgan.h3_w, dcgan.h3_b, dcgan.g_bn3],
-            #                               [dcgan.h4_w, dcgan.h4_b, None])
+        # to_json("./web/js/layers.js", [dcgan.h0_w, dcgan.h0_b, dcgan.g_bn0],
+        #                               [dcgan.h1_w, dcgan.h1_b, dcgan.g_bn1],
+        #                               [dcgan.h2_w, dcgan.h2_b, dcgan.g_bn2],
+        #                               [dcgan.h3_w, dcgan.h3_b, dcgan.g_bn3],
+        #                               [dcgan.h4_w, dcgan.h4_b, None])
 
-            # Below is codes for visualization
-            OPTION = 2
-            visualize(sess, dcgan, FLAGS, OPTION)
+        # Below is codes for visualization
+        OPTION = 1
+        visualize(sess, dcgan, FLAGS, OPTION)
 
 if __name__ == '__main__':
     tf.app.run()
