@@ -137,7 +137,7 @@ class DCGAN(object):
         self.g_sum = merge_summary([self.z_sum, self.d__sum,
             self.G_sum, self.d_loss_fake_sum, self.g_loss_sum])
         self.d_sum = merge_summary([self.z_sum, self.d_sum, self.d_loss_real_sum, self.d_loss_sum])
-        self.writer = SummaryWriter("./logs", self.sess.graph)
+        self.writer = SummaryWriter("./logs/"+config.tensorboard_run, self.sess.graph)
 
         sample_z = np.random.uniform(-1, 1, size=(self.sample_size , self.z_dim))
         
