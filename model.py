@@ -232,14 +232,20 @@ class DCGAN(object):
                             [self.sampler, self.d_loss, self.g_loss],
                             feed_dict={self.z: sample_z, self.images: sample_images, self.y:sample_labels}
                         )
+                        save_images(samples, [8, 8],
+                                    './{}/train_{:02d}_{:04d}.png'.format(config.sample_dir, epoch, idx))
+                        print("[Sample] d_loss: %.8f, g_loss: %.8f" % (d_loss, g_loss)) 
                     else:
-                        samples, d_loss, g_loss = self.sess.run(
-                            [self.sampler, self.d_loss, self.g_loss],
-                            feed_dict={self.z: sample_z, self.images: sample_images}
-                        )
-                    save_images(samples, [8, 8],
-                                './{}/train_{:02d}_{:04d}.png'.format(config.sample_dir, epoch, idx))
-                    print("[Sample] d_loss: %.8f, g_loss: %.8f" % (d_loss, g_loss))
+                        try:
+                            samples, d_loss, g_loss = self.sess.run(
+                                [self.sampler, self.d_loss, self.g_loss],
+                                feed_dict={self.z: sample_z, self.images: sample_images}
+                            )
+                            save_images(samples, [8, 8],
+                                        './{}/train_{:02d}_{:04d}.png'.format(config.sample_dir, epoch, idx))
+                            print("[Sample] d_loss: %.8f, g_loss: %.8f" % (d_loss, g_loss)) 
+                        except:
+                            print("one pic error!...")
 
                 if np.mod(counter, 500) == 2:
                     self.save(config.checkpoint_dir, counter)
