@@ -34,8 +34,8 @@ First, download dataset with:
 
 To train a model with downloaded dataset:
 
-    $ python main.py --dataset mnist --is_train True
-    $ python main.py --dataset celebA --is_train True --is_crop True
+    $ python main.py --dataset mnist --is_train
+    $ python main.py --dataset celebA --is_train --is_crop True
 
 To test with an existing model:
 
@@ -46,7 +46,7 @@ Or, you can use your own dataset (without central crop) by:
 
     $ mkdir data/DATASET_NAME
     ... add images to data/DATASET_NAME ...
-    $ python main.py --dataset DATASET_NAME --is_train True
+    $ python main.py --dataset DATASET_NAME --is_train
     $ python main.py --dataset DATASET_NAME
 
 

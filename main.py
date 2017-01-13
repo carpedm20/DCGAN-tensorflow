@@ -15,7 +15,8 @@ flags.DEFINE_integer("train_size", np.inf, "The size of train images [np.inf]")
 flags.DEFINE_integer("batch_size", 64, "The size of batch images [64]")
 flags.DEFINE_integer("image_width", 108, "The size of image to use (will be center cropped) [108]")
 flags.DEFINE_integer("image_height", 108, "The size of image to use (will be center cropped) [108]")
-flags.DEFINE_integer("output_size", 64, "The size of the output images to produce [64]")
+flags.DEFINE_integer("output_height", 64, "The size of the output images to produce [64]")
+flags.DEFINE_integer("output_width", 64, "The size of the output images to produce [64]")
 flags.DEFINE_integer("c_dim", 3, "Dimension of image color. [3]")
 flags.DEFINE_string("dataset", "celebA", "The name of dataset [celebA, mnist, lsun]")
 flags.DEFINE_string("checkpoint_dir", "checkpoint", "Directory name to save the checkpoints [checkpoint]")
@@ -35,32 +36,39 @@ def main(_):
 
   with tf.Session() as sess:
     if FLAGS.dataset == 'mnist':
-      dcgan = DCGAN(sess,
-              image_width=FLAGS.image_width,
-              image_height=FLAGS.image_height,
-              batch_size=FLAGS.batch_size,
-              y_dim=10,
-              output_size=28,
-              c_dim=1,
-              dataset_name=FLAGS.dataset,
-              is_crop=FLAGS.is_crop,
-              checkpoint_dir=FLAGS.checkpoint_dir,
-              sample_dir=FLAGS.sample_dir)
+      dcgan = DCGAN(
+          sess,
+          image_width=FLAGS.image_width,
+          image_height=FLAGS.image_height,
+          output_width=FLAGS.output_width,
+          output_height=FLAGS.output_height,
+          batch_size=FLAGS.batch_size,
+          y_dim=10,
+          c_dim=1,
+          dataset_name=FLAGS.dataset,
+          is_crop=FLAGS.is_crop,
+          checkpoint_dir=FLAGS.checkpoint_dir,
+          sample_dir=FLAGS.sample_dir)
     else:
-      dcgan = DCGAN(sess,
-              image_size=FLAGS.image_size,
-              batch_size=FLAGS.batch_size,
-              output_size=FLAGS.output_size,
-              c_dim=FLAGS.c_dim,
-              dataset_name=FLAGS.dataset,
-              is_crop=FLAGS.is_crop,
-              checkpoint_dir=FLAGS.checkpoint_dir,
-              sample_dir=FLAGS.sample_dir)
+      dcgan = DCGAN(
+          sess,
+          image_width=FLAGS.image_width,
+          image_height=FLAGS.image_height,
+          output_width=FLAGS.output_width,
+          output_height=FLAGS.output_height,
+          batch_size=FLAGS.batch_size,
+          c_dim=FLAGS.c_dim,
+          dataset_name=FLAGS.dataset,
+          is_crop=FLAGS.is_crop,
+          checkpoint_dir=FLAGS.checkpoint_dir,
+          sample_dir=FLAGS.sample_dir)
 
     if FLAGS.is_train:
       dcgan.train(FLAGS)
     else:
-      dcgan.load(FLAGS.checkpoint_dir)
+      if not dcgan.load(FLAGS.checkpoint_dir):
+        raise Exception("[!] Train a model first, then run test mode")
+      
 
     # to_json("./web/js/layers.js", [dcgan.h0_w, dcgan.h0_b, dcgan.g_bn0],
     #                 [dcgan.h1_w, dcgan.h1_b, dcgan.g_bn1],
