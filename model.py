@@ -74,21 +74,15 @@ class DCGAN(object):
     if self.y_dim:
       self.y= tf.placeholder(tf.float32, [self.batch_size, self.y_dim], name='y')
 
-    image_dims = [None, None, self.c_dim]
+    image_dims = [self.output_height, self.output_width, self.c_dim]
 
     self.inputs = tf.placeholder(
       tf.float32, [self.batch_size] + image_dims, name='real_images')
     self.sample_inputs = tf.placeholder(
       tf.float32, [self.sample_num] + image_dims, name='sample_inputs')
 
-    if not self.is_crop:
-      inputs = tf.image.resize_images(
-          self.inputs, [self.output_height, self.output_width])
-      sample_inputs = tf.image.resize_images(
-          self.sample_inputs, [self.output_height, self.output_width])
-    else:
-      inputs = self.inputs
-      sample_inputs = self.sample_inputs
+    inputs = self.inputs
+    sample_inputs = self.sample_inputs
 
     self.z = tf.placeholder(
       tf.float32, [None, self.z_dim], name='z')
@@ -181,19 +175,6 @@ class DCGAN(object):
       else:
         sample_inputs = np.array(sample).astype(np.float32)
   
-    dims = sample_inputs.shape
-
-    assert self.input_height == dims[2], \
-        "[!] input_height is wrong. config: {} <=> real: {}".format(self.input_height, dims[2])
-    assert self.input_width == dims[1], \
-        "[!] input_width is wrong. config: {} <=> real: {}".format(self.input_width, dims[1])
-    if len(dims) == 4:
-      assert self.c_dim == dims[3], \
-          "[!] c_dim is wrong. config: {} <=> real: {}".format(self.c_dim, dims[3])
-    else:
-      assert self.c_dim == 1, \
-          "[!] c_dim is wrong. config: {} <=> real: {}".format(self.c_dim, 1)
-      
     counter = 1
     start_time = time.time()
 
