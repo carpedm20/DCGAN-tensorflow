@@ -18,7 +18,7 @@ Tensorflow implementation of [Deep Convolutional Generative Adversarial Networks
 ## Prerequisites
 
 - Python 2.7 or Python 3.3+
-- [Tensorflow](https://www.tensorflow.org/)
+- [Tensorflow 0.12.1](https://github.com/tensorflow/tensorflow/tree/r0.12)
 - [SciPy](http://www.scipy.org/install.html)
 - [pillow](https://github.com/python-pillow/Pillow)
 - (Optional) [moviepy](https://github.com/Zulko/moviepy) (for visualization)
@@ -34,7 +34,7 @@ First, download dataset with:
 
 To train a model with downloaded dataset:
 
-    $ python main.py --dataset mnist --is_train
+    $ python main.py --dataset mnist --input_height=28 --input_width=28 --is_train
     $ python main.py --dataset celebA --is_train --is_crop True
 
 To test with an existing model:

@@ -13,12 +13,13 @@ flags.DEFINE_float("learning_rate", 0.0002, "Learning rate of for adam [0.0002]"
 flags.DEFINE_float("beta1", 0.5, "Momentum term of adam [0.5]")
 flags.DEFINE_integer("train_size", np.inf, "The size of train images [np.inf]")
 flags.DEFINE_integer("batch_size", 64, "The size of batch images [64]")
-flags.DEFINE_integer("image_width", 108, "The size of image to use (will be center cropped) [108]")
-flags.DEFINE_integer("image_height", 108, "The size of image to use (will be center cropped) [108]")
+flags.DEFINE_integer("input_width", 108, "The size of image to use (will be center cropped) [108]")
+flags.DEFINE_integer("input_height", 108, "The size of image to use (will be center cropped) [108]")
 flags.DEFINE_integer("output_height", 64, "The size of the output images to produce [64]")
 flags.DEFINE_integer("output_width", 64, "The size of the output images to produce [64]")
 flags.DEFINE_integer("c_dim", 3, "Dimension of image color. [3]")
 flags.DEFINE_string("dataset", "celebA", "The name of dataset [celebA, mnist, lsun]")
+flags.DEFINE_string("input_fname_pattern", "*.jpg", "Glob pattern of filename of input images [*]")
 flags.DEFINE_string("checkpoint_dir", "checkpoint", "Directory name to save the checkpoints [checkpoint]")
 flags.DEFINE_string("sample_dir", "samples", "Directory name to save the image samples [samples]")
 flags.DEFINE_boolean("is_train", False, "True for training, False for testing [False]")
@@ -34,31 +35,37 @@ def main(_):
   if not os.path.exists(FLAGS.sample_dir):
     os.makedirs(FLAGS.sample_dir)
 
-  with tf.Session() as sess:
+  #gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.333)
+  run_config = tf.ConfigProto()
+  run_config.gpu_options.allow_growth=True
+
+  with tf.Session(config=run_config) as sess:
     if FLAGS.dataset == 'mnist':
       dcgan = DCGAN(
           sess,
-          image_width=FLAGS.image_width,
-          image_height=FLAGS.image_height,
+          input_width=FLAGS.input_width,
+          input_height=FLAGS.input_height,
           output_width=FLAGS.output_width,
           output_height=FLAGS.output_height,
           batch_size=FLAGS.batch_size,
           y_dim=10,
           c_dim=1,
           dataset_name=FLAGS.dataset,
+          input_fname_pattern=FLAGS.input_fname_pattern,
           is_crop=FLAGS.is_crop,
           checkpoint_dir=FLAGS.checkpoint_dir,
           sample_dir=FLAGS.sample_dir)
     else:
       dcgan = DCGAN(
           sess,
-          image_width=FLAGS.image_width,
-          image_height=FLAGS.image_height,
+          input_width=FLAGS.input_width,
+          input_height=FLAGS.input_height,
           output_width=FLAGS.output_width,
           output_height=FLAGS.output_height,
           batch_size=FLAGS.batch_size,
           c_dim=FLAGS.c_dim,
           dataset_name=FLAGS.dataset,
+          input_fname_pattern=FLAGS.input_fname_pattern,
           is_crop=FLAGS.is_crop,
           checkpoint_dir=FLAGS.checkpoint_dir,
           sample_dir=FLAGS.sample_dir)

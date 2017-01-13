@@ -10,11 +10,11 @@ from ops import *
 from utils import *
 
 class DCGAN(object):
-  def __init__(self, sess, image_height=108, image_width=108, is_crop=True,
+  def __init__(self, sess, input_height=108, input_width=108, is_crop=True,
          batch_size=64, sample_num = 64, output_height=64, output_width=64,
          y_dim=None, z_dim=100, gf_dim=64, df_dim=64,
          gfc_dim=1024, dfc_dim=1024, c_dim=3, dataset_name='default',
-         checkpoint_dir=None, sample_dir=None):
+         input_fname_pattern='*.jpg', checkpoint_dir=None, sample_dir=None):
     """
 
     Args:
@@ -35,8 +35,8 @@ class DCGAN(object):
     self.batch_size = batch_size
     self.sample_num = sample_num
 
-    self.image_height = image_height
-    self.image_width = image_width
+    self.input_height = input_height
+    self.input_width = input_width
     self.output_height = output_height
     self.output_width = output_width
 
@@ -66,6 +66,7 @@ class DCGAN(object):
       self.g_bn3 = batch_norm(name='g_bn3')
 
     self.dataset_name = dataset_name
+    self.input_fname_pattern = input_fname_pattern
     self.checkpoint_dir = checkpoint_dir
     self.build_model()
 
@@ -142,7 +143,7 @@ class DCGAN(object):
     if config.dataset == 'mnist':
       data_X, data_y = self.load_mnist()
     else:
-      data = glob(os.path.join("./data", config.dataset, "*.jpg"))
+      data = glob(os.path.join("./data", config.dataset, self.input_fname_pattern))
     #np.random.shuffle(data)
 
     d_optim = tf.train.AdamOptimizer(config.learning_rate, beta1=config.beta1) \
@@ -169,8 +170,8 @@ class DCGAN(object):
       sample_files = data[0:self.sample_num]
       sample = [
           get_image(sample_file,
-                    image_height=self.image_height,
-                    image_width=self.image_width,
+                    input_height=self.input_height,
+                    input_width=self.input_width,
                     resize_height=self.output_height,
                     resize_width=self.output_width,
                     is_crop=self.is_crop,
@@ -179,6 +180,19 @@ class DCGAN(object):
         sample_inputs = np.array(sample).astype(np.float32)[:, :, :, None]
       else:
         sample_inputs = np.array(sample).astype(np.float32)
+  
+    dims = sample_inputs.shape
+
+    assert self.input_height == dims[2], \
+        "[!] input_height is wrong. config: {} <=> real: {}".format(self.input_height, dims[2])
+    assert self.input_width == dims[1], \
+        "[!] input_width is wrong. config: {} <=> real: {}".format(self.input_width, dims[1])
+    if len(dims) == 4:
+      assert self.c_dim == dims[3], \
+          "[!] c_dim is wrong. config: {} <=> real: {}".format(self.c_dim, dims[3])
+    else:
+      assert self.c_dim == 1, \
+          "[!] c_dim is wrong. config: {} <=> real: {}".format(self.c_dim, 1)
       
     counter = 1
     start_time = time.time()
@@ -192,7 +206,8 @@ class DCGAN(object):
       if config.dataset == 'mnist':
         batch_idxs = min(len(data_X), config.train_size) // config.batch_size
       else:      
-        data = glob(os.path.join("./data", config.dataset, "*.jpg"))
+        data = glob(os.path.join(
+          "./data", config.dataset, self.input_fname_pattern))
         batch_idxs = min(len(data), config.train_size) // config.batch_size
 
       for idx in xrange(0, batch_idxs):
@@ -203,8 +218,8 @@ class DCGAN(object):
           batch_files = data[idx*config.batch_size:(idx+1)*config.batch_size]
           batch = [
               get_image(batch_file,
-                        image_height=self.image_height,
-                        image_width=self.image_width,
+                        input_height=self.input_height,
+                        input_width=self.input_width,
                         resize_height=self.output_height,
                         resize_width=self.output_width,
                         is_crop=self.is_crop,
