@@ -34,13 +34,13 @@ First, download dataset with:
 
 To train a model with downloaded dataset:
 
-    $ python main.py --dataset mnist --input_height=28 --input_width=28 --output_height=28 --output_width=28 --c_dim=1 --is_train
-    $ python main.py --dataset celebA --input_height=108 --input_width=108 --is_train --is_crop True
+    $ python main.py --dataset mnist --input_height=28 --output_height=28 --c_dim=1 --is_train
+    $ python main.py --dataset celebA --input_height=108 --is_train --is_crop True
 
 To test with an existing model:
 
-    $ python main.py --dataset mnist --input_height=28 --input_width=28 --output_height=28 --output_width=28 --c_dim=1
-    $ python main.py --dataset celebA --input_height=108 --input_width=108 --is_crop True
+    $ python main.py --dataset mnist --input_height=28 --output_height=28 --c_dim=1
+    $ python main.py --dataset celebA --input_height=108 --is_crop True
 
 Or, you can use your own dataset (without central crop) by:
 

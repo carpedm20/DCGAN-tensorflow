@@ -13,10 +13,10 @@ flags.DEFINE_float("learning_rate", 0.0002, "Learning rate of for adam [0.0002]"
 flags.DEFINE_float("beta1", 0.5, "Momentum term of adam [0.5]")
 flags.DEFINE_integer("train_size", np.inf, "The size of train images [np.inf]")
 flags.DEFINE_integer("batch_size", 64, "The size of batch images [64]")
-flags.DEFINE_integer("input_width", 108, "The size of image to use (will be center cropped) [108]")
 flags.DEFINE_integer("input_height", 108, "The size of image to use (will be center cropped) [108]")
+flags.DEFINE_integer("input_width", None, "The size of image to use (will be center cropped) [108]")
 flags.DEFINE_integer("output_height", 64, "The size of the output images to produce [64]")
-flags.DEFINE_integer("output_width", 64, "The size of the output images to produce [64]")
+flags.DEFINE_integer("output_width", None, "The size of the output images to produce [64]")
 flags.DEFINE_integer("c_dim", 3, "Dimension of image color. [3]")
 flags.DEFINE_string("dataset", "celebA", "The name of dataset [celebA, mnist, lsun]")
 flags.DEFINE_string("input_fname_pattern", "*.jpg", "Glob pattern of filename of input images [*]")
@@ -29,6 +29,11 @@ FLAGS = flags.FLAGS
 
 def main(_):
   pp.pprint(flags.FLAGS.__flags)
+
+  if FLAGS.input_width is None:
+    FLAGS.input_width = FLAGS.input_height
+  if FLAGS.output_width is None:
+    FLAGS.output_width = FLAGS.output_height
 
   if not os.path.exists(FLAGS.checkpoint_dir):
     os.makedirs(FLAGS.checkpoint_dir)
