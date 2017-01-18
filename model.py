@@ -473,7 +473,7 @@ class DCGAN(object):
     teY = np.asarray(teY)
     
     X = np.concatenate((trX, teX), axis=0)
-    y = np.concatenate((trY, teY), axis=0)
+    y = np.concatenate((trY, teY), axis=0).astype(np.int)
     
     seed = 547
     np.random.seed(seed)
