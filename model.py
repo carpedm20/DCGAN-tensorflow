@@ -437,7 +437,7 @@ class DCGAN(object):
 
         # yb = tf.reshape(y, [-1, 1, 1, self.y_dim])
         yb = tf.reshape(y, [self.batch_size, 1, 1, self.y_dim])
-        z = tf.concat([z, y], 1)
+        z = concat([z, y], 1)
 
         h0 = tf.nn.relu(self.g_bn0(linear(z, self.gfc_dim, 'g_h0_lin')))
         h0 = concat([h0, y], 1)
