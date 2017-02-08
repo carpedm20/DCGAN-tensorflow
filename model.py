@@ -1,6 +1,7 @@
 from __future__ import division
 import os
 import time
+import math
 from glob import glob
 import tensorflow as tf
 import numpy as np
@@ -8,6 +9,9 @@ from six.moves import xrange
 
 from ops import *
 from utils import *
+
+def conv_out_size_same(size, stride):
+  return math.ceil(float(size) / float(stride))
 
 class DCGAN(object):
   def __init__(self, sess, input_height=108, input_width=108, is_crop=True,
@@ -342,10 +346,10 @@ class DCGAN(object):
     with tf.variable_scope("generator") as scope:
       if not self.y_dim:
         s_h, s_w = self.output_height, self.output_width
-        s_h2, s_h4, s_h8, s_h16 = \
-            int(s_h/2), int(s_h/4), int(s_h/8), int(s_h/16)
-        s_w2, s_w4, s_w8, s_w16 = \
-            int(s_w/2), int(s_w/4), int(s_w/8), int(s_w/16)
+        s_h2, s_w2 = conv_out_size_same(s_h, 2), conv_out_size_same(s_w, 2)
+        s_h4, s_w4 = conv_out_size_same(s_h2, 2), conv_out_size_same(s_w2, 2)
+        s_h8, s_w8 = conv_out_size_same(s_h4, 2), conv_out_size_same(s_w4, 2)
+        s_h16, s_w16 = conv_out_size_same(s_h8, 2), conv_out_size_same(s_w8, 2)
 
         # project `z` and reshape
         self.z_, self.h0_w, self.h0_b = linear(
@@ -402,12 +406,11 @@ class DCGAN(object):
       scope.reuse_variables()
 
       if not self.y_dim:
-        
         s_h, s_w = self.output_height, self.output_width
-        s_h2, s_h4, s_h8, s_h16 = \
-            int(s_h/2), int(s_h/4), int(s_h/8), int(s_h/16)
-        s_w2, s_w4, s_w8, s_w16 = \
-            int(s_w/2), int(s_w/4), int(s_w/8), int(s_w/16)
+        s_h2, s_w2 = conv_out_size_same(s_h, 2), conv_out_size_same(s_w, 2)
+        s_h4, s_w4 = conv_out_size_same(s_h2, 2), conv_out_size_same(s_w2, 2)
+        s_h8, s_w8 = conv_out_size_same(s_h4, 2), conv_out_size_same(s_w4, 2)
+        s_h16, s_w16 = conv_out_size_same(s_h8, 2), conv_out_size_same(s_w8, 2)
 
         # project `z` and reshape
         h0 = tf.reshape(
