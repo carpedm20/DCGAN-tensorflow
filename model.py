@@ -93,7 +93,7 @@ class DCGAN(object):
 
     self.z = tf.placeholder(
       tf.float32, [None, self.z_dim], name='z')
-    self.z_sum = histogram_summary("z", self.z)
+    self.z_sum = tf.summary.histogram("z", self.z)
 
     if self.y_dim:
       self.G = self.generator(self.z, self.y)
@@ -110,27 +110,27 @@ class DCGAN(object):
       self.sampler = self.sampler(self.z)
       self.D_, self.D_logits_ = self.discriminator(self.G, reuse=True)
 
-    self.d_sum = histogram_summary("d", self.D)
-    self.d__sum = histogram_summary("d_", self.D_)
-    self.G_sum = image_summary("G", self.G)
+    self.d_sum = tf.summary.histogram("d", self.D)
+    self.d__sum = tf.summary.histogram("d_", self.D_)
+    self.G_sum = tf.summary.image("G", self.G)
 
     self.d_loss_real = tf.reduce_mean(
       tf.nn.sigmoid_cross_entropy_with_logits(
-        logits=self.D_logits, labels=tf.ones_like(self.D)))
+        logits=self.D_logits, targets=tf.ones_like(self.D)))
     self.d_loss_fake = tf.reduce_mean(
       tf.nn.sigmoid_cross_entropy_with_logits(
-        logits=self.D_logits_, labels=tf.zeros_like(self.D_)))
+        logits=self.D_logits_, targets=tf.zeros_like(self.D_)))
     self.g_loss = tf.reduce_mean(
       tf.nn.sigmoid_cross_entropy_with_logits(
-        logits=self.D_logits_, labels=tf.ones_like(self.D_)))
+        logits=self.D_logits_, targets=tf.ones_like(self.D_)))
 
-    self.d_loss_real_sum = scalar_summary("d_loss_real", self.d_loss_real)
-    self.d_loss_fake_sum = scalar_summary("d_loss_fake", self.d_loss_fake)
+    self.d_loss_real_sum = tf.summary.scalar("d_loss_real", self.d_loss_real)
+    self.d_loss_fake_sum = tf.summary.scalar("d_loss_fake", self.d_loss_fake)
                           
     self.d_loss = self.d_loss_real + self.d_loss_fake
 
-    self.g_loss_sum = scalar_summary("g_loss", self.g_loss)
-    self.d_loss_sum = scalar_summary("d_loss", self.d_loss)
+    self.g_loss_sum = tf.summary.scalar("g_loss", self.g_loss)
+    self.d_loss_sum = tf.summary.scalar("d_loss", self.d_loss)
 
     t_vars = tf.trainable_variables()
 
@@ -156,11 +156,11 @@ class DCGAN(object):
     except:
       tf.initialize_all_variables().run()
 
-    self.g_sum = merge_summary([self.z_sum, self.d__sum,
+    self.g_sum = tf.summary.merge([self.z_sum, self.d__sum,
       self.G_sum, self.d_loss_fake_sum, self.g_loss_sum])
-    self.d_sum = merge_summary(
+    self.d_sum = tf.summary.merge(
         [self.z_sum, self.d_sum, self.d_loss_real_sum, self.d_loss_sum])
-    self.writer = SummaryWriter("./logs", self.sess.graph)
+    self.writer = tf.summary.FileWriter("./logs", self.sess.graph)
 
     sample_z = np.random.uniform(-1, 1, size=(self.sample_num , self.z_dim))
     
@@ -486,7 +486,7 @@ class DCGAN(object):
     
     y_vec = np.zeros((len(y), self.y_dim), dtype=np.float)
     for i, label in enumerate(y):
-      y_vec[i,y[i]] = 1.0
+      y_vec[i, int(y[i])] = 1.0
     
     return X/255.,y_vec
 
