@@ -116,9 +116,9 @@ class DCGAN(object):
 
     def sigmoid_cross_entropy_with_logits(x, y):
       try:
-        tf.nn.sigmoid_cross_entropy_with_logits(logits=x, labels=y)
+        return tf.nn.sigmoid_cross_entropy_with_logits(logits=x, labels=y)
       except:
-        tf.nn.sigmoid_cross_entropy_with_logits(logits=x, targets=y)
+        return tf.nn.sigmoid_cross_entropy_with_logits(logits=x, targets=y)
 
     self.d_loss_real = tf.reduce_mean(
       sigmoid_cross_entropy_with_logits(self.D_logits, tf.ones_like(self.D)))
