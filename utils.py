@@ -150,10 +150,11 @@ def make_gif(images, fname, duration=2, true_image=False):
   clip.write_gif(fname, fps = len(images) / duration)
 
 def visualize(sess, dcgan, config, option):
+  image_frame_dim = int(math.ceil(config.batch_size**.5))
   if option == 0:
     z_sample = np.random.uniform(-0.5, 0.5, size=(config.batch_size, dcgan.z_dim))
     samples = sess.run(dcgan.sampler, feed_dict={dcgan.z: z_sample})
-    save_images(samples, [8, 8], './samples/test_%s.png' % strftime("%Y-%m-%d %H:%M:%S", gmtime()))
+    save_images(samples, [image_frame_dim, image_frame_dim], './samples/test_%s.png' % strftime("%Y-%m-%d %H:%M:%S", gmtime()))
   elif option == 1:
     values = np.arange(0, 1, 1./config.batch_size)
     for idx in xrange(100):
@@ -171,7 +172,7 @@ def visualize(sess, dcgan, config, option):
       else:
         samples = sess.run(dcgan.sampler, feed_dict={dcgan.z: z_sample})
 
-      save_images(samples, [8, 8], './samples/test_arange_%s.png' % (idx))
+      save_images(samples, [image_frame_dim, image_frame_dim], './samples/test_arange_%s.png' % (idx))
   elif option == 2:
     values = np.arange(0, 1, 1./config.batch_size)
     for idx in [random.randint(0, 99) for _ in xrange(100)]:
@@ -194,7 +195,7 @@ def visualize(sess, dcgan, config, option):
       try:
         make_gif(samples, './samples/test_gif_%s.gif' % (idx))
       except:
-        save_images(samples, [8, 8], './samples/test_%s.png' % strftime("%Y-%m-%d %H:%M:%S", gmtime()))
+        save_images(samples, [image_frame_dim, image_frame_dim], './samples/test_%s.png' % strftime("%Y-%m-%d %H:%M:%S", gmtime()))
   elif option == 3:
     values = np.arange(0, 1, 1./config.batch_size)
     for idx in xrange(100):
