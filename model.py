@@ -81,7 +81,7 @@ class DCGAN(object):
     if self.is_crop:
       image_dims = [self.output_height, self.output_width, self.c_dim]
     else:
-      image_dims = [self.input_height, self.input_height, self.c_dim]
+      image_dims = [self.input_height, self.input_width, self.c_dim]
 
     self.inputs = tf.placeholder(
       tf.float32, [self.batch_size] + image_dims, name='real_images')
