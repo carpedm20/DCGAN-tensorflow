@@ -187,8 +187,9 @@ class DCGAN(object):
   
     counter = 1
     start_time = time.time()
-
-    if self.load(self.checkpoint_dir):
+    could_load, checkpoint_counter = self.load(self.checkpoint_dir)
+    if could_load:
+      counter = checkpoint_counter
       print(" [*] Load SUCCESS")
     else:
       print(" [!] Load failed...")
@@ -511,6 +512,7 @@ class DCGAN(object):
             global_step=step)
 
   def load(self, checkpoint_dir):
+    import re
     print(" [*] Reading checkpoints...")
     checkpoint_dir = os.path.join(checkpoint_dir, self.model_dir)
 
@@ -518,8 +520,9 @@ class DCGAN(object):
     if ckpt and ckpt.model_checkpoint_path:
       ckpt_name = os.path.basename(ckpt.model_checkpoint_path)
       self.saver.restore(self.sess, os.path.join(checkpoint_dir, ckpt_name))
+      counter = int(next(re.finditer("(\d+)(?!.*\d)",ckpt_name)).group(0))
       print(" [*] Success to read {}".format(ckpt_name))
-      return True
+      return True, counter
     else:
       print(" [*] Failed to find a checkpoint")
-      return False
+      return False, 0
