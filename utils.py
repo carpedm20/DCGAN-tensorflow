@@ -43,7 +43,8 @@ def merge_images(images, size):
 
 def merge(images, size):
   h, w = images.shape[1], images.shape[2]
-  img = np.zeros((h * size[0], w * size[1], 3))
+  c = images.shape[3]
+  img = np.zeros((h * size[0], w * size[1], c))
   for idx, image in enumerate(images):
     i = idx % size[1]
     j = idx // size[1]
@@ -161,7 +162,7 @@ def visualize(sess, dcgan, config, option):
   if option == 0:
     z_sample = np.random.uniform(-0.5, 0.5, size=(config.batch_size, dcgan.z_dim))
     samples = sess.run(dcgan.sampler, feed_dict={dcgan.z: z_sample})
-    save_images(samples, [image_frame_dim, image_frame_dim], './samples/test_%s.png' % strftime("%Y-%m-%d %H:%M:%S", gmtime()))
+    save_images(samples, [image_frame_dim, image_frame_dim], './samples/test_%s.png' % strftime("%Y-%m-%d_%H%M%SS", gmtime()))
   elif option == 1:
     values = np.arange(0, 1, 1./config.batch_size)
     for idx in xrange(100):
