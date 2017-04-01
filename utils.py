@@ -43,7 +43,8 @@ def merge_images(images, size):
 
 def merge(images, size):
   h, w = images.shape[1], images.shape[2]
-  img = np.zeros((h * size[0], w * size[1], 3))
+  c = images.shape[3]
+  img = np.zeros((h * size[0], w * size[1], c))
   for idx, image in enumerate(images):
     i = idx % size[1]
     j = idx // size[1]
