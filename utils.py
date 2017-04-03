@@ -43,12 +43,24 @@ def merge_images(images, size):
 
 def merge(images, size):
   h, w = images.shape[1], images.shape[2]
-  img = np.zeros((h * size[0], w * size[1], 3))
-  for idx, image in enumerate(images):
-    i = idx % size[1]
-    j = idx // size[1]
-    img[j*h:j*h+h, i*w:i*w+w, :] = image
-  return img
+  if (images.shape[3] in (3,4)):
+    c = images.shape[3]
+    img = np.zeros((h * size[0], w * size[1], c))
+    for idx, image in enumerate(images):
+      i = idx % size[1]
+      j = idx // size[1]
+      img[j * h:j * h + h, i * w:i * w + w, :] = image
+    return img
+  elif images.shape[3]==1:
+    img = np.zeros((h * size[0], w * size[1]))
+    for idx, image in enumerate(images):
+      i = idx % size[1]
+      j = idx // size[1]
+      img[j * h:j * h + h, i * w:i * w + w] = image[:,:,0]
+    return img
+  else:
+    raise ValueError('in merge(images,size) images parameter '
+                     'must have dimensions: HxW or HxWx3 or HxWx4')
 
 def imsave(images, size, path):
   return scipy.misc.imsave(path, merge(images, size))
@@ -161,7 +173,7 @@ def visualize(sess, dcgan, config, option):
   if option == 0:
     z_sample = np.random.uniform(-0.5, 0.5, size=(config.batch_size, dcgan.z_dim))
     samples = sess.run(dcgan.sampler, feed_dict={dcgan.z: z_sample})
-    save_images(samples, [image_frame_dim, image_frame_dim], './samples/test_%s.png' % strftime("%Y-%m-%d %H:%M:%S", gmtime()))
+    save_images(samples, [image_frame_dim, image_frame_dim], './samples/test_%s.png' % strftime("%Y%m%d%H%M%S", gmtime()))
   elif option == 1:
     values = np.arange(0, 1, 1./config.batch_size)
     for idx in xrange(100):
@@ -202,7 +214,7 @@ def visualize(sess, dcgan, config, option):
       try:
         make_gif(samples, './samples/test_gif_%s.gif' % (idx))
       except:
-        save_images(samples, [image_frame_dim, image_frame_dim], './samples/test_%s.png' % strftime("%Y-%m-%d %H:%M:%S", gmtime()))
+        save_images(samples, [image_frame_dim, image_frame_dim], './samples/test_%s.png' % strftime("%Y%m%d%H%M%S", gmtime()))
   elif option == 3:
     values = np.arange(0, 1, 1./config.batch_size)
     for idx in xrange(100):
