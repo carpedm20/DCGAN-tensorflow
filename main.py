@@ -93,8 +93,7 @@ def main(_):
 
     # Below is codes for visualization
     OPTION = 1
-    if FLAGS.visualize:
-      visualize(sess, dcgan, FLAGS, OPTION) 
+    visualize(sess, dcgan, FLAGS, OPTION)
 
 if __name__ == '__main__':
   tf.app.run()
