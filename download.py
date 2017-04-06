@@ -172,7 +172,7 @@ if __name__ == '__main__':
   args = parser.parse_args()
   prepare_data_dir()
 
-  if 'celebA' in args.datasets:
+  if any(name in args.datasets for name in ['CelebA', 'celebA', 'celebA']):
     download_celeb_a('./data')
   if 'lsun' in args.datasets:
     download_lsun('./data')
