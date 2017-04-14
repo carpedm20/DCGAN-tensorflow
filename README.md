@@ -100,6 +100,13 @@ Details of the histogram of true and fake result of discriminator (with custom d
 ![d__hist](assets/d__hist.png)
 
 
+## Related works
+
+- [BEGAN-tensorflow](https://github.com/carpedm20/BEGAN-tensorflow)
+- [DiscoGAN-pytorch](https://github.com/carpedm20/DiscoGAN-pytorch)
+- [simulated-unsupervised-tensorflow](https://github.com/carpedm20/simulated-unsupervised-tensorflow)
+
+
 ## Author
 
 Taehoon Kim / [@carpedm20](http://carpedm20.github.io/)
