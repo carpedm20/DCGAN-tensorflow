@@ -75,7 +75,7 @@ class DCGAN(object):
     self.checkpoint_dir = checkpoint_dir
     self.build_model()
 
-    self.test_image = scipy.misc.imread('./test/1491951113-678036928.jpg').astype(np.float32)
+    self.test_image = scipy.misc.imread('./test/random_real_generated.jpg').astype(np.float32)
     self.test_slices = np.reshape(self.test_image,(-1,self.input_height,self.input_width,self.c_dim))
 
   def build_model(self):
@@ -345,9 +345,12 @@ class DCGAN(object):
         scope.reuse_variables()
 
       h0 = lrelu(conv2d(image, self.df_dim, name='d_h0_conv'))
-      h1 = lrelu(self.d_bn1(conv2d(h0, self.df_dim*2, name='d_h1_conv')))
-      h2 = lrelu(self.d_bn2(conv2d(h1, self.df_dim*4, name='d_h2_conv')))
-      h3 = lrelu(self.d_bn3(conv2d(h2, self.df_dim*8, name='d_h3_conv')))
+      h1 = lrelu(self.d_bn1(conv2d(h0, self.df_dim*2, name='d_h1_conv'),
+                            train=False))
+      h2 = lrelu(self.d_bn2(conv2d(h1, self.df_dim*4, name='d_h2_conv'),
+                            train=False))
+      h3 = lrelu(self.d_bn3(conv2d(h2, self.df_dim*8, name='d_h3_conv'),
+                            train=False))
       h4 = linear(tf.reshape(h3, [576, -1]), 1, 'd_h3_lin')
 
       return tf.nn.sigmoid(h4), h4
