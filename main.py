@@ -89,7 +89,7 @@ def main(_):
     # through discriminator to get (Nx1) array between 0 and 1 to determine
     # if that 60x60x3 slice is grass or not.
     if FLAGS.detect_grass:
-      image = scipy.misc.imread('./test/random_noise.jpg').astype(np.float32)
+      image = scipy.misc.imread('./test/random_real_generated.jpg').astype(np.float32)
       slices = np.reshape(image,(-1,FLAGS.input_height,FLAGS.input_width,FLAGS.c_dim))
       print(slices.shape)
       D = dcgan.sess.run(dcgan.gd,feed_dict={dcgan.grass_pic:slices})
