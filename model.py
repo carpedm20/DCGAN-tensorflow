@@ -5,6 +5,7 @@ import math
 from glob import glob
 import tensorflow as tf
 import numpy as np
+import scipy.misc
 from six.moves import xrange
 
 from ops import *
@@ -74,6 +75,9 @@ class DCGAN(object):
     self.checkpoint_dir = checkpoint_dir
     self.build_model()
 
+    self.test_image = scipy.misc.imread('./test/1491951113-678036928.jpg').astype(np.float32)
+    self.test_slices = np.reshape(self.test_image,(-1,self.input_height,self.input_width,self.c_dim))
+
   def build_model(self):
     if self.y_dim:
       self.y= tf.placeholder(tf.float32, [self.batch_size, self.y_dim], name='y')
@@ -109,6 +113,15 @@ class DCGAN(object):
 
       self.sampler = self.sampler(self.z)
       self.D_, self.D_logits_ = self.discriminator(self.G, reuse=True)
+
+    # placeholder for the 60x60 slices from a single picture of grass
+    self.grass_pic = tf.placeholder(tf.float32, [18*32,60,60,3],
+                                    name='grass_pic')
+    # operation to detect grass
+    self.gd, _ = self.detect_grass(self.grass_pic, reuse=True)
+    self.d_gd_sum = histogram_summary("d_grass_detect", self.gd)
+    self.gd_pic = tf.reshape(self.gd, [1, 18, 32, 1], name="d_grass_detect_pic")
+    self.gd_pic_sum = image_summary("d_grass_detect_pic", self.gd_pic)
 
     self.d_sum = histogram_summary("d", self.D)
     self.d__sum = histogram_summary("d_", self.D_)
@@ -184,7 +197,7 @@ class DCGAN(object):
         sample_inputs = np.array(sample).astype(np.float32)[:, :, :, None]
       else:
         sample_inputs = np.array(sample).astype(np.float32)
-  
+
     counter = 1
     start_time = time.time()
     could_load, checkpoint_counter = self.load(self.checkpoint_dir)
@@ -247,9 +260,9 @@ class DCGAN(object):
           _, summary_str = self.sess.run([g_optim, self.g_sum],
             feed_dict={ self.z: batch_z, self.y:batch_labels })
           self.writer.add_summary(summary_str, counter)
-          
+
           errD_fake = self.d_loss_fake.eval({
-              self.z: batch_z, 
+              self.z: batch_z,
               self.y:batch_labels
           })
           errD_real = self.d_loss_real.eval({
@@ -275,7 +288,13 @@ class DCGAN(object):
           _, summary_str = self.sess.run([g_optim, self.g_sum],
             feed_dict={ self.z: batch_z })
           self.writer.add_summary(summary_str, counter)
-          
+
+          # Run the grass checker on an image on disk
+          sum_str1, sum_str2 = self.sess.run([self.d_gd_sum, self.gd_pic_sum],
+                                             feed_dict={self.grass_pic:self.test_slices})
+          self.writer.add_summary(sum_str1, counter)
+          self.writer.add_summary(sum_str2, counter)
+
           errD_fake = self.d_loss_fake.eval({ self.z: batch_z })
           errD_real = self.d_loss_real.eval({ self.inputs: batch_images })
           errG = self.g_loss.eval({self.z: batch_z})
@@ -319,6 +338,19 @@ class DCGAN(object):
 
         if np.mod(counter, 500) == 2:
           self.save(config.checkpoint_dir, counter)
+
+  def detect_grass(self, image, reuse=False):
+    with tf.variable_scope("discriminator") as scope:
+      if reuse:
+        scope.reuse_variables()
+
+      h0 = lrelu(conv2d(image, self.df_dim, name='d_h0_conv'))
+      h1 = lrelu(self.d_bn1(conv2d(h0, self.df_dim*2, name='d_h1_conv')))
+      h2 = lrelu(self.d_bn2(conv2d(h1, self.df_dim*4, name='d_h2_conv')))
+      h3 = lrelu(self.d_bn3(conv2d(h2, self.df_dim*8, name='d_h3_conv')))
+      h4 = linear(tf.reshape(h3, [576, -1]), 1, 'd_h3_lin')
+
+      return tf.nn.sigmoid(h4), h4
 
   def discriminator(self, image, y=None, reuse=False):
     with tf.variable_scope("discriminator") as scope:
