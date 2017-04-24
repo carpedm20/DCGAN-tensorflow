@@ -1,5 +1,6 @@
 from __future__ import division
 import os
+import sys
 import time
 import math
 from glob import glob
@@ -75,7 +76,7 @@ class DCGAN(object):
     self.checkpoint_dir = checkpoint_dir
     self.build_model()
 
-    self.test_image = scipy.misc.imread('./test/random_real_generated.jpg').astype(np.float32)
+    self.test_image = scipy.misc.imread('./test/test_image.jpg').astype(np.float32)
     self.test_slices = np.reshape(self.test_image,(-1,self.input_height,self.input_width,self.c_dim))
 
   def build_model(self):
@@ -331,10 +332,17 @@ class DCGAN(object):
               manifold_h = int(np.ceil(np.sqrt(samples.shape[0])))
               manifold_w = int(np.floor(np.sqrt(samples.shape[0])))
               save_images(samples, [manifold_h, manifold_w],
-                    './{}/train_{:02d}_{:04d}.png'.format(config.sample_dir, epoch, idx))
+                    './{}/train/train_{:02d}_{:04d}.png'.format(config.sample_dir, epoch, idx))
+              # place the generated samples in the first rows of the test image
+              self.test_slices[0:samples.shape[0],:,:,:] = samples
+              # Save discriminator output on test image to disk
+              detect = self.sess.run(self.gd, feed_dict={self.grass_pic:self.test_slices})
+              save_images(detect, [18,32],'/{}/test/test_{:02}_{:04d}.png'.
+                          format(config.sample_dir, epoch, idx))
               print("[Sample] d_loss: %.8f, g_loss: %.8f" % (d_loss, g_loss)) 
             except:
-              print("one pic error!...")
+              print("one pic error!...", sys.exc_info()[0])
+              raise
 
         if np.mod(counter, 500) == 2:
           self.save(config.checkpoint_dir, counter)
