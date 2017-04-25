@@ -8,7 +8,7 @@ import tensorflow as tf
 import numpy as np
 import scipy.misc
 from six.moves import xrange
-
+from PIL import Image
 from ops import *
 from utils import *
 
@@ -337,9 +337,10 @@ class DCGAN(object):
               self.test_slices[0:samples.shape[0],:,:,:] = samples
               # Save discriminator output on test image to disk
               detect = self.sess.run(self.gd, feed_dict={self.grass_pic:self.test_slices})
-              save_images(detect, [18,32],'/{}/test/test_{:02}_{:04d}.png'.
-                          format(config.sample_dir, epoch, idx))
-              print("[Sample] d_loss: %.8f, g_loss: %.8f" % (d_loss, g_loss)) 
+              detect_img = Image.fromarray((np.reshape(detect,(18,32)) * 255.9).astype(np.uint8))
+              detect_img.save('./{}/test/test_{:02}_{:04d}.png'.
+                              format(config.sample_dir, epoch, idx))
+              print("[Sample] d_loss: %.8f, g_loss: %.8f" % (d_loss, g_loss))
             except:
               print("one pic error!...", sys.exc_info()[0])
               raise
