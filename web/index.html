@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="author" content="Taehoon Kim (carpedm20@gmail.com)">
+    <meta name="keywords" content="프사 뉴럴,neural face,dcgan,carpedm20" />
+    <meta name="description" content="Face from AI | 인공지능이 만든 얼굴들" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta property="og:title" content="Neural Face | 프사 뉴럴" />
+    <meta property="og:url" content="http://carpedm20.github.io/faces/"/>
+    <meta property="og:image" content="https://raw.githubusercontent.com/carpedm20/DCGAN-tensorflow/master/web/img/ogimage.png" />
+    <meta content="width=device-width,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" name="viewport">
+
+    <style type="text/css">
+        body.ko :lang(en) {
+          display: none;
+        }
+        body.en :lang(ko) {
+          display: none;
+        }
+    </style>
+
+    <title lang="en">Neural Face | 프사 뉴럴</title>
+
+    <!-- CSS -->
+    <link rel="stylesheet" type="text/css" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="//kenwheeler.github.io/slick/slick/slick.css"/>
+    <link rel="stylesheet" type="text/css" href="//kenwheeler.github.io/slick/slick/slick-theme.css"/>
+    <link href="css/fakeLoader.css" rel="stylesheet">
+    <link href="css/main.css" rel="stylesheet">
+
+    <!-- Custom Fonts -->
+    <link href="css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    <link href="http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" rel="stylesheet" type="text/css">
+    <link href="http://fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet" type="text/css">
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+</head>
+
+<body id="page-top" data-spy="scroll" data-target=".navbar-fixed-top"  class="en">
+    <div id="fakeLoader"></div>
+    <div id="fb-root"></div>
+    <script>(function(d, s, id) {
+      var js, fjs = d.getElementsByTagName(s)[0];
+      if (d.getElementById(id)) return;
+      js = d.createElement(s); js.id = id;
+      js.src = "//connect.facebook.net/en_US/sdk.js#xfbml=1&version=v2.5&appId=776839839027483";
+      fjs.parentNode.insertBefore(js, fjs);
+    }(document, 'script', 'facebook-jssdk'));</script>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-custom navbar-fixed-top" role="navigation">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-main-collapse">
+                    <i class="fa fa-bars"></i>
+                </button>
+                <a class="navbar-brand page-scroll" href="http://carpedm20.github.io/" target="_blank">
+                    <span class="light">carpedm20</span>
+                </a>
+            </div>
+
+            <div class="collapse navbar-collapse navbar-right navbar-main-collapse">
+                <ul class="nav navbar-nav">
+                    <li class="hidden">
+                        <a href="#page-top"></a>
+                    </li>
+                    <li>
+                        <a class="page-scroll" href="#about">About</a>
+                    </li>
+                    <li>
+                        <a class="page-scroll" href="#generate">Generate</a>
+                    </li>
+                    <li>
+                        <a class="page-scroll" href="#details">Details</a>
+                    </li>
+                    <li>
+                        <a class="page-scroll" href="#results">Results</a>
+                    </li>
+                    <li>
+                        <a class="page-scroll" href="#aboutme">Me?</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Intro Header -->
+    <header class="intro">
+        <video autoplay loop muted id="background">
+            <source src="videos/background.mp4" type="video/mp4">
+        </video>
+        <div class="intro-body">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-8 col-md-offset-2 col-xs-12 logo">
+                        <h1 lang="ko" class="brand-heading">프사 뉴럴</h1>
+                        <h2 lang="en" class="brand-heading">Neural Face</h2>
+                        <p lang="ko" class="intro-text">인공지능이 만든 얼굴들</p>
+                        <div class="row">
+                            <button class="btn-default" onclick="document.body.className='en'">English</button>
+                            <button class="btn-default" onclick="document.body.className='ko'">한국어</button>
+                        </div>
+                        <a href="#about" class="btn btn-circle page-scroll">
+                            <i class="fa fa-angle-double-down animated"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <section id="about" class="container content-section text-center">
+        <div class="row">
+            <h2 lang="ko">프사 뉴럴</h2>
+            <h2 lang="en">Neural Face</h2>
+            <div lang="ko" class="col-md-8 col-md-offset-2 col-xs-12">
+                <p><b>프사 뉴럴</b>은 Facebook AI Research에서 개발한 <a href="http://arxiv.org/pdf/1511.06434v2.pdf" target="_blank">Deep Convolutional Generative Adversarial Networks</a> (DCGAN) 이라는 기계 학습 모델을 사용해 만들어졌습니다.</p>
+                <p><b>프사 뉴럴</b>은 얼굴 사진을 만드는 인공 지능이며<br>이 페이지에 나오는 모든 사람들은 이세상에 존재하지 않습니다.</p>
+            </div>
+            <div lang="en" class="col-md-8 col-md-offset-2 col-xs-12">
+                <p><b>Neural Face</b> uses <a href="http://arxiv.org/pdf/1511.06434v2.pdf" target="_blank">Deep Convolutional Generative Adversarial Networks</a> (DCGAN), which is developed by Facebook AI Research.</p>
+                <p><b>Neural Face</b> is an Artificial Intelligence which generates face images<br>and all images in this page are not REAL.</p>
+            </div>
+            <div class="col-md-8 col-md-offset-2 col-xs-12">
+                <div class="fb-like" data-href="http://carpedm20.github.io/faces/" data-layout="button_count" data-action="like" data-show-faces="true" data-share="true"></div>
+            </div>
+        </div>
+    </section>
+
+
+    <section id="generate" class="container content-section text-center">
+        <div class="row">
+            <h2>Image Generation</h2>
+            <div class="col-md-8 col-md-offset-2">
+                <img src="img/single1.gif">
+                <img src="img/single2.gif">
+                <img src="img/single3.gif">
+                <img src="img/single4.gif">
+            </div>
+            <div lang="ko" class="col-md-8 col-md-offset-2 col-xs-12 text-left">
+                <br/><p><b>프사 뉴럴</b>은 0에서 1 사이의 100개의 숫자 <b>z</b>로 사람의 이미지를 만들어내는 인공지능입니다.</p>
+                <p>1. 아래에 보이는 100개의 픽셀을 <b>z</b>의 각 숫자를 나타냅니다.<br/>2. 만들어진 사진 위에 마우스를 올리면 사진에 사용된 <b>z</b>가 보입니다.<br/>3. 만들어진 이미지를 누르시면 그 이미지의 <b>z</b>가 복사됩니다.</p>
+            </div>
+            <div lang="en" class="col-md-8 col-md-offset-2 col-xs-12 text-left">
+                <br/><p><b>Neural Face</b> uses a vector <b>z</b> that consists of 100 real numbers ranging from 0 to 1.</p>
+                <p>1. Each pixel in the below pallete represents a value in <b>z</b>.<br/>2. If you hover your mouse over an image, <b>z</b> for that image will be displayed.<br/>3. If you click an image, <b>z</b> will be copied to the palette.</p>
+            </div>
+            <div class="col-md-8 col-md-offset-2 col-xs-12">
+                <p lang="ko"><small>(브라우저 성능에 따라 1~10초가 걸립니다)</small></p>
+                <p lang="en"><small>(Might take 1 to 10 seconds depending on your browser)</small></p>
+                <div class="row" id="images">
+                </div>
+                <div class="row">
+                    <br/>
+                    <div class="col-md-7 col-xs-8">
+                        <canvas id="pixel" height='200' width='200' style="float:right" onselectstart="this.style.cursor='crosshair'; return false;">
+                            <p>
+                                Sorry, your browser doesn't support the <canvas> element.
+                            </p>
+                            <p>
+                                Please upgrade to
+                                <a href='http://www.microsoft.com/IE9' target="_blank">IE 9</a>
+                                or use the latest
+                                <a href='http://www.google.com/chrome' target="_blank">Chrome</a>
+                                or
+                                <a href='http://www.mozilla.com/' target="_blank">Firefox</a>
+                            </p>
+                        </canvas>
+                    </div>
+                    <div class="col-xs-5" id="colors">
+                        <div class="color" data-color="#000000">
+                          <div class="isometric" id="color_1" style="background-color: #000000"></div>
+                        </div>
+                        <div class="color" data-color="#444444">
+                          <div class="isometric" id="color_2" style="background-color: #444444"></div>
+                        </div>
+                        <div class="color" data-color="#888888">
+                          <div class="isometric" id="color_3" style="background-color: #888888"></div>
+                        </div>
+                        <div class="color" data-color="#CCCCCC">
+                          <div class="isometric" id="color_4" style="background-color: #CCCCCC"></div>
+                        </div>
+                        <div class="color" data-color="#FFFFFF">
+                          <div class="isometric" id="color_5" style="background-color: #FFFFFF"></div>
+                        </div>
+                    </div>
+                </div>
+                <div id="loading" class="row">
+                    <div class="sk-wave">
+                        <div class="sk-rect sk-rect1"></div>
+                        <div class="sk-rect sk-rect2"></div>
+                        <div class="sk-rect sk-rect3"></div>
+                        <div class="sk-rect sk-rect4"></div>
+                        <div class="sk-rect sk-rect5"></div>
+                    </div>
+                    <div class="col-xs-12  text-center">
+                        <p lang="ko"><b>프사 뉴럴</b>을 불러오고 있습니다...</p>
+                        <p lang="en"><b>Neural Face</b> is preparing to draw...</p>
+                    </div>
+                </div>
+                <div id="draw-btn" class="row" style="display: none;">
+                    <br/>
+                    <button lang="ko" type="button" class="btn btn-default draw" class="btn btn-default">만들기</button>
+                    <button lang="ko" type="button" class="btn btn-default shuffle" class="btn btn-default">랜덤 얼굴</button>
+                    <button lang="en" type="button" class="btn btn-default draw" class="btn btn-default">Generate</button>
+                    <button lang="en" type="button" class="btn btn-default shuffle" class="btn btn-default">Random face</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="details" class="container content-section text-center">
+        <div class="row">
+            <div class="col-md-8 col-md-offset-2 col-xs-12">
+                <h2 lang="ko">알고리즘</h2>
+                <h2 lang="en">Algorithm</h2>
+            </div>
+
+            <img class="col-md-4 col-md-offset-4 col-xs-10 col-xs-offset-1" src="http://cosmonio.com/Research/Deep-Learning/files/small_1420.png">
+
+            <div lang="ko" class="col-md-8 col-md-offset-2 col-xs-12 text-left">
+                <p><b>프사 뉴럴</b>의 핵심 모델인 <a href="http://arxiv.org/pdf/1511.06434v2.pdf" target="_blank">DCGAN</a>은 두 개의 인공 신경망으로 구성되어 있으며, 각각</p>
+                <p>1. 사진을 만들어내는 <b>생성자 (G)</b><br/>2. 진짜 사진과 생성자가 만든 사진을 구분하는 <b>구분자 (D)</b></p>
+                <p>라고 부릅니다.</p>
+                <p>두 신경망은 수많은 이미지를 반복적으로 보면서 생성자는 구분자를 속이기 위해, 구분자는 생성자가 만든 사진을 판별하기 위해 학습합니다. 이러한 학습 방법을 <a href="https://en.wikipedia.org/wiki/Adversarial_machine_learning">적대적 학습 (Adversarial Learning)</a>이라고 하며, 생성자와 구분자를 <b>도둑</b>과 <b>경찰</b>로 비유하기도 합니다.</p>
+            </div>
+            <div lang="en" class="col-md-8 col-md-offset-2 col-xs-12 text-left">
+                <p><a href="http://arxiv.org/pdf/1511.06434v2.pdf" target="_blank">DCGAN</a>, which is the core of <b>Neural Face</b>, consists of two different neural networks which are:</p>
+                <p>1. <b>Generator (G)</b> that generates an image<br/>2. <b>Discriminator (D)</b> that discriminate real images from generated images</p>
+                <p>Two neural networks compete as one tries to deceive the other. This kind of learning is called <a href="https://en.wikipedia.org/wiki/Adversarial_machine_learning">Adversarial Learning</a>. Because of this, <b>Generator</b> and <b>Discriminator</b> are described as a <b>thief</b> and <b>police</b>, respectively.</p>
+            </div>
+            <br/>
+            <img class="col-md-6 col-md-offset-3 col-xs-10 col-xs-offset-1" src="img/model.png">
+
+            <div lang="ko" class="col-md-8 col-md-offset-2 col-xs-12 text-left">
+                <p><br/>생성자와 구분자는 여러 가지 인공 신경망 종류 중에서 각각 <a href="https://www.quora.com/How-does-a-deconvolutional-neural-network-work" target="_blank">Deconvolutional Network (DNN)</a>과 <a href="http://cs231n.github.io/convolutional-networks/" target="_blank">Convolutional Neural Network (CNN)</a>로 구현되어 있습니다. <b>CNN</b>은 수백 개의 픽셀로 이루어진 이미지를 작은 차원의 숫자들 (<b>z</b>)로 잘 요약할 수 있는 필터를 배우는 인공 신경망이며, <b>DNN</b>은 이렇게 작아진 차원의 숫자들로 원래 이미지를 복원하는 필터를 배우는 신경망입니다.</p>
+                <p>구분자는 인공 신경망에 실제 이미지를 넣은 결과를 <b>1</b>로, 만들어진 이미지의 결과는 <b>0</b>으로 구분하도록 학습합니다. 반대로 생성자는 Gaussian Distribution을 따르는 <b>z</b>라는 확률 변수를 두고, 사람의 이미지의 확률 분포를 <b>z</b>를 사용해 계산합니다. 이렇게 만들어진 이미지를 구분자가 실제 이미지라고 잘못 판단하도록 계속 학습합니다.</p>
+            </div>
+            <div lang="en" class="col-md-8 col-md-offset-2 col-xs-12 text-left">
+                <p><br/>Generator and Discriminator consist of <a href="https://www.quora.com/How-does-a-deconvolutional-neural-network-work" target="_blank">Deconvolutional Network (DNN)</a> and <a href="http://cs231n.github.io/convolutional-networks/" target="_blank">Convolutional Neural Network (CNN)</a>. <b>CNN</b> is a neural network which encodes the hundreds of pixels of an image into a vector of small dimensions (<b>z</b>) which is a summary of the image. <b>DNN</b> is a network that learns filters to recover the original image from <b>z</b>.</p>
+                <p>When a real image is given, Discriminator should output <b>1</b> or <b>0</b> for whether the image was generated from Generator. In the contrast, Generator generates an image from <b>z</b>, which follows a Gaussian Distribution, and tries to figure out the distribution of human images from <b>z</b>. In this way, a Generator tries to cheat Discriminator into making a wrong decision.</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="results" class="container content-section text-center">
+        <div class="row">
+            <h2>Results</h2>
+            <div class="col-md-8 col-md-offset-2 col-xs-12 text-left">
+                <p lang="ko"><b>프사 뉴럴</b>를 학습시키기 위해 인터넷에 10만 개 이상의 사진들을 모았고 이 사진들에서 얼굴 사진만 잘라서 얼굴 데이터 셋을 만들었습니다. 코드는 최근에 구글에서 공개한 <a href="https://www.tensorflow.org/" target="_blank">TensorFlow</a>로 구현했으며 GTX 980 Ti를 사용하여 이틀간 학습시켰습니다.</p>
+                <p lang="ko">아래는 초기 학습 단계에서 프사 뉴럴이 정해진 <b>z</b>로 얼굴 사진을 만들어 가는 과정을 보여줍니다.</p>
+                <p lang="en">More than 100K images are crawled from online communities and those images are cropped by using <a href="https://github.com/cmusatyalab/openface">openface</a> which is a face recognition framework. <b>Neural Face</b> is implemented with <a href="https://www.tensorflow.org/" target="_blank">TensorFlow</a> and a GTX 980 Ti is used to train for two days.</p>
+                <p lang="en">Below is a series of images generated by <b>Generator</b> with a fixed <b>z</b> between the first and the fith epoch of training.</p>
+                <video autoplay loop muted class="col-md-6 col-md-offset-3 col-xs-10 col-xs-offset-1">
+                    <source src="videos/training.mp4" type="video/mp4">
+                </video>
+            </div>
+
+            <div class="col-md-8 col-md-offset-2 col-xs-12 text-left">
+                <p lang="ko"><br/><br/>생성자가 사용하는 <b>z</b>는 -1에서 1 사이의 <a href="https://ko.wikipedia.org/wiki/%EC%A0%95%EA%B7%9C%EB%B6%84%ED%8F%AC">Gaussian Distribution</a>을 따르는 확률 변수이며, 평균값인 <b>0</b>으로 이미지를 만들게 되면, <b>프사 뉴럴</b>이 생각하는 평균적인 얼굴을 알 수 있습니다.</p>
+                <p lang="en"><br/><br/>The vector <b>z</b> has real values from -1 to 1 and it follows the <a href="https://en.wikipedia.org/wiki/Normal_distribution">Gaussian Distribution</a>. We can see the most common face that is interpreted by <b>Neural Face</b> using <b>0</b> as all values of <b>z</b>.</p>
+            </div>
+            <div class="col-md-8 col-md-offset-2 col-xs-12">
+                <img src="img/average.png"/>
+            </div>
+
+            <div class="col-md-8 col-md-offset-2 col-xs-12 text-left">
+                <p lang="ko"><br/><br/>평균값 <b>0</b>에서 랜덤한 차원의 값을 조금씩 바꾸면 아래와 같은 변화를 볼 수 있습니다.</p>
+                <p lang="en"><br/><br/>The below images are generated by changing the values of <b>z</b> continuously, starting from the average value (<b>0</b>) to -1 or 1.</p>
+            </div>
+            <div class="col-md-8 col-md-offset-2 col-xs-12">
+                <video autoplay loop muted class="col-md-6 col-md-offset-3 col-xs-10 col-xs-offset-1">
+                    <source src="videos/random.mp4" type="video/mp4">
+                </video>
+            </div>
+
+            <div class="col-md-8 col-md-offset-2 col-xs-12 text-left">
+                <p lang="ko"><br/><br/>아래의 사진들은 100차원의 <b>z</b> 값 중에서 임의의 차원들을 -1부터 1까지 바꾸면서 <b>생성자</b> 신경망에 넣은 결과이며, 점점 미소를 짓거나, 안경이 생기거나, 흑백 사진이 되거나, 성별이 바뀌는 등의 결과를 확인하실 수 있습니다.</p>
+                <p lang="en"><br/><br/>The below images are generated by changing ten different values of <b>z</b> from -1 to 1. People in the images vary in characteristics such as smiling, wearing glasses, turning into black and white images, and changing into different sex.</p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-8 col-md-offset-2 col-xs-12">
+                <div class="slick">
+                    <img src="img/change1.png"/>
+                    <img src="img/change2.png"/>
+                    <img src="img/change3.png"/>
+                    <img src="img/change4.png"/>
+                    <img src="img/change5.png"/>
+                    <img src="img/change6.png"/>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-8 col-md-offset-2 col-xs-12">
+                <p lang="ko"><br><br><b>프사 뉴럴</b>의 코드는 <a href="https://github.com/carpedm20/DCGAN-tensorflow" target="_blank">이곳</a>에 공개되어 있습니다.</p>
+                <p lang="en"><br><br>The code of <b>Neural Face</b> can be found <a href="https://github.com/carpedm20/DCGAN-tensorflow" target="_blank">here</a>.</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="results" class="container content-section text-center">
+        <div class="row">
+            <h2>Misc.</h2>
+            <div lang="ko" class="col-md-8 col-md-offset-2 col-xs-12">
+                <p>마지막으로 <a href="https://namu.wiki/w/%ED%8A%9C%EB%A7%81%20%ED%85%8C%EC%8A%A4%ED%8A%B8">튜링 테스트</a>를 해 보겠습니다 :)<br>아래 사진 중에서 진짜 사진은 무엇일까요?</p>
+                <p><small>(마우스로 클릭하면 정답이 보입니다)</small></p>
+            </div>
+            <div lang="en" class="col-md-8 col-md-offset-2 col-xs-12">
+                <p>Lastly, let's conduct a <a href="https://en.wikipedia.org/wiki/Turing_test">Turing Test</a> :)<br>Can you guess which are the real images?</p>
+                <p><small>(Answer will be showed if you click an image)</small></p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-8 col-md-offset-2 col-xs-12">
+                <div class="turing-slick">
+                    <img data-container="body" data-toggle="tooltip" title="true." src="img/t1.jpg"/>
+                    <img data-container="body" data-toggle="tooltip" title="fake!" src="img/f1.png"/>
+                    <img data-container="body" data-toggle="tooltip" title="fake!" src="img/f2.png"/>
+                    <img data-container="body" data-toggle="tooltip" title="fake!" src="img/f3.png"/>
+                    <img data-container="body" data-toggle="tooltip" title="true." src="img/t6.jpg"/>
+                    <img data-container="body" data-toggle="tooltip" title="fake!" src="img/f4.png"/>
+                    <img data-container="body" data-toggle="tooltip" title="fake!" src="img/f5.png"/>
+                    <img data-container="body" data-toggle="tooltip" title="fake!" src="img/f6.png"/>
+                    <img data-container="body" data-toggle="tooltip" title="true." src="img/t2.jpg"/>
+                    <img data-container="body" data-toggle="tooltip" title="fake!" src="img/f7.png"/>
+                    <img data-container="body" data-toggle="tooltip" title="true." src="img/t7.jpg"/>
+                    <img data-container="body" data-toggle="tooltip" title="fake!" src="img/f8.png"/>
+                    <img data-container="body" data-toggle="tooltip" title="fake!" src="img/f9.png"/>
+                    <img data-container="body" data-toggle="tooltip" title="fake!" src="img/f17.png"/>
+                    <img data-container="body" data-toggle="tooltip" title="true." src="img/t3.jpg"/>
+                    <img data-container="body" data-toggle="tooltip" title="fake!" src="img/f10.png"/>
+                    <img data-container="body" data-toggle="tooltip" title="fake!" src="img/f11.png"/>
+                    <img data-container="body" data-toggle="tooltip" title="fake!" src="img/f12.png"/>
+                    <img data-container="body" data-toggle="tooltip" title="fake!" src="img/f13.png"/>
+                    <img data-container="body" data-toggle="tooltip" title="true." src="img/t4.jpg"/>
+                    <img data-container="body" data-toggle="tooltip" title="fake!" src="img/f14.png"/>
+                    <img data-container="body" data-toggle="tooltip" title="fake!" src="img/f15.png"/>
+                    <img data-container="body" data-toggle="tooltip" title="fake!" src="img/f16.png"/>
+                    <img data-container="body" data-toggle="tooltip" title="true." src="img/t5.jpg"/>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-8 col-md-offset-2 col-xs-12">
+                <br/></br/>
+                <br/></br/>
+                <br/></br/>
+                <h2>Other Projects</h2>
+                <ul style="list-style-type:none; padding: 0; font-size: 20px;">
+                    <li><a href="https://github.com/carpedm20/MemN2N-tensorflow" target="_blank">Memory Networks</a></li>
+                    <li><a href="https://github.com/carpedm20/NTM-tensorflow" target="_blank">Neural Turing Machine</a></li>
+                    <li><a href="https://github.com/carpedm20/lstm-char-cnn-tensorflow" target="_blank">LSTM Character CNN Networks</a></li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="aboutme" class="container content-section text-center">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2">
+                <h3>Taehoon Kim</h3>
+                <h3><a href="http://carpedm20.github.io/" target="_blank">@carpedm20</a></h3>
+
+                <a class="ico" href="https://github.com/carpedm20/" target="_blank">
+                    <i class="fa fa-github-square fa-5"></i>
+                </a>
+                <a class="ico" href="https://www.linkedin.com/in/carpedm20" target="_blank">
+                    <i class="fa fa-linkedin-square fa-5"></i>
+                </a>
+                <a class="ico" href="https://www.facebook.com/carpedm20" target="_blank">
+                    <i class="fa fa-facebook-square fa-5"></i>
+                </a>
+                <a href="https://twitter.com/carpedm20" target="_blank">
+                    <i class="fa fa-twitter-square fa-5"></i>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container content-section text-center">
+        </div>
+    </footer>
+
+    <!-- jQuery -->
+    <script src="//code.jquery.com/jquery-2.2.0.min.js"></script>
+    <script src="js/vendor/fakeLoader.min.js"></script>
+    <script>
+        $("#fakeLoader").fakeLoader({
+            zIndex:"999",//Default zIndex
+            spinner:"spinner3",
+            bgColor:"black"
+        })
+    </script>
+
+    <script type="text/javascript" src="http://kenwheeler.github.io/slick/slick/slick.js"></script>
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+    <script src="js/vendor/jquery.easing.min.js"></script>
+    <script src="js/vendor/pixel.min.js"></script>
+
+    <script src="js/convnet.js"></script>
+    <script src="js/layers.js"></script>
+    <script src="js/app.js"></script>
+
+    <!-- Google Analytics: change UA-XXXXX-X to be your site's ID. -->
+    <script>
+        (function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=
+        function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;
+        e=o.createElement(i);r=o.getElementsByTagName(i)[0];
+        e.src='https://www.google-analytics.com/analytics.js';
+        r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));
+        ga('create','UA-73375683-1','auto');ga('send','pageview');
+    </script>
+</body>
+
+</html>
