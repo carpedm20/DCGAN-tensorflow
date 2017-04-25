@@ -25,6 +25,7 @@ flags.DEFINE_string("sample_dir", "samples", "Directory name to save the image s
 flags.DEFINE_boolean("is_train", False, "True for training, False for testing [False]")
 flags.DEFINE_boolean("is_crop", False, "True for training, False for testing [False]")
 flags.DEFINE_boolean("visualize", False, "True for visualizing, False for nothing [False]")
+flags.DEFINE_boolean("detect_grass", False, "True to take photos and produce a grass-or-not photo. False for nothing [False]")
 FLAGS = flags.FLAGS
 
 def main(_):
@@ -83,7 +84,17 @@ def main(_):
     else:
       if not dcgan.load(FLAGS.checkpoint_dir):
         raise Exception("[!] Train a model first, then run test mode")
-      
+
+    # If true, take photos, splice them into Nx60x60x3 numpy array, run that
+    # through discriminator to get (Nx1) array between 0 and 1 to determine
+    # if that 60x60x3 slice is grass or not.
+    if FLAGS.detect_grass:
+      image = scipy.misc.imread('./test/random_real_generated.jpg').astype(np.float32)
+      slices = np.reshape(image,(-1,FLAGS.input_height,FLAGS.input_width,FLAGS.c_dim))
+      print(slices.shape)
+      D = dcgan.sess.run(dcgan.gd,feed_dict={dcgan.grass_pic:slices})
+      D_np = np.reshape(D,(18,32))
+      print(D_np)
 
     # to_json("./web/js/layers.js", [dcgan.h0_w, dcgan.h0_b, dcgan.g_bn0],
     #                 [dcgan.h1_w, dcgan.h1_b, dcgan.g_bn1],
@@ -92,8 +103,9 @@ def main(_):
     #                 [dcgan.h4_w, dcgan.h4_b, None])
 
     # Below is codes for visualization
-    OPTION = 1
-    visualize(sess, dcgan, FLAGS, OPTION)
+    if FLAGS.visualize:
+      OPTION = 1
+      visualize(sess, dcgan, FLAGS, OPTION)
 
 if __name__ == '__main__':
   tf.app.run()

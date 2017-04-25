@@ -1,12 +1,14 @@
 from __future__ import division
 import os
+import sys
 import time
 import math
 from glob import glob
 import tensorflow as tf
 import numpy as np
+import scipy.misc
 from six.moves import xrange
-
+from PIL import Image
 from ops import *
 from utils import *
 
@@ -74,6 +76,11 @@ class DCGAN(object):
     self.checkpoint_dir = checkpoint_dir
     self.build_model()
 
+    self.test_image = scipy.misc.imread('./test/test_image.jpg').astype(np.float32)
+    self.test_slices = np.reshape(self.test_image,(-1,self.input_height,self.input_width,self.c_dim))
+	
+	self.min_test_error = 1000					#minimum error to know when to save checkpoint
+
   def build_model(self):
     if self.y_dim:
       self.y= tf.placeholder(tf.float32, [self.batch_size, self.y_dim], name='y')
@@ -109,6 +116,15 @@ class DCGAN(object):
 
       self.sampler = self.sampler(self.z)
       self.D_, self.D_logits_ = self.discriminator(self.G, reuse=True)
+
+    # placeholder for the 60x60 slices from a single picture of grass
+    self.grass_pic = tf.placeholder(tf.float32, [18*32,60,60,3],
+                                    name='grass_pic')
+    # operation to detect grass
+    self.gd, _ = self.detect_grass(self.grass_pic, reuse=True)
+    self.d_gd_sum = histogram_summary("d_grass_detect", self.gd)
+    self.gd_pic = tf.reshape(self.gd, [1, 18, 32, 1], name="d_grass_detect_pic")
+    self.gd_pic_sum = image_summary("d_grass_detect_pic", self.gd_pic)
 
     self.d_sum = histogram_summary("d", self.D)
     self.d__sum = histogram_summary("d_", self.D_)
@@ -148,7 +164,7 @@ class DCGAN(object):
       data_X, data_y = self.load_mnist()
     else:
       data = glob(os.path.join("./data", config.dataset, self.input_fname_pattern))
-    #np.random.shuffle(data)
+      np.random.shuffle(data)
 
     d_optim = tf.train.AdamOptimizer(config.learning_rate, beta1=config.beta1) \
               .minimize(self.d_loss, var_list=self.d_vars)
@@ -184,7 +200,7 @@ class DCGAN(object):
         sample_inputs = np.array(sample).astype(np.float32)[:, :, :, None]
       else:
         sample_inputs = np.array(sample).astype(np.float32)
-  
+
     counter = 1
     start_time = time.time()
     could_load, checkpoint_counter = self.load(self.checkpoint_dir)
@@ -193,6 +209,7 @@ class DCGAN(object):
       print(" [*] Load SUCCESS")
     else:
       print(" [!] Load failed...")
+	  
 
     for epoch in xrange(config.epoch):
       if config.dataset == 'mnist':
@@ -200,6 +217,7 @@ class DCGAN(object):
       else:      
         data = glob(os.path.join(
           "./data", config.dataset, self.input_fname_pattern))
+        np.random.shuffle(data)
         batch_idxs = min(len(data), config.train_size) // config.batch_size
 
       for idx in xrange(0, batch_idxs):
@@ -246,9 +264,9 @@ class DCGAN(object):
           _, summary_str = self.sess.run([g_optim, self.g_sum],
             feed_dict={ self.z: batch_z, self.y:batch_labels })
           self.writer.add_summary(summary_str, counter)
-          
+
           errD_fake = self.d_loss_fake.eval({
-              self.z: batch_z, 
+              self.z: batch_z,
               self.y:batch_labels
           })
           errD_real = self.d_loss_real.eval({
@@ -274,7 +292,13 @@ class DCGAN(object):
           _, summary_str = self.sess.run([g_optim, self.g_sum],
             feed_dict={ self.z: batch_z })
           self.writer.add_summary(summary_str, counter)
-          
+
+          # Run the grass checker on an image on disk
+          sum_str1, sum_str2 = self.sess.run([self.d_gd_sum, self.gd_pic_sum],
+                                             feed_dict={self.grass_pic:self.test_slices})
+          self.writer.add_summary(sum_str1, counter)
+          self.writer.add_summary(sum_str2, counter)
+
           errD_fake = self.d_loss_fake.eval({ self.z: batch_z })
           errD_real = self.d_loss_real.eval({ self.inputs: batch_images })
           errG = self.g_loss.eval({self.z: batch_z})
@@ -311,13 +335,51 @@ class DCGAN(object):
               manifold_h = int(np.ceil(np.sqrt(samples.shape[0])))
               manifold_w = int(np.floor(np.sqrt(samples.shape[0])))
               save_images(samples, [manifold_h, manifold_w],
-                    './{}/train_{:02d}_{:04d}.png'.format(config.sample_dir, epoch, idx))
-              print("[Sample] d_loss: %.8f, g_loss: %.8f" % (d_loss, g_loss)) 
+                    './{}/train/train_{:02d}_{:04d}.png'.format(config.sample_dir, epoch, idx))
+              # place the generated samples in the first rows of the test image
+              self.test_slices[0:samples.shape[0],:,:,:] = samples
+              # Save discriminator output on test image to disk
+              detect = self.sess.run(self.gd, feed_dict={self.grass_pic:self.test_slices})
+			  
+			  # find error of each iteration and save the minimum value. If it is the absolute min, it will save a checkpoint of the run.
+			  self.error_total = 0
+			  
+			  for n in [9,13,17]:
+				if(n == 9):
+					self.error_total += np.sum(np.square(detect[(n-1) * 32: (n-1) * 32 + 64]))
+				else
+					self.error_total += np.sum(np.square(1-detect[(n-1) * 32: (n-1) * 32 + 64]))
+					
+			  if(self.error_total < self.min_test_error):
+				self.min_test_error = self.error_total
+				self.save("./checkpoint/deploy_variables", counter)
+			  
+              detect_img = Image.fromarray((np.reshape(detect,(18,32)) * 255.9).astype(np.uint8))
+              detect_img.save('./{}/test/test_{:02}_{:04d}.png'.
+                              format(config.sample_dir, epoch, idx))
+              print("[Sample] d_loss: %.8f, g_loss: %.8f" % (d_loss, g_loss))
             except:
-              print("one pic error!...")
+              print("one pic error!...", sys.exc_info()[0])
+              raise
 
         if np.mod(counter, 500) == 2:
           self.save(config.checkpoint_dir, counter)
+
+  def detect_grass(self, image, reuse=False):
+    with tf.variable_scope("discriminator") as scope:
+      if reuse:
+        scope.reuse_variables()
+
+      h0 = lrelu(conv2d(image, self.df_dim, name='d_h0_conv'))
+      h1 = lrelu(self.d_bn1(conv2d(h0, self.df_dim*2, name='d_h1_conv'),
+                            train=False))
+      h2 = lrelu(self.d_bn2(conv2d(h1, self.df_dim*4, name='d_h2_conv'),
+                            train=False))
+      h3 = lrelu(self.d_bn3(conv2d(h2, self.df_dim*8, name='d_h3_conv'),
+                            train=False))
+      h4 = linear(tf.reshape(h3, [576, -1]), 1, 'd_h3_lin')
+
+      return tf.nn.sigmoid(h4), h4
 
   def discriminator(self, image, y=None, reuse=False):
     with tf.variable_scope("discriminator") as scope:
