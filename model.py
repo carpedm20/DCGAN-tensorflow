@@ -53,7 +53,6 @@ class DCGAN(object):
     self.gfc_dim = gfc_dim
     self.dfc_dim = dfc_dim
 
-    self.c_dim = c_dim
 
     # batch normalization : deals with poor initialization helps gradient flow
     self.d_bn1 = batch_norm(name='d_bn1')
@@ -72,6 +71,14 @@ class DCGAN(object):
     self.dataset_name = dataset_name
     self.input_fname_pattern = input_fname_pattern
     self.checkpoint_dir = checkpoint_dir
+
+    if self.dataset_name == 'mnist':
+      self.data_X, self.data_y = self.load_mnist()
+      self.c_dim = self.data_X[0].shape[-1]
+    else:
+      self.data = glob(os.path.join("./data", config.dataset, self.input_fname_pattern))
+      self.c_dim = self.data[0].shape[-1]
+
     self.build_model()
 
   def build_model(self):
@@ -143,13 +150,6 @@ class DCGAN(object):
     self.saver = tf.train.Saver()
 
   def train(self, config):
-    """Train DCGAN"""
-    if config.dataset == 'mnist':
-      data_X, data_y = self.load_mnist()
-    else:
-      data = glob(os.path.join("./data", config.dataset, self.input_fname_pattern))
-    #np.random.shuffle(data)
-
     d_optim = tf.train.AdamOptimizer(config.learning_rate, beta1=config.beta1) \
               .minimize(self.d_loss, var_list=self.d_vars)
     g_optim = tf.train.AdamOptimizer(config.learning_rate, beta1=config.beta1) \
@@ -168,10 +168,10 @@ class DCGAN(object):
     sample_z = np.random.uniform(-1, 1, size=(self.sample_num , self.z_dim))
     
     if config.dataset == 'mnist':
-      sample_inputs = data_X[0:self.sample_num]
-      sample_labels = data_y[0:self.sample_num]
+      sample_inputs = self.data_X[0:self.sample_num]
+      sample_labels = self.data_y[0:self.sample_num]
     else:
-      sample_files = data[0:self.sample_num]
+      sample_files = self.data[0:self.sample_num]
       sample = [
           get_image(sample_file,
                     input_height=self.input_height,
@@ -196,18 +196,18 @@ class DCGAN(object):
 
     for epoch in xrange(config.epoch):
       if config.dataset == 'mnist':
-        batch_idxs = min(len(data_X), config.train_size) // config.batch_size
+        batch_idxs = min(len(self.data_X), config.train_size) // config.batch_size
       else:      
-        data = glob(os.path.join(
+        self.data = glob(os.path.join(
           "./data", config.dataset, self.input_fname_pattern))
-        batch_idxs = min(len(data), config.train_size) // config.batch_size
+        batch_idxs = min(len(self.data), config.train_size) // config.batch_size
 
       for idx in xrange(0, batch_idxs):
         if config.dataset == 'mnist':
-          batch_images = data_X[idx*config.batch_size:(idx+1)*config.batch_size]
-          batch_labels = data_y[idx*config.batch_size:(idx+1)*config.batch_size]
+          batch_images = self.data_X[idx*config.batch_size:(idx+1)*config.batch_size]
+          batch_labels = self.data_y[idx*config.batch_size:(idx+1)*config.batch_size]
         else:
-          batch_files = data[idx*config.batch_size:(idx+1)*config.batch_size]
+          batch_files = self.data[idx*config.batch_size:(idx+1)*config.batch_size]
           batch = [
               get_image(batch_file,
                         input_height=self.input_height,
