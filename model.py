@@ -14,7 +14,7 @@ def conv_out_size_same(size, stride):
   return int(math.ceil(float(size) / float(stride)))
 
 class DCGAN(object):
-  def __init__(self, sess, input_height=108, input_width=108, is_crop=True,
+  def __init__(self, sess, input_height=108, input_width=108, crop=True,
          batch_size=64, sample_num = 64, output_height=64, output_width=64,
          y_dim=None, z_dim=100, gf_dim=64, df_dim=64,
          gfc_dim=1024, dfc_dim=1024, c_dim=3, dataset_name='default',
@@ -33,7 +33,7 @@ class DCGAN(object):
       c_dim: (optional) Dimension of image color. For grayscale input, set to 1. [3]
     """
     self.sess = sess
-    self.is_crop = is_crop
+    self.crop = crop
 
     self.batch_size = batch_size
     self.sample_num = sample_num
@@ -51,7 +51,6 @@ class DCGAN(object):
 
     self.gfc_dim = gfc_dim
     self.dfc_dim = dfc_dim
-
 
     # batch normalization : deals with poor initialization helps gradient flow
     self.d_bn1 = batch_norm(name='d_bn1')
@@ -76,9 +75,9 @@ class DCGAN(object):
       self.c_dim = self.data_X[0].shape[-1]
     else:
       self.data = glob(os.path.join("./data", self.dataset_name, self.input_fname_pattern))
-      self.c_dim = self.data[0].shape[-1]
+      self.c_dim = imread(self.data[0]).shape[-1]
 
-    self.is_grayscale = (self.c_dim == 1)
+    self.grayscale = (self.c_dim == 1)
 
     self.build_model()
 
@@ -86,7 +85,7 @@ class DCGAN(object):
     if self.y_dim:
       self.y= tf.placeholder(tf.float32, [self.batch_size, self.y_dim], name='y')
 
-    if self.is_crop:
+    if self.crop:
       image_dims = [self.output_height, self.output_width, self.c_dim]
     else:
       image_dims = [self.input_height, self.input_width, self.c_dim]
@@ -179,9 +178,9 @@ class DCGAN(object):
                     input_width=self.input_width,
                     resize_height=self.output_height,
                     resize_width=self.output_width,
-                    is_crop=self.is_crop,
-                    is_grayscale=self.is_grayscale) for sample_file in sample_files]
-      if (self.is_grayscale):
+                    crop=self.crop,
+                    grayscale=self.grayscale) for sample_file in sample_files]
+      if (self.grayscale):
         sample_inputs = np.array(sample).astype(np.float32)[:, :, :, None]
       else:
         sample_inputs = np.array(sample).astype(np.float32)
@@ -215,9 +214,9 @@ class DCGAN(object):
                         input_width=self.input_width,
                         resize_height=self.output_height,
                         resize_width=self.output_width,
-                        is_crop=self.is_crop,
-                        is_grayscale=self.is_grayscale) for batch_file in batch_files]
-          if (self.is_grayscale):
+                        crop=self.crop,
+                        grayscale=self.grayscale) for batch_file in batch_files]
+          if self.grayscale:
             batch_images = np.array(batch).astype(np.float32)[:, :, :, None]
           else:
             batch_images = np.array(batch).astype(np.float32)

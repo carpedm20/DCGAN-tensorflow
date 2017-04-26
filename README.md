@@ -33,22 +33,22 @@ First, download dataset with:
 
 To train a model with downloaded dataset:
 
-    $ python main.py --dataset mnist --input_height=28 --output_height=28 --c_dim=1 --is_train
-    $ python main.py --dataset celebA --input_height=108 --is_train --is_crop True
+    $ python main.py --dataset mnist --input_height=28 --output_height=28 --train
+    $ python main.py --dataset celebA --input_height=108 --train --crop
 
 To test with an existing model:
 
-    $ python main.py --dataset mnist --input_height=28 --output_height=28 --c_dim=1
-    $ python main.py --dataset celebA --input_height=108 --is_crop True
+    $ python main.py --dataset mnist --input_height=28 --output_height=28
+    $ python main.py --dataset celebA --input_height=108 --crop
 
 Or, you can use your own dataset (without central crop) by:
 
     $ mkdir data/DATASET_NAME
     ... add images to data/DATASET_NAME ...
-    $ python main.py --dataset DATASET_NAME --is_train
+    $ python main.py --dataset DATASET_NAME --train
     $ python main.py --dataset DATASET_NAME
     $ # example
-    $ python main.py --dataset=eyes --input_fname_pattern="*_cropped.png" --c_dim=1 --is_train
+    $ python main.py --dataset=eyes --input_fname_pattern="*_cropped.png" --train
 
 ## Results
 

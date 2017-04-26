@@ -24,16 +24,16 @@ def show_all_variables():
 
 def get_image(image_path, input_height, input_width,
               resize_height=64, resize_width=64,
-              is_crop=True, is_grayscale=False):
-  image = imread(image_path, is_grayscale)
+              crop=True, grayscale=False):
+  image = imread(image_path, grayscale)
   return transform(image, input_height, input_width,
-                   resize_height, resize_width, is_crop)
+                   resize_height, resize_width, crop)
 
 def save_images(images, size, image_path):
   return imsave(inverse_transform(images), size, image_path)
 
-def imread(path, is_grayscale = False):
-  if (is_grayscale):
+def imread(path, grayscale = False):
+  if (grayscale):
     return scipy.misc.imread(path, flatten = True).astype(np.float)
   else:
     return scipy.misc.imread(path).astype(np.float)
@@ -77,8 +77,8 @@ def center_crop(x, crop_h, crop_w,
       x[j:j+crop_h, i:i+crop_w], [resize_h, resize_w])
 
 def transform(image, input_height, input_width, 
-              resize_height=64, resize_width=64, is_crop=True):
-  if is_crop:
+              resize_height=64, resize_width=64, crop=True):
+  if crop:
     cropped_image = center_crop(
       image, input_height, input_width, 
       resize_height, resize_width)
