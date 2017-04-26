@@ -34,7 +34,6 @@ class DCGAN(object):
     """
     self.sess = sess
     self.is_crop = is_crop
-    self.is_grayscale = (c_dim == 1)
 
     self.batch_size = batch_size
     self.sample_num = sample_num
@@ -76,8 +75,10 @@ class DCGAN(object):
       self.data_X, self.data_y = self.load_mnist()
       self.c_dim = self.data_X[0].shape[-1]
     else:
-      self.data = glob(os.path.join("./data", config.dataset, self.input_fname_pattern))
+      self.data = glob(os.path.join("./data", self.dataset_name, self.input_fname_pattern))
       self.c_dim = self.data[0].shape[-1]
+
+    self.is_grayscale = (self.c_dim == 1)
 
     self.build_model()
 
