@@ -96,11 +96,8 @@ class DCGAN(object):
 
     self.inputs = tf.placeholder(
       tf.float32, [self.batch_size] + image_dims, name='real_images')
-    self.sample_inputs = tf.placeholder(
-      tf.float32, [self.sample_num] + image_dims, name='sample_inputs')
 
     inputs = self.inputs
-    sample_inputs = self.sample_inputs
 
     self.z = tf.placeholder(
       tf.float32, [None, self.z_dim], name='z')
