@@ -298,9 +298,7 @@ class DCGAN(object):
                   self.y:sample_labels,
               }
             )
-            manifold_h = int(np.ceil(np.sqrt(samples.shape[0])))
-            manifold_w = int(np.floor(np.sqrt(samples.shape[0])))
-            save_images(samples, [manifold_h, manifold_w],
+            save_images(samples, image_manifold_size(samples.shape[0]),
                   './{}/train_{:02d}_{:04d}.png'.format(config.sample_dir, epoch, idx))
             print("[Sample] d_loss: %.8f, g_loss: %.8f" % (d_loss, g_loss)) 
           else:
@@ -312,9 +310,7 @@ class DCGAN(object):
                     self.inputs: sample_inputs,
                 },
               )
-              manifold_h = int(np.ceil(np.sqrt(samples.shape[0])))
-              manifold_w = int(np.floor(np.sqrt(samples.shape[0])))
-              save_images(samples, [manifold_h, manifold_w],
+              save_images(samples, image_manifold_size(samples.shape[0]),
                     './{}/train_{:02d}_{:04d}.png'.format(config.sample_dir, epoch, idx))
               print("[Sample] d_loss: %.8f, g_loss: %.8f" % (d_loss, g_loss)) 
             except:
