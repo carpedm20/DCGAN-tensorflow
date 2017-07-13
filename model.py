@@ -87,7 +87,9 @@ class DCGAN(object):
 
   def build_model(self):
     if self.y_dim:
-      self.y= tf.placeholder(tf.float32, [self.batch_size, self.y_dim], name='y')
+      self.y = tf.placeholder(tf.float32, [self.batch_size, self.y_dim], name='y')
+    else:
+      self.y = None
 
     if self.crop:
       image_dims = [self.output_height, self.output_width, self.c_dim]
@@ -103,21 +105,11 @@ class DCGAN(object):
       tf.float32, [None, self.z_dim], name='z')
     self.z_sum = histogram_summary("z", self.z)
 
-    if self.y_dim:
-      self.G = self.generator(self.z, self.y)
-      self.D, self.D_logits = \
-          self.discriminator(inputs, self.y, reuse=False)
-
-      self.sampler = self.sampler(self.z, self.y)
-      self.D_, self.D_logits_ = \
-          self.discriminator(self.G, self.y, reuse=True)
-    else:
-      self.G = self.generator(self.z)
-      self.D, self.D_logits = self.discriminator(inputs)
-
-      self.sampler = self.sampler(self.z)
-      self.D_, self.D_logits_ = self.discriminator(self.G, reuse=True)
-
+    self.G                  = self.generator(self.z, self.y)
+    self.D, self.D_logits   = self.discriminator(inputs, self.y, reuse=False)
+    self.sampler            = self.sampler(self.z, self.y)
+    self.D_, self.D_logits_ = self.discriminator(self.G, self.y, reuse=True)
+    
     self.d_sum = histogram_summary("d", self.D)
     self.d__sum = histogram_summary("d_", self.D_)
     self.G_sum = image_summary("G", self.G)
