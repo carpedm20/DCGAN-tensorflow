@@ -6,6 +6,13 @@ from model import DCGAN
 from utils import pp, visualize, to_json, show_all_variables
 
 import tensorflow as tf
+from tensorport import get_data_path, get_logs_path
+
+
+LOCAL_PATH_TO_LOGS = "checkpoint"
+ROOT_PATH_TO_LOCAL_DATA = os.path.expanduser("~/Documents/data")
+LOCAL_REPO = "celebA"
+
 
 flags = tf.app.flags
 flags.DEFINE_integer("epoch", 25, "Epoch to train [25]")
@@ -18,13 +25,19 @@ flags.DEFINE_integer("input_width", None, "The size of image to use (will be cen
 flags.DEFINE_integer("output_height", 64, "The size of the output images to produce [64]")
 flags.DEFINE_integer("output_width", None, "The size of the output images to produce. If None, same value as output_height [None]")
 flags.DEFINE_string("dataset", "celebA", "The name of dataset [celebA, mnist, lsun]")
-flags.DEFINE_string("input_fname_pattern", "*.jpg", "Glob pattern of filename of input images [*]")
-flags.DEFINE_string("checkpoint_dir", "checkpoint", "Directory name to save the checkpoints [checkpoint]")
-flags.DEFINE_string("sample_dir", "samples", "Directory name to save the image samples [samples]")
-flags.DEFINE_boolean("train", False, "True for training, False for testing [False]")
-flags.DEFINE_boolean("crop", False, "True for training, False for testing [False]")
+flags.DEFINE_string("data_path",
+    get_data_path(dataset_name = "malo/*",
+        local_root = ROOT_PATH_TO_LOCAL_DATA,
+        local_repo = LOCAL_REPO,
+        path = "*.jpg"),
+    "Glob pattern of data path [*]")
+flags.DEFINE_string("checkpoint_dir", get_logs_path(LOCAL_PATH_TO_LOGS), "Directory name to save the checkpoints [checkpoint]")
+flags.DEFINE_string("sample_dir", get_logs_path("samples"), "Directory name to save the image samples [samples]") #TODO: replace with os.path.join(logs/samples) when folders are supported
+flags.DEFINE_boolean("train", True, "True for training, False for testing [True]")
+flags.DEFINE_boolean("crop", True, "True for training, False for testing [True]")
 flags.DEFINE_boolean("visualize", False, "True for visualizing, False for nothing [False]")
 FLAGS = flags.FLAGS
+
 
 def main(_):
   pp.pprint(flags.FLAGS.__flags)
@@ -54,12 +67,14 @@ def main(_):
           batch_size=FLAGS.batch_size,
           sample_num=FLAGS.batch_size,
           y_dim=10,
-          dataset_name=FLAGS.dataset,
-          input_fname_pattern=FLAGS.input_fname_pattern,
+          data_path = FLAGS.data_path,
+          dataset_type=FLAGS.dataset,
           crop=FLAGS.crop,
           checkpoint_dir=FLAGS.checkpoint_dir,
           sample_dir=FLAGS.sample_dir)
     else:
+
+
       dcgan = DCGAN(
           sess,
           input_width=FLAGS.input_width,
@@ -68,8 +83,8 @@ def main(_):
           output_height=FLAGS.output_height,
           batch_size=FLAGS.batch_size,
           sample_num=FLAGS.batch_size,
-          dataset_name=FLAGS.dataset,
-          input_fname_pattern=FLAGS.input_fname_pattern,
+          data_path = FLAGS.data_path,
+          dataset_type=FLAGS.dataset,
           crop=FLAGS.crop,
           checkpoint_dir=FLAGS.checkpoint_dir,
           sample_dir=FLAGS.sample_dir)
@@ -81,7 +96,7 @@ def main(_):
     else:
       if not dcgan.load(FLAGS.checkpoint_dir)[0]:
         raise Exception("[!] Train a model first, then run test mode")
-      
+
 
     # to_json("./web/js/layers.js", [dcgan.h0_w, dcgan.h0_b, dcgan.g_bn0],
     #                 [dcgan.h1_w, dcgan.h1_b, dcgan.g_bn1],
