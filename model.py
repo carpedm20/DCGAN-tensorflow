@@ -2,10 +2,10 @@ from __future__ import division
 import os
 import time
 import math
-from glob import glob
 import tensorflow as tf
 import numpy as np
 from six.moves import xrange
+import glob
 
 from ops import *
 from utils import *
@@ -13,12 +13,13 @@ from utils import *
 def conv_out_size_same(size, stride):
   return int(math.ceil(float(size) / float(stride)))
 
+
 class DCGAN(object):
   def __init__(self, sess, input_height=108, input_width=108, crop=True,
          batch_size=64, sample_num = 64, output_height=64, output_width=64,
          y_dim=None, z_dim=100, gf_dim=64, df_dim=64,
-         gfc_dim=1024, dfc_dim=1024, c_dim=3, dataset_name='default',
-         input_fname_pattern='*.jpg', checkpoint_dir=None, sample_dir=None):
+         gfc_dim=1024, dfc_dim=1024, c_dim=3, data_path = None, dataset_type='default',
+         checkpoint_dir=None, sample_dir=None):
     """
 
     Args:
@@ -66,15 +67,18 @@ class DCGAN(object):
     if not self.y_dim:
       self.g_bn3 = batch_norm(name='g_bn3')
 
-    self.dataset_name = dataset_name
-    self.input_fname_pattern = input_fname_pattern
+    if data_path == None:
+        raise ValueError("Please specify a data path")
+
+
+    self.dataset_type = dataset_type
     self.checkpoint_dir = checkpoint_dir
 
-    if self.dataset_name == 'mnist':
+    if self.dataset_type == 'mnist':
       self.data_X, self.data_y = self.load_mnist()
       self.c_dim = self.data_X[0].shape[-1]
     else:
-      self.data = glob(os.path.join("./data", self.dataset_name, self.input_fname_pattern))
+      self.data = glob.glob(data_path)  #"./data", self.dataset_type
       imreadImg = imread(self.data[0]);
       if len(imreadImg.shape) >= 3: #check if image is a non-grayscale image by checking channel number
         self.c_dim = imread(self.data[0]).shape[-1]
@@ -109,7 +113,7 @@ class DCGAN(object):
     self.D, self.D_logits   = self.discriminator(inputs, self.y, reuse=False)
     self.sampler            = self.sampler(self.z, self.y)
     self.D_, self.D_logits_ = self.discriminator(self.G, self.y, reuse=True)
-    
+
     self.d_sum = histogram_summary("d", self.D)
     self.d__sum = histogram_summary("d_", self.D_)
     self.G_sum = image_summary("G", self.G)
@@ -129,7 +133,7 @@ class DCGAN(object):
 
     self.d_loss_real_sum = scalar_summary("d_loss_real", self.d_loss_real)
     self.d_loss_fake_sum = scalar_summary("d_loss_fake", self.d_loss_fake)
-                          
+
     self.d_loss = self.d_loss_real + self.d_loss_fake
 
     self.g_loss_sum = scalar_summary("g_loss", self.g_loss)
@@ -156,10 +160,10 @@ class DCGAN(object):
       self.G_sum, self.d_loss_fake_sum, self.g_loss_sum])
     self.d_sum = merge_summary(
         [self.z_sum, self.d_sum, self.d_loss_real_sum, self.d_loss_sum])
-    self.writer = SummaryWriter("./logs", self.sess.graph)
+    self.writer = SummaryWriter(config.checkpoint_dir, self.sess.graph)
 
     sample_z = np.random.uniform(-1, 1, size=(self.sample_num , self.z_dim))
-    
+
     if config.dataset == 'mnist':
       sample_inputs = self.data_X[0:self.sample_num]
       sample_labels = self.data_y[0:self.sample_num]
@@ -177,7 +181,7 @@ class DCGAN(object):
         sample_inputs = np.array(sample).astype(np.float32)[:, :, :, None]
       else:
         sample_inputs = np.array(sample).astype(np.float32)
-  
+
     counter = 1
     start_time = time.time()
     could_load, checkpoint_counter = self.load(self.checkpoint_dir)
@@ -190,9 +194,7 @@ class DCGAN(object):
     for epoch in xrange(config.epoch):
       if config.dataset == 'mnist':
         batch_idxs = min(len(self.data_X), config.train_size) // config.batch_size
-      else:      
-        self.data = glob(os.path.join(
-          "./data", config.dataset, self.input_fname_pattern))
+      else:
         batch_idxs = min(len(self.data), config.train_size) // config.batch_size
 
       for idx in xrange(0, batch_idxs):
@@ -220,7 +222,7 @@ class DCGAN(object):
         if config.dataset == 'mnist':
           # Update D network
           _, summary_str = self.sess.run([d_optim, self.d_sum],
-            feed_dict={ 
+            feed_dict={
               self.inputs: batch_images,
               self.z: batch_z,
               self.y:batch_labels,
@@ -230,7 +232,7 @@ class DCGAN(object):
           # Update G network
           _, summary_str = self.sess.run([g_optim, self.g_sum],
             feed_dict={
-              self.z: batch_z, 
+              self.z: batch_z,
               self.y:batch_labels,
             })
           self.writer.add_summary(summary_str, counter)
@@ -239,9 +241,9 @@ class DCGAN(object):
           _, summary_str = self.sess.run([g_optim, self.g_sum],
             feed_dict={ self.z: batch_z, self.y:batch_labels })
           self.writer.add_summary(summary_str, counter)
-          
+
           errD_fake = self.d_loss_fake.eval({
-              self.z: batch_z, 
+              self.z: batch_z,
               self.y:batch_labels
           })
           errD_real = self.d_loss_real.eval({
@@ -267,7 +269,7 @@ class DCGAN(object):
           _, summary_str = self.sess.run([g_optim, self.g_sum],
             feed_dict={ self.z: batch_z })
           self.writer.add_summary(summary_str, counter)
-          
+
           errD_fake = self.d_loss_fake.eval({ self.z: batch_z })
           errD_real = self.d_loss_real.eval({ self.inputs: batch_images })
           errG = self.g_loss.eval({self.z: batch_z})
@@ -289,7 +291,7 @@ class DCGAN(object):
             )
             save_images(samples, image_manifold_size(samples.shape[0]),
                   './{}/train_{:02d}_{:04d}.png'.format(config.sample_dir, epoch, idx))
-            print("[Sample] d_loss: %.8f, g_loss: %.8f" % (d_loss, g_loss)) 
+            print("[Sample] d_loss: %.8f, g_loss: %.8f" % (d_loss, g_loss))
           else:
             try:
               samples, d_loss, g_loss = self.sess.run(
@@ -301,7 +303,7 @@ class DCGAN(object):
               )
               save_images(samples, image_manifold_size(samples.shape[0]),
                     './{}/train_{:02d}_{:04d}.png'.format(config.sample_dir, epoch, idx))
-              print("[Sample] d_loss: %.8f, g_loss: %.8f" % (d_loss, g_loss)) 
+              print("[Sample] d_loss: %.8f, g_loss: %.8f" % (d_loss, g_loss))
             except:
               print("one pic error!...")
 
@@ -329,14 +331,14 @@ class DCGAN(object):
         h0 = conv_cond_concat(h0, yb)
 
         h1 = lrelu(self.d_bn1(conv2d(h0, self.df_dim + self.y_dim, name='d_h1_conv')))
-        h1 = tf.reshape(h1, [self.batch_size, -1])      
+        h1 = tf.reshape(h1, [self.batch_size, -1])
         h1 = concat([h1, y], 1)
-        
+
         h2 = lrelu(self.d_bn2(linear(h1, self.dfc_dim, 'd_h2_lin')))
         h2 = concat([h2, y], 1)
 
         h3 = linear(h2, 1, 'd_h3_lin')
-        
+
         return tf.nn.sigmoid(h3), h3
 
   def generator(self, z, y=None):
@@ -451,8 +453,8 @@ class DCGAN(object):
         return tf.nn.sigmoid(deconv2d(h2, [self.batch_size, s_h, s_w, self.c_dim], name='g_h3'))
 
   def load_mnist(self):
-    data_dir = os.path.join("./data", self.dataset_name)
-    
+    data_dir = os.path.join("./data", self.dataset_type)
+
     fd = open(os.path.join(data_dir,'train-images-idx3-ubyte'))
     loaded = np.fromfile(file=fd,dtype=np.uint8)
     trX = loaded[16:].reshape((60000,28,28,1)).astype(np.float)
@@ -471,28 +473,28 @@ class DCGAN(object):
 
     trY = np.asarray(trY)
     teY = np.asarray(teY)
-    
+
     X = np.concatenate((trX, teX), axis=0)
     y = np.concatenate((trY, teY), axis=0).astype(np.int)
-    
+
     seed = 547
     np.random.seed(seed)
     np.random.shuffle(X)
     np.random.seed(seed)
     np.random.shuffle(y)
-    
+
     y_vec = np.zeros((len(y), self.y_dim), dtype=np.float)
     for i, label in enumerate(y):
       y_vec[i,y[i]] = 1.0
-    
+
     return X/255.,y_vec
 
   @property
   def model_dir(self):
     return "{}_{}_{}_{}".format(
-        self.dataset_name, self.batch_size,
+        self.dataset_type, self.batch_size,
         self.output_height, self.output_width)
-      
+
   def save(self, checkpoint_dir, step):
     model_name = "DCGAN.model"
     checkpoint_dir = os.path.join(checkpoint_dir, self.model_dir)
