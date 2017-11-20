@@ -326,14 +326,6 @@ class DCGAN(object):
 
       return tf.nn.sigmoid(h3), h3
 
-  def discriminator(self, image, y=None, reuse=False):
-    print("self.y_dim: {}".format(self.y_dim))
-    return self.dcgan_discriminator(image, y, reuse)
-    #if not self.y_dim:
-    #  return self.dcgan_discriminator(image, y, reuse)
-    #else:
-    #  return self.dcgan_cond_discriminator(image, y, reuse)
-
   def dcgan_generator(self, z, y):
     with tf.variable_scope("generator") as scope:
       self.g_bn0 = batch_norm(name='g_bn0')
@@ -403,14 +395,6 @@ class DCGAN(object):
       return tf.nn.sigmoid(
           deconv2d(h2, [self.batch_size, s_h, s_w, self.c_dim], name='g_h3'))
 
-  def generator(self, z, y=None):
-    print("self.y_dim: {}".format(self.y_dim))
-    return self.dcgan_generator(z, y)
-    #if not self.y_dim:
-    #  self.dcgan_generator(z, y)
-    #else:
-    #  self.dcgan_cond_generator(z, y)
-
   def dcgan_sampler(self, z, y):
     with tf.variable_scope("generator") as scope:
       scope.reuse_variables()
@@ -475,12 +459,17 @@ class DCGAN(object):
 
       return tf.nn.sigmoid(deconv2d(h2, [self.batch_size, s_h, s_w, self.c_dim], name='g_h3'))
 
+  def discriminator(self, image, y=None, reuse=False):
+    #return self.dcgan_discriminator(image, y, reuse)
+    return self.dcgan_cond_discriminator(image, y, reuse)
+
+  def generator(self, z, y=None):
+    #return self.dcgan_generator(z, y)
+    return self.dcgan_cond_generator(z, y)
+
   def sampler(self, z, y):
-    return self.dcgan_sampler(z, y)
-    #if not self.y_dim:
-    #  self.dcgan_sampler(z, y)
-    #else:
-    #  self.dcgan_cond_sampler(z, y)
+    #return self.dcgan_sampler(z, y)
+    return self.dcgan_cond_sampler(z, y)
 
   def load_mnist(self):
     data_dir = os.path.join("./data", self.dataset_name)
