@@ -28,3 +28,9 @@ In the `eval_classifier` directory:
 `python main.py`
 
 It'll print out the accuracy.
+
+## Current Result
+
+* Original DCGAN: 98,44%
+* Dense DCGAN:
+* DCGAN + 1 Extra Dense layer: 
