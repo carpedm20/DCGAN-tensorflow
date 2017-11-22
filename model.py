@@ -114,17 +114,29 @@ class DCGAN(object):
       except:
         return tf.nn.sigmoid_cross_entropy_with_logits(logits=x, targets=y)
 
-    self.d_loss_real = tf.reduce_mean(
-      sigmoid_cross_entropy_with_logits(self.D_logits, tf.ones_like(self.D)))
-    self.d_loss_fake = tf.reduce_mean(
-      sigmoid_cross_entropy_with_logits(self.D_logits_, tf.zeros_like(self.D_)))
-    self.g_loss = tf.reduce_mean(
-      sigmoid_cross_entropy_with_logits(self.D_logits_, tf.ones_like(self.D_)))
+    #loss_type = 0 -> cross entropy
+    #loss_type = 1 -> vanilla logloss
+    loss_type = 1
+    
+    if loss_type == 0:
+      #cross entropy loss
+      self.d_loss_real = tf.reduce_mean(
+        sigmoid_cross_entropy_with_logits(self.D_logits, tf.ones_like(self.D)))
+      self.d_loss_fake = tf.reduce_mean(
+        sigmoid_cross_entropy_with_logits(self.D_logits_, tf.zeros_like(self.D_)))
+      self.g_loss = tf.reduce_mean(
+        sigmoid_cross_entropy_with_logits(self.D_logits_, tf.ones_like(self.D_)))
+      self.d_loss = self.d_loss_real + self.d_loss_fake
+    elif loss_type == 1:
+      #vanilla logloss
+      self.d_loss_real = -tf.reduce_mean(tf.log(self.D))
+      self.d_loss_fake = -tf.reduce_mean(tf.log(1-self.D_))
+      self.d_loss = self.d_loss_real+self.d_loss_fake
+      self.g_loss = -tf.reduce_mean(tf.log(self.D_))
 
     self.d_loss_real_sum = scalar_summary("d_loss_real", self.d_loss_real)
     self.d_loss_fake_sum = scalar_summary("d_loss_fake", self.d_loss_fake)
                           
-    self.d_loss = self.d_loss_real + self.d_loss_fake
 
     self.g_loss_sum = scalar_summary("g_loss", self.g_loss)
     self.d_loss_sum = scalar_summary("d_loss", self.d_loss)
@@ -195,7 +207,7 @@ class DCGAN(object):
       self.G_sum, self.d_loss_fake_sum, self.g_loss_sum])
     self.d_sum = merge_summary(
         [self.z_sum, self.d_sum, self.d_loss_real_sum, self.d_loss_sum])
-    self.writer = SummaryWriter("./logs", self.sess.graph)
+    self.writer = SummaryWriter("./logs/{}".format(int(time.time())), self.sess.graph)
 
     sample_z = np.random.uniform(-1, 1, size=(self.sample_num , self.z_dim))
 
