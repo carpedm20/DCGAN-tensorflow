@@ -6,6 +6,7 @@ from model import DCGAN
 from utils import pp, visualize, to_json, show_all_variables
 
 import tensorflow as tf
+import os
 
 flags = tf.app.flags
 flags.DEFINE_integer("epoch", 25, "Epoch to train [25]")
@@ -25,6 +26,8 @@ flags.DEFINE_boolean("train", False, "True for training, False for testing [Fals
 flags.DEFINE_boolean("crop", False, "True for training, False for testing [False]")
 flags.DEFINE_boolean("visualize", False, "True for visualizing, False for nothing [False]")
 flags.DEFINE_integer("generate_test_images", 100, "Number of images to generate during test. [100]")
+flags.DEFINE_boolean("generate", False, "Generate 100 sample images for testing. Defaults to [False]")
+
 FLAGS = flags.FLAGS
 
 def main(_):
@@ -84,8 +87,10 @@ def main(_):
     else:
       if not dcgan.load(FLAGS.checkpoint_dir)[0]:
         raise Exception("[!] Train a model first, then run test mode")
-      
 
+      if FLAGS.generate:
+        generate_samples(sess, dcgan, FLAGS)
+        exit()
     # to_json("./web/js/layers.js", [dcgan.h0_w, dcgan.h0_b, dcgan.g_bn0],
     #                 [dcgan.h1_w, dcgan.h1_b, dcgan.g_bn1],
     #                 [dcgan.h2_w, dcgan.h2_b, dcgan.g_bn2],
@@ -95,6 +100,28 @@ def main(_):
     # Below is codes for visualization
     OPTION = 1
     visualize(sess, dcgan, FLAGS, OPTION)
+
+def generate_samples(sess, dcgan, FLAGS):
+    n_samples = 2
+    eval_classifier_dir = './eval_classifier/testdata'
+    ## Generate 2 x 64 (num of batches the model accept) sample images:
+    for i in range(n_samples):
+        z_sample = np.random.uniform(-1, 1, size=(FLAGS.batch_size , FLAGS.generate_test_images))
+        y = np.random.choice(10, FLAGS.batch_size)
+        y_one_hot = np.zeros((FLAGS.batch_size, 10))
+        y_one_hot[np.arange(FLAGS.batch_size), y] = 1
+
+        ## Generate the samples
+        samples = sess.run(dcgan.sampler, feed_dict={dcgan.z: z_sample, dcgan.y: y_one_hot})
+
+        ## Save the samples
+        for idx in range(len(samples)):
+            sample = samples[idx]
+            label = np.where(y_one_hot[idx] > 0)[0][0]
+            if not os.path.exists(eval_classifier_dir):
+                os.makedirs(eval_classifier_dir)
+            image_fname = os.path.join(eval_classifier_dir, str(label) + '_' + str(i) + '_' + str(idx) + '.png')
+            scipy.misc.imsave(image_fname, sample.reshape(28, 28))
 
 if __name__ == '__main__':
   tf.app.run()
