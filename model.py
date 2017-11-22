@@ -116,7 +116,7 @@ class DCGAN(object):
 
     #loss_type = 0 -> cross entropy
     #loss_type = 1 -> vanilla logloss
-    loss_type = 1
+    loss_type = 0
     
     if loss_type == 0:
       #cross entropy loss
