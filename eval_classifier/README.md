@@ -32,5 +32,5 @@ It'll print out the accuracy.
 ## Current Result
 
 * Original DCGAN: 98,44%
-* Dense DCGAN:
-* DCGAN + 1 Extra Dense layer: 
+* Dense DCGAN: 88,28%
+* DCGAN + 1 Extra Dense layer:  99,22%
