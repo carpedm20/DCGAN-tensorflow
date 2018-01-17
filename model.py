@@ -75,6 +75,24 @@ class DCGAN(object):
       self.c_dim = self.data_X[0].shape[-1]
     else:
       self.data = glob(os.path.join("./data", self.dataset_name, self.input_fname_pattern))
+
+      self.celeba_labels = []
+      with open("./list_attr_celeba.txt") as celeba_labels_list:
+          #Skip header
+          next(celeba_labels_list)
+          next(celeba_labels_list)
+          for celeba_label_line in celeba_labels_list:
+              #Prepare label list
+              image_label = celeba_label_line.split()
+              image_label = image_label[1:]
+              image_label = map(int, image_label)
+              image_label = [0 if label == -1 else 1 for label in image_label]
+
+              self.celeba_labels.append(image_label)
+
+      print self.data[0]
+      print self.celeba_labels
+
       imreadImg = imread(self.data[0])
       if len(imreadImg.shape) >= 3: #check if image is a non-grayscale image by checking channel number
         self.c_dim = imread(self.data[0]).shape[-1]
@@ -109,7 +127,7 @@ class DCGAN(object):
     self.D, self.D_logits   = self.discriminator(inputs, self.y, reuse=False)
     self.sampler            = self.sampler(self.z, self.y)
     self.D_, self.D_logits_ = self.discriminator(self.G, self.y, reuse=True)
-    
+
     self.d_sum = histogram_summary("d", self.D)
     self.d__sum = histogram_summary("d_", self.D_)
     self.G_sum = image_summary("G", self.G)
@@ -129,7 +147,7 @@ class DCGAN(object):
 
     self.d_loss_real_sum = scalar_summary("d_loss_real", self.d_loss_real)
     self.d_loss_fake_sum = scalar_summary("d_loss_fake", self.d_loss_fake)
-                          
+
     self.d_loss = self.d_loss_real + self.d_loss_fake
 
     self.g_loss_sum = scalar_summary("g_loss", self.g_loss)
@@ -177,7 +195,8 @@ class DCGAN(object):
         sample_inputs = np.array(sample).astype(np.float32)[:, :, :, None]
       else:
         sample_inputs = np.array(sample).astype(np.float32)
-  
+      sample_labels = self.celeba_labels[0:self.sample_num]
+
     counter = 1
     start_time = time.time()
     could_load, checkpoint_counter = self.load(self.checkpoint_dir)
@@ -213,14 +232,16 @@ class DCGAN(object):
             batch_images = np.array(batch).astype(np.float32)[:, :, :, None]
           else:
             batch_images = np.array(batch).astype(np.float32)
+          batch_labels = self.celeba_labels[idx*config.batch_size: (idx+1)*config.batch_size]
 
         batch_z = np.random.uniform(-1, 1, [config.batch_size, self.z_dim]) \
               .astype(np.float32)
 
-        if config.dataset == 'mnist':
+        #Include labels in all datasets
+        if config.dataset == 'mnist' or config.dataset == 'celebA':
           # Update D network
           _, summary_str = self.sess.run([d_optim, self.d_sum],
-            feed_dict={ 
+            feed_dict={
               self.inputs: batch_images,
               self.z: batch_z,
               self.y:batch_labels,
@@ -278,7 +299,7 @@ class DCGAN(object):
             time.time() - start_time, errD_fake+errD_real, errG))
 
         if np.mod(counter, 100) == 1:
-          if config.dataset == 'mnist':
+          if config.dataset == 'mnist' or config.dataset == 'celebA':
             samples, d_loss, g_loss = self.sess.run(
               [self.sampler, self.d_loss, self.g_loss],
               feed_dict={
