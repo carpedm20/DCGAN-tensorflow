@@ -242,6 +242,7 @@ def visualize(sess, dcgan, config, option):
         for idx in range(64) + range(63, -1, -1)]
     make_gif(new_image_set, './samples/test_gif_merged.gif', duration=8)
 
+  #Sample conditional celebA
   elif option == 5:
     values = np.arange(0, 1, 1./config.batch_size)
     for idx in xrange(dcgan.z_dim):
@@ -252,12 +253,26 @@ def visualize(sess, dcgan, config, option):
 
       y = np.random.choice(40, config.batch_size)
       y_one_hot = np.zeros((config.batch_size, 40))
-      y_one_hot[np.arange(config.batch_size), y] = 1
+      #y_one_hot[np.arange(config.batch_size), y] = 1
+
+      #Use input vector from first image
+      y_one_hot[0][1] = 1;
+      y_one_hot[0][2] = 1;
+      y_one_hot[0][11] = 1;
+      y_one_hot[0][18] = 1;
+      y_one_hot[0][19] = 1;
+      y_one_hot[0][21] = 1;
+      y_one_hot[0][24] = 1;
+      y_one_hot[0][27] = 1;
+      y_one_hot[0][31] = 1;
+      y_one_hot[0][32] = 1;
+      y_one_hot[0][34] = 1;
+      y_one_hot[0][36] = 1;
+      y_one_hot[0][39] = 1;
 
       samples = sess.run(dcgan.sampler, feed_dict={dcgan.z: z_sample, dcgan.y: y_one_hot})
 
       save_images(samples, [image_frame_dim, image_frame_dim], './samples/test_arange_%s.png' % (idx))
-
 
 def image_manifold_size(num_images):
   manifold_h = int(np.floor(np.sqrt(num_images)))
