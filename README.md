@@ -50,6 +50,14 @@ Or, you can use your own dataset (without central crop) by:
     $ # example
     $ python main.py --dataset=eyes --input_fname_pattern="*_cropped.png" --train
 
+If your dataset is located in a different root directory:
+
+    $ python main.py --dataset DATASET_NAME --data_dir DATASET_ROOT_DIR --train
+    $ python main.py --dataset DATASET_NAME --data_dir DATASET_ROOT_DIR
+    $ # example
+    $ python main.py --dataset=eyes --data_dir ../datasets/ --input_fname_pattern="*_cropped.png" --train
+    
+
 ## Results
 
 ![result](assets/training.gif)
