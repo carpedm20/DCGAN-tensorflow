@@ -76,6 +76,7 @@ class DCGAN(object):
       self.c_dim = self.data_X[0].shape[-1]
     else:
       self.data = glob(os.path.join(self.data_dir, self.dataset_name, self.input_fname_pattern))
+      np.random.shuffle(self.data)
       imreadImg = imread(self.data[0])
       if len(imreadImg.shape) >= 3: #check if image is a non-grayscale image by checking channel number
         self.c_dim = imread(self.data[0]).shape[-1]
@@ -194,6 +195,7 @@ class DCGAN(object):
       else:      
         self.data = glob(os.path.join(
           config.data_dir, config.dataset, self.input_fname_pattern))
+        np.random.shuffle(self.data)
         batch_idxs = min(len(self.data), config.train_size) // config.batch_size
 
       for idx in xrange(0, batch_idxs):
