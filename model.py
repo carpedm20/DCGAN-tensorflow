@@ -75,7 +75,10 @@ class DCGAN(object):
       self.data_X, self.data_y = self.load_mnist()
       self.c_dim = self.data_X[0].shape[-1]
     else:
-      self.data = glob(os.path.join(self.data_dir, self.dataset_name, self.input_fname_pattern))
+      data_path = os.path.join(self.data_dir, self.dataset_name, self.input_fname_pattern)
+      self.data = glob(data_path)
+      if len(self.data) == 0:
+        raise Exception("[!] No data found in '" + data_path + "'")
       np.random.shuffle(self.data)
       imreadImg = imread(self.data[0])
       if len(imreadImg.shape) >= 3: #check if image is a non-grayscale image by checking channel number
