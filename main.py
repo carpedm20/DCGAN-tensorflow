@@ -35,6 +35,7 @@ flags.DEFINE_integer("sample_freq", 200, "sample every this many iterations")
 flags.DEFINE_integer("ckpt_freq", 200, "save checkpoint every this many iterations")
 flags.DEFINE_integer("z_dim", 100, "dimensions of z")
 flags.DEFINE_string("z_dist", "uniform_signed", "'normal01' or 'uniform_unsigned' or uniform_signed")
+flags.DEFINE_boolean("G_img_sum", False, "Save generator image summaries in log")
 #flags.DEFINE_integer("generate_test_images", 100, "Number of images to generate during test. [100]")
 FLAGS = flags.FLAGS
 

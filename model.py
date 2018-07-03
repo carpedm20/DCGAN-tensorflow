@@ -170,8 +170,10 @@ class DCGAN(object):
     except:
       tf.initialize_all_variables().run()
 
-    self.g_sum = merge_summary([self.z_sum, self.d__sum,
-      self.G_sum, self.d_loss_fake_sum, self.g_loss_sum])
+    if config.G_img_sum:
+      self.g_sum = merge_summary([self.z_sum, self.d__sum, self.G_sum, self.d_loss_fake_sum, self.g_loss_sum])
+    else:
+      self.g_sum = merge_summary([self.z_sum, self.d__sum, self.d_loss_fake_sum, self.g_loss_sum])
     self.d_sum = merge_summary(
         [self.z_sum, self.d_sum, self.d_loss_real_sum, self.d_loss_sum])
     self.writer = SummaryWriter(os.path.join(self.out_dir, "logs"), self.sess.graph)
