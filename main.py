@@ -25,6 +25,8 @@ flags.DEFINE_string("sample_dir", "samples", "Directory name to save the image s
 flags.DEFINE_boolean("train", False, "True for training, False for testing [False]")
 flags.DEFINE_boolean("crop", False, "True for training, False for testing [False]")
 flags.DEFINE_boolean("visualize", False, "True for visualizing, False for nothing [False]")
+flags.DEFINE_boolean("export", False, "True for exporting with new batch size")
+flags.DEFINE_boolean("freeze", False, "True for exporting with new batch size")
 flags.DEFINE_integer("z_dim", 100, "dimensions of z")
 flags.DEFINE_string("z_dist", "uniform_signed", "'normal01' or 'uniform_unsigned' or uniform_signed")
 #flags.DEFINE_integer("generate_test_images", 100, "Number of images to generate during test. [100]")
@@ -87,9 +89,10 @@ def main(_):
     if FLAGS.train:
       dcgan.train(FLAGS)
     else:
-      if not dcgan.load(FLAGS.checkpoint_dir)[0]:
-        raise Exception("[!] Train a model first, then run test mode")
-      
+      load_success, load_counter = dcgan.load(FLAGS.checkpoint_dir)
+      if not load_success:
+        raise Exception("Checkpoint not found in " + FLAGS.checkpoint_dir)
+
 
     # to_json("./web/js/layers.js", [dcgan.h0_w, dcgan.h0_b, dcgan.g_bn0],
     #                 [dcgan.h1_w, dcgan.h1_b, dcgan.g_bn1],
@@ -98,8 +101,17 @@ def main(_):
     #                 [dcgan.h4_w, dcgan.h4_b, None])
 
     # Below is codes for visualization
-    OPTION = 1
-    visualize(sess, dcgan, FLAGS, OPTION)
+      if FLAGS.export:
+        export_dir = os.path.join(FLAGS.checkpoint_dir, 'export_b'+str(FLAGS.batch_size))
+        dcgan.save(export_dir, load_counter, ckpt=True, frozen=False)
+
+      if FLAGS.freeze:
+        export_dir = os.path.join(FLAGS.checkpoint_dir, 'frozen_b'+str(FLAGS.batch_size))
+        dcgan.save(export_dir, load_counter, ckpt=False, frozen=True)
+
+      if FLAGS.visualize:
+        OPTION = 1
+        visualize(sess, dcgan, FLAGS, OPTION, FLAGS.sample_dir)
 
 if __name__ == '__main__':
   tf.app.run()

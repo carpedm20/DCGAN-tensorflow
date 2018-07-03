@@ -508,28 +508,39 @@ class DCGAN(object):
     return "{}_{}_{}_{}".format(
         self.dataset_name, self.batch_size,
         self.output_height, self.output_width)
-      
-  def save(self, checkpoint_dir, step):
-    model_name = "DCGAN.model"
-    checkpoint_dir = os.path.join(checkpoint_dir, self.model_dir)
 
+  def save(self, checkpoint_dir, step, filename='model', ckpt=True, frozen=False):
+    # model_name = "DCGAN.model"
+    # checkpoint_dir = os.path.join(checkpoint_dir, self.model_dir)
+
+    filename += '.b' + str(self.batch_size)
     if not os.path.exists(checkpoint_dir):
       os.makedirs(checkpoint_dir)
 
-    self.saver.save(self.sess,
-            os.path.join(checkpoint_dir, model_name),
-            global_step=step)
+    if ckpt:
+      self.saver.save(self.sess,
+              os.path.join(checkpoint_dir, filename),
+              global_step=step)
+
+    if frozen:
+      tf.train.write_graph(
+              tf.graph_util.convert_variables_to_constants(self.sess, self.sess.graph_def, ["generator_1/Tanh"]),
+              checkpoint_dir,
+              '{}-{:06d}_frz.pb'.format(filename, step),
+              as_text=False)
 
   def load(self, checkpoint_dir):
-    import re
-    print(" [*] Reading checkpoints...")
-    checkpoint_dir = os.path.join(checkpoint_dir, self.model_dir)
+    #import re
+    print(" [*] Reading checkpoints...", checkpoint_dir)
+    # checkpoint_dir = os.path.join(checkpoint_dir, self.model_dir)
+    # print("     ->", checkpoint_dir)
 
     ckpt = tf.train.get_checkpoint_state(checkpoint_dir)
     if ckpt and ckpt.model_checkpoint_path:
       ckpt_name = os.path.basename(ckpt.model_checkpoint_path)
       self.saver.restore(self.sess, os.path.join(checkpoint_dir, ckpt_name))
-      counter = int(next(re.finditer("(\d+)(?!.*\d)",ckpt_name)).group(0))
+      #counter = int(next(re.finditer("(\d+)(?!.*\d)",ckpt_name)).group(0))
+      counter = int(ckpt_name.split('-')[-1])
       print(" [*] Success to read {}".format(ckpt_name))
       return True, counter
     else:
