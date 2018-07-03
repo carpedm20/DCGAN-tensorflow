@@ -25,7 +25,9 @@ flags.DEFINE_string("sample_dir", "samples", "Directory name to save the image s
 flags.DEFINE_boolean("train", False, "True for training, False for testing [False]")
 flags.DEFINE_boolean("crop", False, "True for training, False for testing [False]")
 flags.DEFINE_boolean("visualize", False, "True for visualizing, False for nothing [False]")
-flags.DEFINE_integer("generate_test_images", 100, "Number of images to generate during test. [100]")
+flags.DEFINE_integer("z_dim", 100, "dimensions of z")
+flags.DEFINE_string("z_dist", "uniform_signed", "'normal01' or 'uniform_unsigned' or uniform_signed")
+#flags.DEFINE_integer("generate_test_images", 100, "Number of images to generate during test. [100]")
 FLAGS = flags.FLAGS
 
 def main(_):
@@ -56,7 +58,7 @@ def main(_):
           batch_size=FLAGS.batch_size,
           sample_num=FLAGS.batch_size,
           y_dim=10,
-          z_dim=FLAGS.generate_test_images,
+          z_dim=FLAGS.z_dim,
           dataset_name=FLAGS.dataset,
           input_fname_pattern=FLAGS.input_fname_pattern,
           crop=FLAGS.crop,
@@ -72,7 +74,7 @@ def main(_):
           output_height=FLAGS.output_height,
           batch_size=FLAGS.batch_size,
           sample_num=FLAGS.batch_size,
-          z_dim=FLAGS.generate_test_images,
+          z_dim=FLAGS.z_dim,
           dataset_name=FLAGS.dataset,
           input_fname_pattern=FLAGS.input_fname_pattern,
           crop=FLAGS.crop,

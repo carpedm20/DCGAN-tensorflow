@@ -13,6 +13,12 @@ from utils import *
 def conv_out_size_same(size, stride):
   return int(math.ceil(float(size) / float(stride)))
 
+def gen_random(mode, size):
+    if mode=='normal01': return np.random.normal(0,1,size=size)
+    if mode=='uniform_signed': return np.random.uniform(-1,1,size=size)
+    if mode=='uniform_unsigned': return np.random.uniform(0,1,size=size)
+
+
 class DCGAN(object):
   def __init__(self, sess, input_height=108, input_width=108, crop=True,
          batch_size=64, sample_num = 64, output_height=64, output_width=64,
@@ -166,7 +172,7 @@ class DCGAN(object):
         [self.z_sum, self.d_sum, self.d_loss_real_sum, self.d_loss_sum])
     self.writer = SummaryWriter("./logs", self.sess.graph)
 
-    sample_z = np.random.uniform(-1, 1, size=(self.sample_num , self.z_dim))
+    sample_z = gen_random(config.z_dist, size=(self.sample_num , self.z_dim))
     
     if config.dataset == 'mnist':
       sample_inputs = self.data_X[0:self.sample_num]
@@ -223,7 +229,7 @@ class DCGAN(object):
           else:
             batch_images = np.array(batch).astype(np.float32)
 
-        batch_z = np.random.uniform(-1, 1, [config.batch_size, self.z_dim]) \
+        batch_z = gen_random(config.z_dist, size=[config.batch_size, self.z_dim]) \
               .astype(np.float32)
 
         if config.dataset == 'mnist':
