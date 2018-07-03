@@ -27,6 +27,7 @@ flags.DEFINE_boolean("crop", False, "True for training, False for testing [False
 flags.DEFINE_boolean("visualize", False, "True for visualizing, False for nothing [False]")
 flags.DEFINE_boolean("export", False, "True for exporting with new batch size")
 flags.DEFINE_boolean("freeze", False, "True for exporting with new batch size")
+flags.DEFINE_integer("max_to_keep", 1, "maximum number of checkpoints to keep")
 flags.DEFINE_integer("z_dim", 100, "dimensions of z")
 flags.DEFINE_string("z_dist", "uniform_signed", "'normal01' or 'uniform_unsigned' or uniform_signed")
 #flags.DEFINE_integer("generate_test_images", 100, "Number of images to generate during test. [100]")
@@ -66,7 +67,8 @@ def main(_):
           crop=FLAGS.crop,
           checkpoint_dir=FLAGS.checkpoint_dir,
           sample_dir=FLAGS.sample_dir,
-          data_dir=FLAGS.data_dir)
+          data_dir=FLAGS.data_dir,
+          max_to_keep=FLAGS.max_to_keep)
     else:
       dcgan = DCGAN(
           sess,
@@ -82,7 +84,8 @@ def main(_):
           crop=FLAGS.crop,
           checkpoint_dir=FLAGS.checkpoint_dir,
           sample_dir=FLAGS.sample_dir,
-          data_dir=FLAGS.data_dir)
+          data_dir=FLAGS.data_dir,
+          max_to_keep=FLAGS.max_to_keep)
 
     show_all_variables()
 
