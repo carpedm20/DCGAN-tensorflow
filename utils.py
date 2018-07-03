@@ -8,6 +8,9 @@ import random
 import pprint
 import scipy.misc
 import numpy as np
+import os
+import time
+import datetime
 from time import gmtime, strftime
 from six.moves import xrange
 
@@ -18,6 +21,15 @@ pp = pprint.PrettyPrinter()
 
 get_stddev = lambda x, k_h, k_w: 1/math.sqrt(k_w*k_h*x.get_shape()[-1])
 
+
+def expand_path(path):
+  return os.path.expanduser(os.path.expandvars(path))
+
+def timestamp(s='%Y%m%d.%H%M%S', ts=None):
+  if not ts: ts = time.time()
+  st = datetime.datetime.fromtimestamp(ts).strftime(s)
+  return st
+  
 def show_all_variables():
   model_vars = tf.trainable_variables()
   slim.model_analyzer.analyze_vars(model_vars, print_info=True)
@@ -169,12 +181,12 @@ def make_gif(images, fname, duration=2, true_image=False):
   clip = mpy.VideoClip(make_frame, duration=duration)
   clip.write_gif(fname, fps = len(images) / duration)
 
-def visualize(sess, dcgan, config, option):
+def visualize(sess, dcgan, config, option, sample_dir='samples'):
   image_frame_dim = int(math.ceil(config.batch_size**.5))
   if option == 0:
     z_sample = np.random.uniform(-0.5, 0.5, size=(config.batch_size, dcgan.z_dim))
     samples = sess.run(dcgan.sampler, feed_dict={dcgan.z: z_sample})
-    save_images(samples, [image_frame_dim, image_frame_dim], './samples/test_%s.png' % strftime("%Y-%m-%d-%H-%M-%S", gmtime()))
+    save_images(samples, [image_frame_dim, image_frame_dim], os.path.join(sample_dir, 'test_%s.png' % strftime("%Y%m%d%H%M%S", gmtime() )))
   elif option == 1:
     values = np.arange(0, 1, 1./config.batch_size)
     for idx in xrange(dcgan.z_dim):
@@ -192,7 +204,7 @@ def visualize(sess, dcgan, config, option):
       else:
         samples = sess.run(dcgan.sampler, feed_dict={dcgan.z: z_sample})
 
-      save_images(samples, [image_frame_dim, image_frame_dim], './samples/test_arange_%s.png' % (idx))
+      save_images(samples, [image_frame_dim, image_frame_dim], os.path.join(sample_dir, 'test_arange_%s.png' % (idx)))
   elif option == 2:
     values = np.arange(0, 1, 1./config.batch_size)
     for idx in [random.randint(0, dcgan.z_dim - 1) for _ in xrange(dcgan.z_dim)]:
@@ -215,7 +227,7 @@ def visualize(sess, dcgan, config, option):
       try:
         make_gif(samples, './samples/test_gif_%s.gif' % (idx))
       except:
-        save_images(samples, [image_frame_dim, image_frame_dim], './samples/test_%s.png' % strftime("%Y-%m-%d-%H-%M-%S", gmtime()))
+        save_images(samples, [image_frame_dim, image_frame_dim], os.path.join(sample_dir, 'test_%s.png' % strftime("%Y%m%d%H%M%S", gmtime() )))
   elif option == 3:
     values = np.arange(0, 1, 1./config.batch_size)
     for idx in xrange(dcgan.z_dim):
@@ -225,7 +237,7 @@ def visualize(sess, dcgan, config, option):
         z[idx] = values[kdx]
 
       samples = sess.run(dcgan.sampler, feed_dict={dcgan.z: z_sample})
-      make_gif(samples, './samples/test_gif_%s.gif' % (idx))
+      make_gif(samples, os.path.join(sample_dir, 'test_gif_%s.gif' % (idx)))
   elif option == 4:
     image_set = []
     values = np.arange(0, 1, 1./config.batch_size)
@@ -236,7 +248,7 @@ def visualize(sess, dcgan, config, option):
       for kdx, z in enumerate(z_sample): z[idx] = values[kdx]
 
       image_set.append(sess.run(dcgan.sampler, feed_dict={dcgan.z: z_sample}))
-      make_gif(image_set[-1], './samples/test_gif_%s.gif' % (idx))
+      make_gif(image_set[-1], os.path.join(sample_dir, 'test_gif_%s.gif' % (idx)))
 
     new_image_set = [merge(np.array([images[idx] for images in image_set]), [10, 10]) \
         for idx in range(64) + range(63, -1, -1)]

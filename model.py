@@ -26,7 +26,7 @@ class DCGAN(object):
          y_dim=None, z_dim=100, gf_dim=64, df_dim=64,
          gfc_dim=1024, dfc_dim=1024, c_dim=3, dataset_name='default',
          max_to_keep=1,
-         input_fname_pattern='*.jpg', checkpoint_dir=None, sample_dir=None, data_dir='./data'):
+         input_fname_pattern='*.jpg', checkpoint_dir='ckpts', sample_dir='samples', out_dir='./out', data_dir='./data'):
     """
 
     Args:
@@ -78,6 +78,7 @@ class DCGAN(object):
     self.input_fname_pattern = input_fname_pattern
     self.checkpoint_dir = checkpoint_dir
     self.data_dir = data_dir
+    self.out_dir = out_dir
     self.max_to_keep = max_to_keep
 
     if self.dataset_name == 'mnist':
@@ -173,7 +174,7 @@ class DCGAN(object):
       self.G_sum, self.d_loss_fake_sum, self.g_loss_sum])
     self.d_sum = merge_summary(
         [self.z_sum, self.d_sum, self.d_loss_real_sum, self.d_loss_sum])
-    self.writer = SummaryWriter("./logs", self.sess.graph)
+    self.writer = SummaryWriter(os.path.join(self.out_dir, "logs"), self.sess.graph)
 
     sample_z = gen_random(config.z_dist, size=(self.sample_num , self.z_dim))
     

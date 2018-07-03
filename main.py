@@ -1,9 +1,10 @@
 import os
 import scipy.misc
 import numpy as np
+import json
 
 from model import DCGAN
-from utils import pp, visualize, to_json, show_all_variables
+from utils import pp, visualize, to_json, show_all_variables, expand_path, timestamp
 
 import tensorflow as tf
 
@@ -19,9 +20,11 @@ flags.DEFINE_integer("output_height", 64, "The size of the output images to prod
 flags.DEFINE_integer("output_width", None, "The size of the output images to produce. If None, same value as output_height [None]")
 flags.DEFINE_string("dataset", "celebA", "The name of dataset [celebA, mnist, lsun]")
 flags.DEFINE_string("input_fname_pattern", "*.jpg", "Glob pattern of filename of input images [*]")
-flags.DEFINE_string("checkpoint_dir", "checkpoint", "Directory name to save the checkpoints [checkpoint]")
-flags.DEFINE_string("data_dir", "./data", "Root directory of dataset [data]")
-flags.DEFINE_string("sample_dir", "samples", "Directory name to save the image samples [samples]")
+flags.DEFINE_string("data_dir", "$HOME/data", "path to datasets [$HOME/data]")
+flags.DEFINE_string("out_dir", "$HOME/out", "Root directory for outputs [$HOME/out]")
+flags.DEFINE_string("out_name", "", "Folder (under out_root_dir) for all outputs. Generated automatically if left blank []")
+flags.DEFINE_string("checkpoint_dir", "checkpoint", "Folder (under out_root_dir/out_name) to save checkpoints [checkpoint]")
+flags.DEFINE_string("sample_dir", "samples", "Folder (under out_root_dir/out_name) to save samples [samples]")
 flags.DEFINE_boolean("train", False, "True for training, False for testing [False]")
 flags.DEFINE_boolean("crop", False, "True for training, False for testing [False]")
 flags.DEFINE_boolean("visualize", False, "True for visualizing, False for nothing [False]")
@@ -37,16 +40,35 @@ FLAGS = flags.FLAGS
 
 def main(_):
   pp.pprint(flags.FLAGS.__flags)
+  
+  # expand user name and environment variables
+  FLAGS.data_dir = expand_path(FLAGS.data_dir)
+  FLAGS.out_dir = expand_path(FLAGS.out_dir)
+  FLAGS.out_name = expand_path(FLAGS.out_name)
+  FLAGS.checkpoint_dir = expand_path(FLAGS.checkpoint_dir)
+  FLAGS.sample_dir = expand_path(FLAGS.sample_dir)
 
-  if FLAGS.input_width is None:
-    FLAGS.input_width = FLAGS.input_height
-  if FLAGS.output_width is None:
-    FLAGS.output_width = FLAGS.output_height
+  if FLAGS.output_height is None: FLAGS.output_height = FLAGS.input_height
+  if FLAGS.input_width is None: FLAGS.input_width = FLAGS.input_height
+  if FLAGS.output_width is None: FLAGS.output_width = FLAGS.output_height
 
-  if not os.path.exists(FLAGS.checkpoint_dir):
-    os.makedirs(FLAGS.checkpoint_dir)
-  if not os.path.exists(FLAGS.sample_dir):
-    os.makedirs(FLAGS.sample_dir)
+  # output folders
+  if FLAGS.out_name == "":
+      FLAGS.out_name = '{} - {} - {}'.format(timestamp(), FLAGS.data_dir.split('/')[-1], FLAGS.dataset) # penultimate folder of path
+      if FLAGS.train:
+        FLAGS.out_name += ' - x{}.z{}.{}.y{}.b{}'.format(FLAGS.input_width, FLAGS.z_dim, FLAGS.z_dist, FLAGS.output_width, FLAGS.batch_size)
+
+  FLAGS.out_dir = os.path.join(FLAGS.out_dir, FLAGS.out_name)
+  FLAGS.checkpoint_dir = os.path.join(FLAGS.out_dir, FLAGS.checkpoint_dir)
+  FLAGS.sample_dir = os.path.join(FLAGS.out_dir, FLAGS.sample_dir)
+
+  if not os.path.exists(FLAGS.checkpoint_dir): os.makedirs(FLAGS.checkpoint_dir)
+  if not os.path.exists(FLAGS.sample_dir): os.makedirs(FLAGS.sample_dir)
+
+  with open(os.path.join(FLAGS.out_dir, 'FLAGS.json'), 'w') as f:
+    flags_dict = {k:FLAGS[k].value for k in FLAGS}
+    json.dump(flags_dict, f, indent=4, sort_keys=True, ensure_ascii=False)
+  
 
   #gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.333)
   run_config = tf.ConfigProto()
@@ -70,6 +92,7 @@ def main(_):
           checkpoint_dir=FLAGS.checkpoint_dir,
           sample_dir=FLAGS.sample_dir,
           data_dir=FLAGS.data_dir,
+          out_dir=FLAGS.out_dir,
           max_to_keep=FLAGS.max_to_keep)
     else:
       dcgan = DCGAN(
@@ -87,6 +110,7 @@ def main(_):
           checkpoint_dir=FLAGS.checkpoint_dir,
           sample_dir=FLAGS.sample_dir,
           data_dir=FLAGS.data_dir,
+          out_dir=FLAGS.out_dir,
           max_to_keep=FLAGS.max_to_keep)
 
     show_all_variables()
