@@ -51,15 +51,16 @@ def merge(images, size):
 			j = idx // size[1]
 			img[j * h:j * h + h, i * w:i * w + w, :] = image
 		return img
-		elif images.shape[3]==1:
-			img = np.zeros((h * size[0], w * size[1]))
-			for idx, image in enumerate(images):
-				i = idx % size[1]
-				j = idx // size[1]
-				img[j * h:j * h + h, i * w:i * w + w] = image[:,:,0]
-			return img
-		else:
-			raise ValueError('in merge(images,size) images parameter '
+
+	elif(images.shape[3] == 1):
+		img = np.zeros((h * size[0], w * size[1]))
+		for idx, image in enumerate(images):
+			i = idx % size[1]
+			j = idx // size[1]
+			img[j * h:j * h + h, i * w:i * w + w] = image[:,:,0]
+		return img
+	else:
+		raise ValueError('in merge(images,size) images parameter '
 						 'must have dimensions: HxW or HxWx3 or HxWx4')
 
 def imsave(images, size, path):
