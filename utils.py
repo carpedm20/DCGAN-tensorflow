@@ -40,7 +40,7 @@ def imread(path, grayscale = False):
     # Reference: https://github.com/carpedm20/DCGAN-tensorflow/issues/162#issuecomment-315519747
     img_bgr = cv2.imread(path)
     # Reference: https://stackoverflow.com/a/15074748/
-    img_rgb = img[..., ::-1]
+    img_rgb = img_bgr[..., ::-1]
     return img_rgb.astype(np.float)
 
 def merge_images(images, size):
