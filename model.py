@@ -1,4 +1,5 @@
 from __future__ import division
+from __future__ import print_function
 import os
 import time
 import math
@@ -13,12 +14,19 @@ from utils import *
 def conv_out_size_same(size, stride):
   return int(math.ceil(float(size) / float(stride)))
 
+def gen_random(mode, size):
+    if mode=='normal01': return np.random.normal(0,1,size=size)
+    if mode=='uniform_signed': return np.random.uniform(-1,1,size=size)
+    if mode=='uniform_unsigned': return np.random.uniform(0,1,size=size)
+
+
 class DCGAN(object):
   def __init__(self, sess, input_height=108, input_width=108, crop=True,
          batch_size=64, sample_num = 64, output_height=64, output_width=64,
          y_dim=None, z_dim=100, gf_dim=64, df_dim=64,
          gfc_dim=1024, dfc_dim=1024, c_dim=3, dataset_name='default',
-         input_fname_pattern='*.jpg', checkpoint_dir=None, sample_dir=None, data_dir='./data'):
+         max_to_keep=1,
+         input_fname_pattern='*.jpg', checkpoint_dir='ckpts', sample_dir='samples', out_dir='./out', data_dir='./data'):
     """
 
     Args:
@@ -70,6 +78,8 @@ class DCGAN(object):
     self.input_fname_pattern = input_fname_pattern
     self.checkpoint_dir = checkpoint_dir
     self.data_dir = data_dir
+    self.out_dir = out_dir
+    self.max_to_keep = max_to_keep
 
     if self.dataset_name == 'mnist':
       self.data_X, self.data_y = self.load_mnist()
@@ -148,7 +158,7 @@ class DCGAN(object):
     self.d_vars = [var for var in t_vars if 'd_' in var.name]
     self.g_vars = [var for var in t_vars if 'g_' in var.name]
 
-    self.saver = tf.train.Saver()
+    self.saver = tf.train.Saver(max_to_keep=self.max_to_keep)
 
   def train(self, config):
     d_optim = tf.train.AdamOptimizer(config.learning_rate, beta1=config.beta1) \
@@ -160,13 +170,15 @@ class DCGAN(object):
     except:
       tf.initialize_all_variables().run()
 
-    self.g_sum = merge_summary([self.z_sum, self.d__sum,
-      self.G_sum, self.d_loss_fake_sum, self.g_loss_sum])
+    if config.G_img_sum:
+      self.g_sum = merge_summary([self.z_sum, self.d__sum, self.G_sum, self.d_loss_fake_sum, self.g_loss_sum])
+    else:
+      self.g_sum = merge_summary([self.z_sum, self.d__sum, self.d_loss_fake_sum, self.g_loss_sum])
     self.d_sum = merge_summary(
         [self.z_sum, self.d_sum, self.d_loss_real_sum, self.d_loss_sum])
-    self.writer = SummaryWriter("./logs", self.sess.graph)
+    self.writer = SummaryWriter(os.path.join(self.out_dir, "logs"), self.sess.graph)
 
-    sample_z = np.random.uniform(-1, 1, size=(self.sample_num , self.z_dim))
+    sample_z = gen_random(config.z_dist, size=(self.sample_num , self.z_dim))
     
     if config.dataset == 'mnist':
       sample_inputs = self.data_X[0:self.sample_num]
@@ -223,7 +235,7 @@ class DCGAN(object):
           else:
             batch_images = np.array(batch).astype(np.float32)
 
-        batch_z = np.random.uniform(-1, 1, [config.batch_size, self.z_dim]) \
+        batch_z = gen_random(config.z_dist, size=[config.batch_size, self.z_dim]) \
               .astype(np.float32)
 
         if config.dataset == 'mnist':
@@ -281,12 +293,11 @@ class DCGAN(object):
           errD_real = self.d_loss_real.eval({ self.inputs: batch_images })
           errG = self.g_loss.eval({self.z: batch_z})
 
-        counter += 1
-        print("Epoch: [%2d/%2d] [%4d/%4d] time: %4.4f, d_loss: %.8f, g_loss: %.8f" \
-          % (epoch, config.epoch, idx, batch_idxs,
+        print("[%8d Epoch:[%2d/%2d] [%4d/%4d] time: %4.4f, d_loss: %.8f, g_loss: %.8f" \
+          % (counter, epoch, config.epoch, idx, batch_idxs,
             time.time() - start_time, errD_fake+errD_real, errG))
 
-        if np.mod(counter, 100) == 1:
+        if np.mod(counter, config.sample_freq) == 0:
           if config.dataset == 'mnist':
             samples, d_loss, g_loss = self.sess.run(
               [self.sampler, self.d_loss, self.g_loss],
@@ -297,7 +308,7 @@ class DCGAN(object):
               }
             )
             save_images(samples, image_manifold_size(samples.shape[0]),
-                  './{}/train_{:02d}_{:04d}.png'.format(config.sample_dir, epoch, idx))
+                  './{}/train_{:08d}.png'.format(config.sample_dir, counter))
             print("[Sample] d_loss: %.8f, g_loss: %.8f" % (d_loss, g_loss)) 
           else:
             try:
@@ -309,14 +320,16 @@ class DCGAN(object):
                 },
               )
               save_images(samples, image_manifold_size(samples.shape[0]),
-                    './{}/train_{:02d}_{:04d}.png'.format(config.sample_dir, epoch, idx))
+                    './{}/train_{:08d}.png'.format(config.sample_dir, counter))
               print("[Sample] d_loss: %.8f, g_loss: %.8f" % (d_loss, g_loss)) 
             except:
               print("one pic error!...")
 
-        if np.mod(counter, 500) == 2:
+        if np.mod(counter, config.ckpt_freq) == 0:
           self.save(config.checkpoint_dir, counter)
-
+        
+        counter += 1
+        
   def discriminator(self, image, y=None, reuse=False):
     with tf.variable_scope("discriminator") as scope:
       if reuse:
@@ -501,28 +514,39 @@ class DCGAN(object):
     return "{}_{}_{}_{}".format(
         self.dataset_name, self.batch_size,
         self.output_height, self.output_width)
-      
-  def save(self, checkpoint_dir, step):
-    model_name = "DCGAN.model"
-    checkpoint_dir = os.path.join(checkpoint_dir, self.model_dir)
 
+  def save(self, checkpoint_dir, step, filename='model', ckpt=True, frozen=False):
+    # model_name = "DCGAN.model"
+    # checkpoint_dir = os.path.join(checkpoint_dir, self.model_dir)
+
+    filename += '.b' + str(self.batch_size)
     if not os.path.exists(checkpoint_dir):
       os.makedirs(checkpoint_dir)
 
-    self.saver.save(self.sess,
-            os.path.join(checkpoint_dir, model_name),
-            global_step=step)
+    if ckpt:
+      self.saver.save(self.sess,
+              os.path.join(checkpoint_dir, filename),
+              global_step=step)
+
+    if frozen:
+      tf.train.write_graph(
+              tf.graph_util.convert_variables_to_constants(self.sess, self.sess.graph_def, ["generator_1/Tanh"]),
+              checkpoint_dir,
+              '{}-{:06d}_frz.pb'.format(filename, step),
+              as_text=False)
 
   def load(self, checkpoint_dir):
-    import re
-    print(" [*] Reading checkpoints...")
-    checkpoint_dir = os.path.join(checkpoint_dir, self.model_dir)
+    #import re
+    print(" [*] Reading checkpoints...", checkpoint_dir)
+    # checkpoint_dir = os.path.join(checkpoint_dir, self.model_dir)
+    # print("     ->", checkpoint_dir)
 
     ckpt = tf.train.get_checkpoint_state(checkpoint_dir)
     if ckpt and ckpt.model_checkpoint_path:
       ckpt_name = os.path.basename(ckpt.model_checkpoint_path)
       self.saver.restore(self.sess, os.path.join(checkpoint_dir, ckpt_name))
-      counter = int(next(re.finditer("(\d+)(?!.*\d)",ckpt_name)).group(0))
+      #counter = int(next(re.finditer("(\d+)(?!.*\d)",ckpt_name)).group(0))
+      counter = int(ckpt_name.split('-')[-1])
       print(" [*] Success to read {}".format(ckpt_name))
       return True, counter
     else:
