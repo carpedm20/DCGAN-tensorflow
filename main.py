@@ -43,11 +43,11 @@ def main(_):
   pp.pprint(flags.FLAGS.__flags)
   
   # expand user name and environment variables
-  FLAGS.data_dir = expand_path(FLAGS.data_dir)
-  FLAGS.out_dir = expand_path(FLAGS.out_dir)
-  FLAGS.out_name = expand_path(FLAGS.out_name)
-  FLAGS.checkpoint_dir = expand_path(FLAGS.checkpoint_dir)
-  FLAGS.sample_dir = expand_path(FLAGS.sample_dir)
+  FLAGS.data_dir = os.path.normpath(expand_path(FLAGS.data_dir))
+  FLAGS.out_dir = os.path.normpath(expand_path(FLAGS.out_dir))
+  FLAGS.out_name = os.path.normpath(expand_path(FLAGS.out_name))
+  FLAGS.checkpoint_dir = os.path.normpath(expand_path(FLAGS.checkpoint_dir))
+  FLAGS.sample_dir = os.path.normpath(expand_path(FLAGS.sample_dir))
 
   if FLAGS.output_height is None: FLAGS.output_height = FLAGS.input_height
   if FLAGS.input_width is None: FLAGS.input_width = FLAGS.input_height
@@ -55,7 +55,8 @@ def main(_):
 
   # output folders
   if FLAGS.out_name == "":
-      FLAGS.out_name = '{} - {} - {}'.format(timestamp(), FLAGS.data_dir.split('/')[-1], FLAGS.dataset) # penultimate folder of path
+
+      FLAGS.out_name = '{} - {} - {}'.format(timestamp(), FLAGS.data_dir.split(os.sep)[-1], FLAGS.dataset) # penultimate folder of path
       if FLAGS.train:
         FLAGS.out_name += ' - x{}.z{}.{}.y{}.b{}'.format(FLAGS.input_width, FLAGS.z_dim, FLAGS.z_dist, FLAGS.output_width, FLAGS.batch_size)
 
