@@ -101,7 +101,7 @@ def transform(image, input_height, input_width,
       image, input_height, input_width, 
       resize_height, resize_width)
   else:
-    im = Image.fromarray(x[j:j+crop_h, i:i+crop_w])
+    im = Image.fromarray(image[j:j+crop_h, i:i+crop_w])
   return np.array(im.resize([resize_h, resize_w]), PIL.Image.BILINEAR)/127.5 - 1.
 
 def inverse_transform(images):
