@@ -103,8 +103,8 @@ def center_crop(x, crop_h, crop_w,
     h, w = x.shape[:2]
     j = int(round((h - crop_h) / 2.))
     i = int(round((w - crop_w) / 2.))
-    im = Image.fromarray(x[j:j + crop_h, i:i + crop_w])
-    return np.array(im.resize([resize_h, resize_w], PIL.Image.BILINEAR))
+    return scipy.misc.imresize(
+        x[j:j + crop_h, i:i + crop_w], [resize_h, resize_w])
 
 
 def transform(image, input_height, input_width,
@@ -114,8 +114,9 @@ def transform(image, input_height, input_width,
             image, input_height, input_width,
             resize_height, resize_width)
     else:
-        im = Image.fromarray(image[j:j + crop_h, i:i + crop_w])
-    return np.array(im.resize([resize_h, resize_w], PIL.Image.BILINEAR)) / 127.5 - 1.
+        cropped_image = scipy.misc.imresize(
+            image, [resize_height, resize_width])
+        return np.array(cropped_image) / 127.5 - 1.
 
 
 def inverse_transform(images):
@@ -232,10 +233,10 @@ def visualize(sess, dcgan, config, option, sample_dir='samples'):
                 y_one_hot[np.arange(config.batch_size), y] = 1
 
                 samples = sess.run(dcgan.sampler, feed_dict={
-                    dcgan.z: z_sample, dcgan.y: y_one_hot})
+                                   dcgan.z: z_sample, dcgan.y: y_one_hot})
             else:
                 samples = sess.run(dcgan.sampler, feed_dict={
-                    dcgan.z: z_sample})
+                                   dcgan.z: z_sample})
 
             save_images(samples, [image_frame_dim, image_frame_dim], os.path.join(
                 sample_dir, 'test_arange_%s.png' % (idx)))
@@ -255,10 +256,10 @@ def visualize(sess, dcgan, config, option, sample_dir='samples'):
                 y_one_hot[np.arange(config.batch_size), y] = 1
 
                 samples = sess.run(dcgan.sampler, feed_dict={
-                    dcgan.z: z_sample, dcgan.y: y_one_hot})
+                                   dcgan.z: z_sample, dcgan.y: y_one_hot})
             else:
                 samples = sess.run(dcgan.sampler, feed_dict={
-                    dcgan.z: z_sample})
+                                   dcgan.z: z_sample})
 
             try:
                 make_gif(samples, './samples/test_gif_%s.gif' % (idx))
