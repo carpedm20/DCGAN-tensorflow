@@ -6,6 +6,8 @@ import math
 import json
 import random
 import pprint
+import PIL
+import imageio
 import scipy.misc
 import cv2
 import numpy as np
