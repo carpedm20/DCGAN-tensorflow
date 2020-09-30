@@ -6,6 +6,8 @@ import math
 import json
 import random
 import pprint
+import PIL
+import imageio
 import scipy.misc
 import cv2
 import numpy as np
@@ -82,7 +84,7 @@ def merge(images, size):
 
 def imsave(images, size, path):
   image = np.squeeze(merge(images, size))
-  return scipy.misc.imsave(path, image)
+  return  imageio.imwrite(path,image)
 
 def center_crop(x, crop_h, crop_w,
                 resize_h=64, resize_w=64):
@@ -91,18 +93,20 @@ def center_crop(x, crop_h, crop_w,
   h, w = x.shape[:2]
   j = int(round((h - crop_h)/2.))
   i = int(round((w - crop_w)/2.))
-  im = Image.fromarray(x[j:j+crop_h, i:i+crop_w])
-  return np.array(im.resize([resize_h, resize_w]), PIL.Image.BILINEAR)
+  im = Image.fromarray(np.uint8(x[j:j + crop_h, i:i + crop_w]))
+  return np.array(im.resize([resize_h, resize_w], PIL.Image.BILINEAR))
 
-def transform(image, input_height, input_width, 
+def transform(image, input_height, input_width,
               resize_height=64, resize_width=64, crop=True):
   if crop:
     cropped_image = center_crop(
-      image, input_height, input_width, 
+      image, input_height, input_width,
       resize_height, resize_width)
-  else:
-    im = Image.fromarray(image[j:j+crop_h, i:i+crop_w])
-  return np.array(im.resize([resize_h, resize_w]), PIL.Image.BILINEAR)/127.5 - 1.
+    h, w = image.shape[:2]
+    j = int(round((h - input_height) / 2.))
+    i = int(round((w - input_width) / 2.))
+    im = Image.fromarray(np.uint8(image[j:j + input_height, i:i + input_width]))
+  return np.array(im.resize([resize_height, resize_width]), np.uint8(Image.BILINEAR)) / 127.5 - 1.
 
 def inverse_transform(images):
   return (images+1.)/2.
