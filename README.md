@@ -21,6 +21,7 @@ Tensorflow implementation of [Deep Convolutional Generative Adversarial Networks
 - [Tensorflow 0.12.1](https://github.com/tensorflow/tensorflow/tree/r0.12)
 - [SciPy](http://www.scipy.org/install.html)
 - [pillow](https://github.com/python-pillow/Pillow)
+- [tqdm](https://pypi.org/project/tqdm/)
 - (Optional) [moviepy](https://github.com/Zulko/moviepy) (for visualization)
 - (Optional) [Align&Cropped Images.zip](http://mmlab.ie.cuhk.edu.hk/projects/CelebA.html) : Large-scale CelebFaces Dataset
 
